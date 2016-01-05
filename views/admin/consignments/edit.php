@@ -1,0 +1,505 @@
+<?php
+$use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
+$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+$weight = LinksynceparcelHelper::getOrderWeight($order);
+if($weight == 0)
+{
+	$default_article_weight = get_option('linksynceparcel_default_article_weight');
+	if($default_article_weight)
+	{
+		$weight = $default_article_weight;
+	}
+}
+$weightPerArticle = LinksynceparcelHelper::getAllowedWeightPerArticle();
+$exactArticles = (int)($weight / $weightPerArticle);
+$totalArticles = $exactArticles;
+$reminderWeight = fmod ($weight, $weightPerArticle);
+if($reminderWeight > 0)
+{
+	$totalArticles++;
+}
+?>
+<form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=edit-consignment&action=save&order_id='.$order->id.'&consignment_number='.$consignment->consignment_number); ?>">
+
+<div class="entry-edit wp-core-ui">
+    <h3>Edit Consignment #<?php echo $consignment->consignment_number?></h3>
+    <?php $articles = LinksynceparcelHelper::getArticles($order->id, $consignment->consignment_number);?>
+    <?php $i=0;?>
+    <input id="number_of_articles2" type="hidden" name="number_of_articles" value="<?php echo count($articles)?>" />
+    <input id="articles_type" type="hidden" name="articles_type" value="Custom" />
+    
+    <?php if( ($use_order_weight == 1) && ($weight > $weightPerArticle) ):?>
+        <h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
+    <?php endif;?>
+    
+    <?php foreach($articles as $article):?>
+    <div id="custom_articles">
+        <h4 style="margin:10px 0">Article <?php echo $i+1?></h4>
+        <span class="field-row1">
+            <label class="normal" for="article_description">
+             Description:<span class="required">*</span>
+            </label>
+            <input id="article_description<?php echo $i+1?>" type="text" name="article<?php echo $i+1?>[description]" class="required-entry" value="<?php echo $article->article_description?>"/>
+        </span><br /><br />
+        <span class="field-row1"> 
+            <label class="normal" for="article_weight">
+             Weight (Kgs):<span class="required">*</span>
+            </label>
+            <input size="10" type="text" style="text-align:center" id="article_weight<?php echo $i+1?>" name="article<?php echo $i+1?>[weight]" class="required-entry positive-number article_weight maximum-value" label="Weight" value="<?php echo $article->actual_weight?>"/>
+        </span>
+        <?php if($use_dimension == 1): ?>
+        <span class="field-row1">
+            <label class="normal" for="article_height">
+            Height (cm):
+            </label>
+            <input size="10" type="text" style="text-align:center" id="article_height<?php echo $i+1?>" class="positive-number" label="Height" name="article<?php echo $i+1?>[height]"  value="<?php echo $article->height?>"/>
+        </span>
+        <span class="field-row1">
+            <label class="normal" for="article_width">
+             Width (cm):
+            </label>
+            <input size="10" type="text" style="text-align:center" id="article_width<?php echo $i+1?>" class="positive-number" label="Width" name="article<?php echo $i+1?>[width]" value="<?php echo $article->width?>"/>
+        </span>
+        <span class="field-row1">
+            <label class="normal" for="article_length">
+            Length (cm):
+            </label>
+            <input size="10" type="text" style="text-align:center" id="article_length<?php echo $i+1?>" class="positive-number" label="Length" name="article<?php echo $i+1?>[length]" value="<?php echo $article->length?>"/>
+        </span>
+        <?php else: ?>
+            <input type="hidden" name="article<?php echo $i+1?>[height]" value="0"/>
+            <input type="hidden" name="article<?php echo $i+1?>[width]" value="0"/>
+            <input type="hidden" name="article<?php echo $i+1?>[length]" value="0"/>
+            <input type="hidden" name="article<?php echo $i+1?>[article_number]" value="<?php echo $article->article_number?>"/>
+        <?php endif; ?>
+    </div>
+		<?php $i++; ?>
+	<?php endforeach;?>
+    <div class="box consignment-fields">
+      <h4 style="margin-bottom:6px">Consignment Fields</h4>
+        <table width="100%" border="0" cellspacing="6" cellpadding="6" class="tablecustom">
+		  <tr>
+			<td width="30%">Delivery instructions</td>
+			<td>
+				<textarea name="delivery_instruction" maxlength="256" cols="40" rows="4"><?php echo !empty($consignment->delivery_instruction)?$consignment->delivery_instruction:$order->customer_message; ?></textarea>
+			</td>
+		  </tr>
+		  <?php if($shipCountry == 'AU') : ?>
+          <tr>
+            <td height="35">Partial Delivery allowed?</td>
+            <td>
+            <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
+            <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
+                <option value="0">No</option>
+            </select>
+            <?php else: ?>
+            <select id="partial_delivery_allowed" name="partial_delivery_allowed"  style="width:140px">
+                <option value="1" <?php echo ($consignment->partial_delivery_allowed==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->partial_delivery_allowed!=1?'selected':'')?>>No</option>
+            </select>
+             <?php endif; ?>
+            </td>
+          </tr>
+          
+          <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+          <tr>
+            <td height="35">Cash to collect</td>
+            <td><input id="cash_to_collect" name="cash_to_collect" type="text" value="<?php echo $consignment->cash_to_collect?>" /></td>
+          </tr>
+          <?php endif; ?>
+          <?php endif; ?>
+          
+          <tr>
+            <td width="40%" height="35">Delivery signature required?</td>
+            <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">>
+                <option value="1" <?php echo ($consignment->delivery_signature_allowed==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->delivery_signature_allowed!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+		  <?php if($shipCountry != 'AU') : ?>
+		  <?php
+			$opt_drop = 'hide-tr';
+			$opt_drop_val = 0;
+			if($consignment->delivery_signature_allowed == 1) {
+				$opt_drop = 'show-tr';
+				$opt_drop_val = $int_fields->safe_drop;
+				if(empty($opt_drop_val)) {
+					$opt_drop_val = get_option('linksynceparcel_safe_drop');
+				}
+			}
+		  ?>
+		  <tr class="safe-drop-row <?php echo $opt_drop; ?>">
+			<td>Safe Drop</td>
+			<td>
+				<select id="safe_drop" name="safe_drop" style="width:140px">
+					<option value="1" <?php echo ($opt_drop_val==1?'selected':'')?>>Yes</option>
+					<option value="0" <?php echo ($opt_drop_val!=1?'selected':'')?>>No</option>
+				</select>
+			</td>
+		  </tr>
+		  <tr>
+			<td>Export Declaration Number</td>
+			<td>
+				<input type="text" id="export_declaration_number" name="export_declaration_number" value="<?php echo $int_fields->export_declaration_number; ?>" />
+			</td>
+		  </tr>
+		  <tr>
+			<td>Order value as Declared Value</td>
+			<td>
+				<?php 
+					$declared_checked = '';
+					$declared_value = $int_fields->declared_value;
+					if(empty($declared_value)) {
+						$declared_value = get_option('linksynceparcel_declared_value');
+					}
+					if ($declared_value == 1){ 
+						$declared_checked = 'checked="checked"';
+					}
+				?>
+				<input type="checkbox" id="declared_value" name="declared_value" value="1" <?php echo $declared_checked; ?>>
+			</td>
+		  </tr>
+		<?php 
+			$declared_text = '';
+			$declared_text_option = 'hide-tr';
+			if ($declared_checked == ''){ 
+				$declared_text = $int_fields->declared_value_text;
+				if(empty($declared_text)) {
+					$declared_text = get_option('linksynceparcel_declared_value_text');
+				}
+				$declared_text_option = 'show-tr';
+			}
+		?>
+		  <tr class="declared_value_text_field <?php echo $declared_text_option; ?>">
+			<td></td>
+			<td>
+				<input type="number" id="declared_value_text" name="declared_value_text" value="<?php echo $declared_text; ?>">
+			</td>
+		  </tr>
+		  <tr>
+			<td>Has Commercial Value</td>
+			<td>
+			<?php
+				$commercial_checked = '';
+				$has_commercial_value = $int_fields->has_commercial_value;
+				if(empty($has_commercial_value)) {
+					$has_commercial_value = get_option('linksynceparcel_has_commercial_value');
+				}
+				if ($has_commercial_value == 1){ 
+					$commercial_checked = 'checked="checked"';
+				}
+			?>
+				<input type="checkbox" id="has_commercial_value" name="has_commercial_value" value="1" <?php echo $commercial_checked; ?>>
+			</td>
+		  </tr>
+		  <tr>
+			<td>Product Classification</td>
+			<td>
+				<?php
+					$product_classification_disable = '';
+					$product_classification_value = $int_fields->product_classification;
+					if(empty($product_classification_value)) {
+						$product_classification_value = get_option('linksynceparcel_product_classification');
+					}
+					if($commercial_checked != '') {
+						$product_classification_disable = 'disabled="true"';
+						$product_classification_value = '991';
+					}
+				?>
+				<select id="product_classification" name="product_classification" <?php echo $product_classification_disable; ?>>
+					<option value="991" <?php if ($product_classification_value == '991'){ echo 'selected="selected"'; }?>>Other</option>
+					<option value="32" <?php if ($product_classification_value == '32'){ echo 'selected="selected"'; }?>>Commercial</option>
+					<option value="31" <?php if ($product_classification_value == '31'){ echo 'selected="selected"'; }?>>Gift</option>
+					<option value="91" <?php if ($product_classification_value == '91'){ echo 'selected="selected"'; }?>>Document</option>
+				</select>
+			</td>
+		  </tr>
+		  <?php 
+			$product_classification_text = '';
+			$product_classification_option = 'hide-tr';
+			if ($product_classification_value == '991'){ 
+				$product_classification_text = $int_fields->product_classification_text;
+				if(empty($product_classification_text)){
+					$product_classification_text = get_option('linksynceparcel_product_classification_text');
+				}
+				$product_classification_option = 'show-tr';
+			}
+		?>
+		<tr id="product_classification_text" class="<?php echo $product_classification_option; ?>">
+			<td>Classification Explanation</td>
+			<td>
+				<input type="text" class="product_classification_text" name="product_classification_text" value="<?php echo $product_classification_text; ?>">
+			</td>
+		</tr>
+		<tr>
+			<td>Use Country of Origin and HS Tariff defaults for this consignment</td>
+			<td>
+				<input type="checkbox" id="use_default_country_hstariff" value="1" <?php if(empty($int_fields)){ echo 'checked'; }?>>
+			</td>
+		</tr>
+		<tr>
+			<td>Country of Origin</td>
+			<td>
+				<?php 
+					$country_origin = $int_fields->country_origin;
+					$disabled_c = '';
+					if(empty($int_fields->country_origin)) {
+						$country_origin = get_option('linksynceparcel_country_origin');
+						$disabled_c = 'disabled';
+					}
+				?>
+				<select data-default="<?php echo get_option('linksynceparcel_country_origin'); ?>" id="country_origin" name="country_origin" <?php echo $disabled_c; ?>>
+					<option value="" <?php if ($country_origin == ''){ echo 'selected="selected"'; }?>>
+						<?php _e('Please select','linksynceparcel'); ?>
+					</option>
+					<?php foreach($countries as $code => $name) {?>
+					<option value="<?php echo $code; ?>" <?php if ($country_origin == $code){ echo 'selected="selected"'; }?>>
+						<?php echo $name; ?>
+					</option>
+					<?php } ?>
+				</select>
+			</td>
+		</tr>
+		 <tr>
+			<td>HS Tariff</td>
+			<td>
+				<?php 
+					$hs_tariff = $int_fields->hs_tariff;
+					$disabled_h = '';
+					if(empty($hs_tariff)) {
+						$hs_tariff = get_option('linksynceparcel_hs_tariff');
+						$disabled_h = 'disabled';
+					}
+				?>
+				<input type="number" data-default="<?php echo get_option('linksynceparcel_hs_tariff'); ?>" id="hs_tariff" name="hs_tariff" value="<?php echo $hs_tariff; ?>" min="0" <?php echo $disabled_h; ?>><br/>
+				<span class="comment"><a target="_blank" href="http://www.foreign-trade.com/reference/hscode.htm"><?php _e("Click here for HS Tariff list",'linksynceparcel'); ?></a></span>
+			</td>
+		  </tr>
+		  <tr>
+			<td>Contents</td>
+			<td>
+				<?php 
+					$default_contents = $int_fields->default_contents;
+					if(empty($default_contents)) {
+						$default_contents = get_option('linksynceparcel_default_contents');
+					}
+				?>
+				<input type="text" name="default_contents" value="<?php echo $default_contents; ?>">
+			</td>
+		  </tr>
+		  <?php endif; ?>
+		  <?php if($shipCountry == 'AU') : ?>
+          <tr>
+            <td height="35">Transit cover required?</td>
+            <td><select id="transit_cover_required" name="transit_cover_required" style="width:140px">>
+                <option value="1" <?php echo (get_option('linksynceparcel_insurance')==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo (get_option('linksynceparcel_insurance')!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td height="35">Transit cover Amount</td>
+            <td><input id="transit_cover_amount" type="text" size="14" class="positive-number" label="Transit cover amount" name="transit_cover_amount" value="<?php echo get_option('linksynceparcel_default_insurance_value')?>" /></td>
+          </tr>
+		  <?php endif; ?>
+          <tr>
+            <td height="35">Shipment contains dangerous goods?</td>
+            <td><select id="contains_dangerous_goods" name="contains_dangerous_goods" style="width:140px">>
+                <option value="1" <?php echo ($consignment->contains_dangerous_goods==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->contains_dangerous_goods!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+		  <?php if($shipCountry == 'AU') : ?>
+          <tr>
+            <td height="35">Print return labels?</td>
+            <td><select id="print_return_labels" name="print_return_labels" style="width:140px">>
+                <option value="1" <?php echo ($consignment->print_return_labels==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->print_return_labels!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td height="35">Australia Post email notification?</td>
+            <td><select id="email_notification" name="email_notification" style="width:140px">>
+                <option value="1" <?php echo ($consignment->email_notification==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->email_notification!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td height="35">Notify Customers?</td>
+            <td><select id="notify_customers" name="notify_customers" style="width:140px">>
+                <option value="1" <?php echo ($consignment->notify_customers==1?'selected':'')?>>Yes</option>
+                <option value="0" <?php echo ($consignment->notify_customers!=1?'selected':'')?>>No</option>
+            </select></td>
+          </tr>
+		  <?php endif; ?>
+        </table>
+    </div>
+    
+	<div style="margin-top:15px">
+        <input type="submit" name="updateConsignment"  value="Update Consignment" onclick="return submitForm()" class="button-primary button scalable save submit-button"/>
+            &nbsp;&nbsp;
+        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order->id.'&action=edit')?>')" class="scalable back button" type="button" >
+            <span><span><span>Cancel</span></span></span>
+        </button>
+    </div>
+</div>
+</form>
+<style>
+.hide-tr {
+	display: none;
+}
+.show-tr {
+	display: table-row;
+}
+</style>
+<script>
+<?php if($use_order_weight == 1): ?>
+var weight = '<?php echo $weight?>';
+var weightPerArticle = '<?php echo $weightPerArticle?>';
+<?php endif; ?>
+$jEparcel = jQuery.noConflict();
+$jEparcel(document).ready(function(){
+	$jEparcel('#delivery_signature_allowed').on('change', function() {
+		if($jEparcel(this).val() == 1) {
+			$jEparcel('.safe-drop-row').removeClass('hide-tr');
+			$jEparcel('.safe-drop-row').addClass('show-tr');
+		} else {
+			$jEparcel('.safe-drop-row').removeClass('show-tr');
+			$jEparcel('.safe-drop-row').addClass('hide-tr');
+			$jEparcel('#consignments_safe_drop').val(0);
+		}
+	});
+	$jEparcel("#declared_value").on('change', function() {
+		var $this_val = $jEparcel('#declared_value:checked').length > 0;
+		if($this_val) {
+			$jEparcel('.declared_value_text_field').removeClass('show-tr');
+			$jEparcel('.declared_value_text_field').addClass('hide-tr');
+		} else {
+			$jEparcel('.declared_value_text_field').removeClass('hide-tr');
+			$jEparcel('.declared_value_text_field').addClass('show-tr');
+		}
+	});
+	$jEparcel('#has_commercial_value').change(function() {
+		var $this_val = $jEparcel('#has_commercial_value:checked').length > 0;
+		if($this_val) {
+			$jEparcel('#product_classification').attr('disabled', true);
+			$jEparcel('#product_classification').val('991');
+			$jEparcel('#product_classification_text').removeClass("hide-tr");
+			$jEparcel('#product_classification_text').addClass("show-tr");
+		} else {
+			$jEparcel('#product_classification').attr('disabled', false);
+		}
+	});
+	
+	$jEparcel('#product_classification').change(function() {
+		var $this_val = $jEparcel('#product_classification').val();
+		if($this_val == '991') {
+			$jEparcel('#product_classification_text').removeClass("hide-tr");
+			$jEparcel('#product_classification_text').addClass("show-tr");
+		} else {
+			$jEparcel('#product_classification_text').removeClass("show-tr");
+			$jEparcel('#product_classification_text').addClass("hide-tr");
+			$jEparcel('.product_classification_text').val("");
+		}
+	});
+	
+	$jEparcel('#use_default_country_hstariff').change(function() {
+		var $this_val = $jEparcel('#use_default_country_hstariff:checked').length > 0;
+		if($this_val) {
+			var country_origin_value = $jEparcel('#country_origin').data('default');
+			var hs_tariff_value = $jEparcel('#hs_tariff').data('default');
+			
+			$jEparcel('#country_origin').attr('disabled', true);
+			$jEparcel('#country_origin').val(country_origin_value);
+			$jEparcel('#hs_tariff').attr('disabled', true);
+			$jEparcel('#hs_tariff').val(hs_tariff_value);
+		} else {
+			$jEparcel('#country_origin').attr('disabled', false);
+			$jEparcel('#hs_tariff').attr('disabled', false);
+		}
+	});
+});
+
+function setLocation(url)
+{
+	window.location.href = url;
+}
+
+function submitForm()
+{
+	var valid = true;
+	
+	$jEparcel('.required-entry').each(function(){
+		var value = $jEparcel.trim($jEparcel(this).val());
+		if(value.length == 0 && valid)
+		{
+			valid = false;
+		}
+	});
+	if(!valid)
+	{
+		alert('Please enter all the mandatory fields');
+		return false;
+	}
+	
+	$jEparcel('.positive-number').each(function(){
+		var value = $jEparcel.trim($jEparcel(this).val());
+		var label = $jEparcel(this).attr('label');
+		if(isNaN(value))
+		{
+			alert(label +' should be a number');
+			valid = false;
+		}
+		
+		value = parseInt(value);
+		if(value < 0)
+		{
+			alert(label +' should be a postive number');
+			valid = false;
+		}
+		
+	});
+	
+	if(!valid)
+	{
+		return false;
+	}
+	
+	<?php if($use_order_weight == 1): ?>
+	$jEparcel('.maximum-value').each(function(){
+		var value = $jEparcel.trim($jEparcel(this).val());
+		var label = $jEparcel(this).attr('label');
+		value = parseFloat(value);
+		if(value > weightPerArticle)
+		{
+			alert('Allowed weight per article is '+ weightPerArticle);
+			valid = false;
+		}
+		
+	});
+	if(!valid)
+	{
+		return false;
+	}
+	
+	var totalInputWeight = 0;
+	$jEparcel('.article_weight').each(function(){
+		var value = $jEparcel.trim($jEparcel(this).val());
+		value = parseFloat(value);
+		totalInputWeight += value;
+	});
+
+	if(totalInputWeight < weight)
+	{
+		if(!confirm('Combined article weight is less than the total order weight. Do you want to continue?'))
+			return false;
+		$jEparcel('#edit_form').submit();
+	}
+	else
+	{
+		$jEparcel('#edit_form').submit();
+	}
+	<?php else: ?>
+		$jEparcel('#edit_form').submit();
+	<?php endif; ?>
+}
+</script>
