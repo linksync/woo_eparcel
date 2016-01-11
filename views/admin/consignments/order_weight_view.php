@@ -20,6 +20,14 @@ if($totalArticles == 0)
 {
 	$totalArticles = 1;
 }
+$exceed = 0;
+$totalweightused = LinksynceparcelHelper::getOrderWeightTotal($order->id);
+if($weight > $totalweightused) {
+	$exceed = 1;
+}
+if($shipping_country != 'AU') {
+	$totalArticles = 1;
+}
 ?>
 <style>
 #new-buttons-set .button{
@@ -27,14 +35,15 @@ if($totalArticles == 0)
 }
 </style>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
-		<?php if($weight > $weightPerArticle):?>
-           	<h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
-         <?php endif;?>
+		<?php if($weight > $weightPerArticle): ?>
+			<h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
+        <?php endif;?>
+		<input type="hidden" id="totalOrderWeight" name="totalOrderWeight" value="<?php echo $exceed; ?>"/>
 	    <input type="hidden" id="createConsignmentHidden" name="createConsignmentHidden" value="0"/>
     	<div class="box_ls" id="presets">
 		<?php if($order_status != 'completed'){?>
        			
-        Articles&nbsp;&nbsp; <input type="text" id="number_of_articles" name="number_of_articles" size="4" value="<?php echo $totalArticles?>" class="validate-number" style="text-align:center; padding:3px" />			
+        Articles&nbsp;&nbsp; <input type="text" id="number_of_articles" name="number_of_articles" size="4" value="<?php echo $totalArticles?>" class="validate-number" style="text-align:center; padding:3px" <?php echo ($shipping_country != 'AU')?"disabled='disabled'":'';?>/>			
         <input id="articles_type" name="articles_type" type="hidden" value="Custom"/>
 		<?php
             }
@@ -98,7 +107,7 @@ if($totalArticles == 0)
         <td width="30%">Partial Delivery allowed?</td>
         <td>
         <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
-        <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
+        <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">
             <option value="0">No</option>
         </select>
         <?php else: ?>
@@ -119,14 +128,21 @@ if($totalArticles == 0)
       
       <tr>
         <td>Delivery signature required?</td>
-        <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">>
+        <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">
             <option value="1" <?php echo (get_option('linksynceparcel_signature_required')==1?'selected':'')?>>Yes</option>
             <option value="0" <?php echo (get_option('linksynceparcel_signature_required')!=1?'selected':'')?>>No</option>
         </select></td>
       </tr>
+	  <tr>
+        <td>Safe Drop</td>
+        <td><select id="safe_drop" name="safe_drop" style="width:140px">
+			<option value="1" <?php echo (get_option('linksynceparcel_safe_drop') == 1?'selected="selected"':'');?>>Yes</option>
+            <option value="0" <?php echo (get_option('linksynceparcel_safe_drop') != 1?'selected="selected"':'');?>>No</option>
+        </select></td>
+      </tr>
       <tr>
         <td>Transit cover required?</td>
-        <td><select id="transit_cover_required" name="transit_cover_required" style="width:140px">>
+        <td><select id="transit_cover_required" name="transit_cover_required" style="width:140px">
             <option value="1" <?php echo (get_option('linksynceparcel_insurance')==1?'selected':'')?>>Yes</option>
             <option value="0" <?php echo (get_option('linksynceparcel_insurance')!=1?'selected':'')?>>No</option>
         </select></td>
@@ -290,7 +306,7 @@ if($totalArticles == 0)
 	  <?php endif; ?>
       <tr>
         <td>Shipment contains dangerous goods?</td>
-        <td><select id="contains_dangerous_goods" name="contains_dangerous_goods" style="width:140px">>
+        <td><select id="contains_dangerous_goods" name="contains_dangerous_goods" style="width:140px">
             <option value="1">Yes</option>
             <option value="0" selected>No</option>
         </select></td>
@@ -298,14 +314,14 @@ if($totalArticles == 0)
 	  <?php if($shipping_country == 'AU') { ?>
       <tr>
         <td>Australia Post email notification?</td>
-        <td><select id="email_notification" name="email_notification" style="width:140px">>
+        <td><select id="email_notification" name="email_notification" style="width:140px">
             <option value="1" <?php echo (get_option('linksynceparcel_post_email_notification')==1?'selected':'')?>>Yes</option>
             <option value="0" <?php echo (get_option('linksynceparcel_post_email_notification')!=1?'selected':'')?>>No</option>
         </select></td>
       </tr>
       <tr>
         <td>Notify Customers?</td>
-        <td><select id="notify_customers" name="notify_customers" style="width:140px">>
+        <td><select id="notify_customers" name="notify_customers" style="width:140px">
             <option value="1" <?php echo (get_option('linksynceparcel_notify_customers')==1?'selected':'')?>>Yes</option>
             <option value="0" <?php echo (get_option('linksynceparcel_notify_customers')!=1?'selected':'')?>>No</option>
         </select></td>
@@ -316,7 +332,7 @@ if($totalArticles == 0)
 
 </div>
 
-<?php $consignments = LinksynceparcelHelper::getConsignments($order->id);?>
+<?php $consignments = LinksynceparcelHelper::getConsignments($order->id, true);?>
 <?php foreach($consignments as $consignment):?>
 <?php $articles = LinksynceparcelHelper::getArticles($order->id, $consignment->consignment_number);?>
 <?php 
@@ -398,7 +414,7 @@ if($totalArticles == 0)
 		<table width="100%" border="0" cellspacing="6" cellpadding="6" class="tablecustom">
 		  <tr>
 			<td>Delivery instructions</td>
-			<td><?php echo !empty($consignment->delivery_instruction)?$consignment->delivery_instruction:$order->customer_message;?></td>
+			<td><?php echo $consignment->delivery_instruction;?></td>
 		  </tr>	
 		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
@@ -416,6 +432,10 @@ if($totalArticles == 0)
 		  <tr>
 			<td>Delivery signature required?</td>
 			<td><?php echo ($consignment->delivery_signature_allowed==1?'Yes':'No')?></td>
+		  </tr>
+		  <tr>
+			<td width="40%">Safe Drop</td>
+			<td><?php echo ($consignment->safe_drop==1?'Yes':'No')?></td>
 		  </tr>
 		  <?php endif; ?>
 		  <?php if($shipCountry != 'AU') : ?>

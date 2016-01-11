@@ -1,14 +1,4 @@
 <?php
-/**
- * Class for adding new panels to the "Screen Options" box.
- * 
- * Do not access this class directly. Instead, use the add_screen_options_panel() function. 
- * 
- * @author Janis Elsts
- * @copyright 2010
- * @version 1.0
- * @access public
- */
 class wsScreenOptions10 {
 	var $registered_panels; //List of custom "Screen Options" panels
 	var $page_panels;       //Index of panels registered for each page ($page => array of panel ids).

@@ -13,6 +13,7 @@
   <printReturnLabels>[[printReturnLabels]]</printReturnLabels>
   <deliverPartConsignment>[[deliverPartConsignment]]</deliverPartConsignment>
   <emailNotification>[[emailNotification]]</emailNotification>
+  <safeDrop>[[safeDrop]]</safeDrop>
   [[cashToCollect]]
   [[cashToCollectAmount]]
 </Orderdetails>

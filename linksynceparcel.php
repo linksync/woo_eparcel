@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.1-beta.4
+ * Version: 1.1.1-beta.5
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -264,10 +264,6 @@ class linksynceparcel
 				if( intval(str_replace('.','',$currentVersion)) < intval(str_replace('.','',$latestVersion)) )
 				{
 					update_option('linksynceparcel_notsame',1);
-					$o = '<div class="updated" style="border-left: 4px solid rgb(255, 192, 58);">';
-					$o .= '<p>linksync eParcel '.$latestVersion.' is available! <a href="http://www.linksync.com/help/releases-eparcel-woocommerce" target="_blank">Please update now.</a></p>';
-					$o .= '</div>';
-					echo $o;
 				}
 			}
 		}

@@ -4,7 +4,10 @@ class LinksynceparcelAdminConsignmentsCreate
 	public static function save()
 	{
 		$order_id = (int)($_POST['post_ID']);
-		$_POST['number_of_articles'] = isset($_POST['number_of_articles'])?$_POST['number_of_articles']:1;
+		$shipping_country = $_POST['_shipping_country'];
+		if($shipping_country != 'AU') {
+			$_POST['number_of_articles'] = 1;
+		}
 		$number_of_articles = (int)trim($_POST['number_of_articles']);
 		$shipping_country = $_POST['_shipping_country'];
 		$data = $_POST;
@@ -65,6 +68,9 @@ class LinksynceparcelAdminConsignmentsCreate
 								LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
 							}
 							update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
+							if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
+								update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');
+							}
 						}
 						else
 						{
@@ -85,8 +91,11 @@ class LinksynceparcelAdminConsignmentsCreate
 	public static function saveOrderWeight()
 	{
 		$order_id = (int)($_POST['post_ID']);
-		$number_of_articles = (int)trim($_POST['number_of_articles']);
 		$shipping_country = $_POST['_shipping_country'];
+		if($shipping_country != 'AU') {
+			$_POST['number_of_articles'] = 1;
+		}
+		$number_of_articles = (int)trim($_POST['number_of_articles']);
 		$data = $_POST;
 		$order = new WC_Order( $order_id );
 		$tempCanConsignments = (int)($number_of_articles/20);
@@ -136,6 +145,9 @@ class LinksynceparcelAdminConsignmentsCreate
 						LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
 					}
 					update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
+					if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
+						update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');
+					}
 				}
 				else
 				{
@@ -154,6 +166,10 @@ class LinksynceparcelAdminConsignmentsCreate
 	public static function saveDefaultWeight()
 	{
 		$order_id = (int)($_POST['post_ID']);
+		$shipping_country = $_POST['_shipping_country'];
+		if($shipping_country != 'AU') {
+			$_POST['number_of_articles'] = 1;
+		}
 		$number_of_articles = (int)trim($_POST['number_of_articles']);
 		$shipping_country = $_POST['_shipping_country'];
 		$data = $_POST;
@@ -205,6 +221,9 @@ class LinksynceparcelAdminConsignmentsCreate
 						LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
 					}
 					update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
+					if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
+						update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');
+					}
 				}
 				else
 				{

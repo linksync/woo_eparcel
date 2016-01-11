@@ -155,9 +155,9 @@ class LinksynceparcelApi
 			}
 			
 			$laid = get_option('linksynceparcel_laid');
-			$filename = linksynceparcel_DIR.'/log/linksynceparcel_log_'.date('Ymdhis').'.zip';
+			$filename = linksynceparcel_LOG_DIR.'linksynceparcel_log_'.date('Ymdhis').'.zip';
 			
-			if(LinksynceparcelHelper::createZip(linksynceparcel_DIR.'/log/linksynceparcel.log',$filename))
+			if(LinksynceparcelHelper::createZip(linksynceparcel_LOG_DIR.'linksynceparcel.log',$filename))
 			{
 				$stdClass = $client->sendLogFile($laid,file_get_contents($filename)); 
 	

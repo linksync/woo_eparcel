@@ -107,7 +107,6 @@ if($reminderWeight > 0)
             <td><input id="cash_to_collect" name="cash_to_collect" type="text" value="<?php echo $consignment->cash_to_collect?>" /></td>
           </tr>
           <?php endif; ?>
-          <?php endif; ?>
           
           <tr>
             <td width="40%" height="35">Delivery signature required?</td>
@@ -116,6 +115,14 @@ if($reminderWeight > 0)
                 <option value="0" <?php echo ($consignment->delivery_signature_allowed!=1?'selected':'')?>>No</option>
             </select></td>
           </tr>
+		  <tr>
+			<td width="40%" height="35">Safe Drop</td>
+			<td><select id="safe_drop" name="safe_drop" style="width:140px">
+				<option value="1" <?php echo ($consignment->safe_drop == 1?'selected="selected"':'');?>>Yes</option>
+				<option value="0" <?php echo ($consignment->safe_drop != 1?'selected="selected"':'');?>>No</option>
+			</select></td>
+		  </tr>
+          <?php endif; ?>
 		  <?php if($shipCountry != 'AU') : ?>
 		  <?php
 			$opt_drop = 'hide-tr';

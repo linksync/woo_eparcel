@@ -5,7 +5,6 @@ class LinksynceparcelAdminConsignmentsOrdersList
 	{
 		global $is_greater_than_21;
 		include_once(linksynceparcel_DIR.'model/Consignment/OrdersList.php');
-		$pluginMessage = self::in_plugin_update_message();
 		include_once(linksynceparcel_DIR.'views/admin/consignments/orderslist.php');
 	}
 	

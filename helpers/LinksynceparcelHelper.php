@@ -168,6 +168,14 @@ class LinksynceparcelHelper
 			$wpdb->query( $sql );
 		}
 		
+		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'safe_drop'";
+		$records = $wpdb->query( $sql );
+		if(!$records)
+		{
+			$sql = "ALTER TABLE $table_name ADD `safe_drop` tinyint(1)";
+			$wpdb->query( $sql );
+		}
+		
 		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'shipping_type'";
 		$records = $wpdb->query( $sql );
@@ -182,7 +190,7 @@ class LinksynceparcelHelper
 		$records = $wpdb->query( $sql );
 		if(!$records)
 		{
-			$sql = "ALTER TABLE $table_name ADD insurance_value varchar(255) CHARACTER SET utf8 NOT NULL AFTER `safe_drop`";
+			$sql = "ALTER TABLE $table_name ADD insurance_value varchar(255) CHARACTER SET utf8 NOT NULL AFTER `modify_date`";
 			$wpdb->query( $sql );
 		}
 		
@@ -190,7 +198,15 @@ class LinksynceparcelHelper
 		$records = $wpdb->query( $sql );
 		if(!$records)
 		{
-			$sql = "ALTER TABLE $table_name ADD insurance tinyint(1) NOT NULL DEFAULT '0' AFTER `safe_drop`";
+			$sql = "ALTER TABLE $table_name ADD insurance tinyint(1) NOT NULL DEFAULT '0' AFTER `modify_date`";
+			$wpdb->query( $sql );
+		}
+		
+		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'safe_drop'";
+		$records = $wpdb->query( $sql );
+		if(!$records)
+		{
+			$sql = "ALTER TABLE $table_name DROP `safe_drop`";
 			$wpdb->query( $sql );
 		}
 	}
@@ -206,7 +222,6 @@ class LinksynceparcelHelper
 			`consignment_number` varchar(128) NOT NULL,
 			`add_date` varchar(40) NOT NULL,
 			`modify_date` varchar(40) NOT NULL,
-			`safe_drop` tinyint(1) NOT NULL DEFAULT '0',
 			`export_declaration_number` varchar(255) NOT NULL,
 			`declared_value` tinyint(1) NOT NULL DEFAULT '0',
 			`declared_value_text` varchar(255) NOT NULL,
@@ -474,7 +489,7 @@ class LinksynceparcelHelper
 	
 	public static function log($content, $date = true)
 	{
-		$filename = linksynceparcel_LOG_DIR .'/linksynceparcel.log';
+		$filename = linksynceparcel_LOG_DIR .'linksynceparcel.log';
 		$fp = fopen($filename, 'a+');
 		if($date)
 		{
@@ -3662,9 +3677,9 @@ class LinksynceparcelHelper
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
-		$query = "SELECT * FROM {$table_name} WHERE order_id = '{$id_order}'";
+		$query = "SELECT * FROM {$table_name} WHERE order_id = ". $id_order ."";
 		if($orderdate) {
-			$query .= ' ORDER BY add_date DESC';
+			$query .= ' ORDER BY `add_date` DESC';
 		}
 		return $wpdb->get_results($query);
 	}
@@ -3780,6 +3795,10 @@ class LinksynceparcelHelper
 	public static function prepareArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{		
 		$isInternational = self::isInternationalDelivery($shipCountry);
+		
+		$address = get_post_meta($order->id);
+		$chargeCode = self::getChargeCode($order,$consignment_number);
+		
 		// Validate order weight and insurance value
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 		$chargeCodeData = $allowedChargeCodes[$chargeCode];
@@ -3787,9 +3806,6 @@ class LinksynceparcelHelper
 		if(is_array($validateIntVal) && $isInternational) {
 			return $validateIntVal;
 		}
-		
-		$address = get_post_meta($order->id);
-		$chargeCode = self::getChargeCode($order,$consignment_number);
 		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
@@ -3835,7 +3851,8 @@ class LinksynceparcelHelper
 				'[[deliverPartConsignment]]',
 				'[[cashToCollect]]',
 				'[[cashToCollectAmount]]',
-				'[[emailNotification]]'
+				'[[emailNotification]]',
+				'[[safeDrop]]'
 			);
 			
 			$replace = array(
@@ -3852,7 +3869,8 @@ class LinksynceparcelHelper
 				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-				($data['email_notification'] ? 'Y' : 'N')
+				($data['email_notification'] ? 'Y' : 'N'),
+				($data['safe_drop']==1 ? 'yes' : 'no')
 			);
 			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
@@ -3865,8 +3883,17 @@ class LinksynceparcelHelper
 	public static function prepareOrderWeightArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{
 		$isInternational = self::isInternationalDelivery($shipCountry);
+		
 		$address = get_post_meta($order->id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
+		
+		// Validate order weight and insurance value
+		$allowedChargeCodes = self::getEParcelChargeCodes();
+		$chargeCodeData = $allowedChargeCodes[$chargeCode];
+		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData);
+		if(is_array($validateIntVal) && $isInternational) {
+			return $validateIntVal;
+		}
 		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
@@ -3890,7 +3917,8 @@ class LinksynceparcelHelper
 			'[[deliverPartConsignment]]',
 			'[[cashToCollect]]',
   			'[[cashToCollectAmount]]',
-			'[[emailNotification]]'
+			'[[emailNotification]]',
+			'[[safeDrop]]'
 		);
 
 			
@@ -3908,7 +3936,8 @@ class LinksynceparcelHelper
 			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-			($data['email_notification'] ? 'Y' : 'N')
+			($data['email_notification'] ? 'Y' : 'N'),
+			($data['safe_drop']==1 ? 'yes' : 'no')
 		);
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		$articleData = str_replace($search, $replace, $template);
@@ -3972,7 +4001,8 @@ class LinksynceparcelHelper
 				'[[deliverPartConsignment]]',
 				'[[cashToCollect]]',
 				'[[cashToCollectAmount]]',
-				'[[emailNotification]]'
+				'[[emailNotification]]',
+				'[[safeDrop]]'
 			);
 
 			$replace = array(
@@ -3989,7 +4019,8 @@ class LinksynceparcelHelper
 				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-				($data['email_notification'] ? 'Y' : 'N')
+				($data['email_notification'] ? 'Y' : 'N'),
+				($data['safe_drop']==1 ? 'yes' : 'no')
 			);
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		}
@@ -4601,7 +4632,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". $data['delivery_instruction'] ."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". $data['delivery_instruction'] ."', safe_drop = '".$data['safe_drop']."'";
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4634,7 +4665,7 @@ class LinksynceparcelHelper
 		
 		$insuranceValue = (isset($data['order_value_insurance']))?self::getOrderProdItems($order_id, $data, true):$data['insurance_value'];
 		
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', safe_drop = '".$data['safe_drop']."', insurance = '". $data['insurance'] ."', insurance_value = '". $insuranceValue ."', export_declaration_number='".$data['export_declaration_number']."', declared_value='". $declared_value ."', declared_value_text = '".$data['declared_value_text']."', has_commercial_value='". $has_commercial_value ."', product_classification = ". $product_classification .", product_classification_text = '".$data['product_classification_text']."', country_origin = '".$country_origin."', hs_tariff = '". $hs_tariff ."', default_contents = '". $data['default_contents'] ."', ship_country = '". $shipCountry ."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', insurance = '". $data['insurance'] ."', insurance_value = '". $insuranceValue ."', export_declaration_number='".$data['export_declaration_number']."', declared_value='". $declared_value ."', declared_value_text = '".$data['declared_value_text']."', has_commercial_value='". $has_commercial_value ."', product_classification = ". $product_classification .", product_classification_text = '".$data['product_classification_text']."', country_origin = '".$country_origin."', hs_tariff = '". $hs_tariff ."', default_contents = '". $data['default_contents'] ."', ship_country = '". $shipCountry ."'";
 
 		$wpdb->query($query);
 	}
@@ -4645,7 +4676,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "UPDATE {$table_name} SET delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', label = '', is_label_printed=0, is_label_created=0, weight = '".$total_weight."', delivery_instruction = '". $data['delivery_instruction'] ."'";
+		$query = "UPDATE {$table_name} SET delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', label = '', is_label_printed=0, is_label_created=0, weight = '".$total_weight."', delivery_instruction = '". $data['delivery_instruction'] ."', safe_drop = '".$data['safe_drop']."'";
 		
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
@@ -4714,7 +4745,7 @@ class LinksynceparcelHelper
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_article";
-		$query = "SELECT * FROM {$table_name} WHERE order_id = '{$id_order}' AND consignment_number='{$consignment_number}'";
+		$query = "SELECT * FROM {$table_name} WHERE order_id = ". $id_order ." AND consignment_number='". $consignment_number ."'";
 		return $wpdb->get_results($query);
 	}
 	
@@ -5010,7 +5041,8 @@ class LinksynceparcelHelper
 			'[[deliverPartConsignment]]',
 			'[[cashToCollect]]',
   			'[[cashToCollectAmount]]',
-			'[[emailNotification]]'
+			'[[emailNotification]]',
+			'[[safeDrop]]'
 		);
 
 		$chargeCode = self::getChargeCode($order,$consignment_number);
@@ -5029,7 +5061,8 @@ class LinksynceparcelHelper
 			($consignment->partial_delivery_allowed ? 'Y' : 'N'),
 			( (isset($consignment->cash_to_collect) && !empty($consignment->cash_to_collect) ) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			( (isset($consignment->cash_to_collect) && !empty($consignment->cash_to_collect) ) ? '<cashToCollectAmount>'.number_format($consignment->cash_to_collect,2).'</cashToCollectAmount>' : ''),
-			($consignment->email_notification ? 'Y' : 'N')
+			($consignment->email_notification ? 'Y' : 'N'),
+			($data['safe_drop']==1 ? 'yes' : 'no')
 		);
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		$content = str_replace($search, $replace, $template);
@@ -5109,7 +5142,8 @@ class LinksynceparcelHelper
 			'[[deliverPartConsignment]]',
 			'[[cashToCollect]]',
   			'[[cashToCollectAmount]]',
-			'[[emailNotification]]'
+			'[[emailNotification]]',
+			'[[safeDrop]]'
 		);
 		
 		$chargeCode = self::getChargeCode($order,$consignment_number);
@@ -5128,7 +5162,8 @@ class LinksynceparcelHelper
 			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-			($data['email_notification'] ? 'Y' : 'N')
+			($data['email_notification'] ? 'Y' : 'N'),
+			($data['safe_drop']==1 ? 'yes' : 'no')
 		);
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		$content = str_replace($search, $replace, $template);
@@ -5275,7 +5310,8 @@ class LinksynceparcelHelper
 			'[[deliverPartConsignment]]',
 			'[[cashToCollect]]',
   			'[[cashToCollectAmount]]',
-			'[[emailNotification]]'
+			'[[emailNotification]]',
+			'[[safeDrop]]'
 		);
 
 		$chargeCode = self::getChargeCode($order,$consignment_number);
@@ -5294,7 +5330,8 @@ class LinksynceparcelHelper
 			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-			($data['email_notification'] ? 'Y' : 'N')
+			($data['email_notification'] ? 'Y' : 'N'),
+			($data['safe_drop']==1 ? 'yes' : 'no')
 		);
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		$content = str_replace($search, $replace, $template);
@@ -5618,6 +5655,21 @@ class LinksynceparcelHelper
 	public static function getAllowedWeightPerArticle()
 	{
 		return 22;
+	}
+	
+	public static function getOrderWeightTotal($orderid)
+	{
+		global $wpdb;
+		$table = $wpdb->prefix ."linksynceparcel_article";
+		$sql = "SELECT actual_weight FROM ". $table ." WHERE order_id=". $orderid;
+		$results = $wpdb->get_results($sql);
+		$total = 0;
+		if($results) {
+			foreach($results as $result) {
+				$total += $result->actual_weight;
+			}
+		}
+		return $total;
 	}
 	
 	public static function presetMatch($presets,$weight)

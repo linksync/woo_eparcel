@@ -18,7 +18,6 @@
 	}
 	$config_checker = LinksynceparcelHelper::checkAssignConfigurationSettings();
 	?>
-    <?php echo $pluginMessage ?>
 <form method="get" id="mainform" action="<?php echo admin_url('admin.php'); ?>" enctype="multipart/form-data" onsubmit="return submitConsignmentForm()">
     	<input type="hidden" name="page" value="linksynceparcel" />
         <?php 
