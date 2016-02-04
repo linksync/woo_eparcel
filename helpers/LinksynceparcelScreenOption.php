@@ -1,5 +1,5 @@
 <?php
-class wsScreenOptions10 {
+class Linksync_wsScreenOptions {
 	var $registered_panels; //List of custom "Screen Options" panels
 	var $page_panels;       //Index of panels registered for each page ($page => array of panel ids).
 	
@@ -8,7 +8,7 @@ class wsScreenOptions10 {
 	 * 
 	 * @return void
 	 */
-	function wsScreenOptions10(){
+	function __construct(){
 		$this->registered_panels = array();
 		$this->page_panels = array();
 		
@@ -231,14 +231,14 @@ global $ws_screen_options_versions;
 if ( !isset($ws_screen_options_versions) ){
 	$ws_screen_options_versions = array();
 }
-$ws_screen_options_versions['1.0'] = 'wsScreenOptions10';
+$ws_screen_options_versions['1.0'] = 'Linksync_wsScreenOptions';
 
 if ( !function_exists('add_screen_options_panel') ){
 	
 	/**
 	 * Add a new settings panel to the "Screen Options" box.
 	 * 
-	 * @see wsScreenOptions10::add_screen_options_panel()
+	 * @see Linksync_wsScreenOptions::add_screen_options_panel()
 	 * 
 	 * @param string $id String to use in the 'id' attribute of the settings panel. Should be unique.
 	 * @param string $title Title of the settings panel. Set to an empty string to omit title. 

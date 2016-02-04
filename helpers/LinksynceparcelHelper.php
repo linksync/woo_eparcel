@@ -201,14 +201,6 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD insurance tinyint(1) NOT NULL DEFAULT '0' AFTER `modify_date`";
 			$wpdb->query( $sql );
 		}
-		
-		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'safe_drop'";
-		$records = $wpdb->query( $sql );
-		if(!$records)
-		{
-			$sql = "ALTER TABLE $table_name DROP `safe_drop`";
-			$wpdb->query( $sql );
-		}
 	}
 	
 	public static function createNewTables() {
@@ -3794,7 +3786,7 @@ class LinksynceparcelHelper
 
 	public static function prepareArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{		
-		$isInternational = self::isInternationalDelivery($shipCountry);
+		$isInternational = ($shipCountry != 'AU')?true:false;
 		
 		$address = get_post_meta($order->id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
@@ -3882,7 +3874,7 @@ class LinksynceparcelHelper
 	
 	public static function prepareOrderWeightArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{
-		$isInternational = self::isInternationalDelivery($shipCountry);
+		$isInternational = ($shipCountry != 'AU')?true:false;
 		
 		$address = get_post_meta($order->id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
@@ -3903,50 +3895,72 @@ class LinksynceparcelHelper
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order);
 		$articlesInternationalInfo = self::prepareInternationalOrderWeightArticles($data, $order);
 		
-		$search = array(
-			'[[articles]]',
-			'[[RETURN-ADDRESS]]',
-			'[[DELIVERY-ADDRESS]]',
-			'[[CUSTOMER-EMAIL]]',
-			'[[DELIVERY-SIGNATURE]]',
-			'[[ORDER-ID]]',
-			'[[CHARGE-CODE]]',
-			'[[SHIPMENT-ID]]',
-			'[[DANGER-GOODS]]',
-			'[[printReturnLabels]]',
-			'[[deliverPartConsignment]]',
-			'[[cashToCollect]]',
-  			'[[cashToCollectAmount]]',
-			'[[emailNotification]]',
-			'[[safeDrop]]'
-		);
-
+		if($isInternational) {
+			$search = array(
+				'[[articles]]',
+				'[[DELIVERY-ADDRESS]]',
+				'[[RETURN-ADDRESS]]',
+				'[[ORDER-ID]]',
+				'[[CHARGE-CODE]]',
+				'[[DANGER-GOODS]]'
+			);
 			
-		$replace = array(
-			$articlesInfo['info'],
-			$returnAddress,
-			$deliveryInfo,
-			$address['_billing_email'][0],
-			($data['delivery_signature_allowed'] ? 'true' : 'false'),
-			self::getIncrementId($order),
-			$chargeCode,
-			$order->id,
-			($data['contains_dangerous_goods'] ? 'true' : 'false'),
-			($data['print_return_labels'] ? 'true' : 'false'),
-			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
-			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
-			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-			($data['email_notification'] ? 'Y' : 'N'),
-			($data['safe_drop']==1 ? 'yes' : 'no')
-		);
-		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
+			$replace = array(
+				$articlesInternationalInfo,
+				$deliveryInternationalInfo,
+				$returnInternationalAddress,
+				$order->id,
+				$chargeCode,
+				($data['contains_dangerous_goods'] ? 'true' : 'false')
+			);
+			
+			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
+		} else {
+			$search = array(
+				'[[articles]]',
+				'[[RETURN-ADDRESS]]',
+				'[[DELIVERY-ADDRESS]]',
+				'[[CUSTOMER-EMAIL]]',
+				'[[DELIVERY-SIGNATURE]]',
+				'[[ORDER-ID]]',
+				'[[CHARGE-CODE]]',
+				'[[SHIPMENT-ID]]',
+				'[[DANGER-GOODS]]',
+				'[[printReturnLabels]]',
+				'[[deliverPartConsignment]]',
+				'[[cashToCollect]]',
+				'[[cashToCollectAmount]]',
+				'[[emailNotification]]',
+				'[[safeDrop]]'
+			);
+
+			$replace = array(
+				$articlesInfo['info'],
+				$returnAddress,
+				$deliveryInfo,
+				$address['_billing_email'][0],
+				($data['delivery_signature_allowed'] ? 'true' : 'false'),
+				self::getIncrementId($order),
+				$chargeCode,
+				$order->id,
+				($data['contains_dangerous_goods'] ? 'true' : 'false'),
+				($data['print_return_labels'] ? 'true' : 'false'),
+				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
+				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
+				($data['email_notification'] ? 'Y' : 'N'),
+				($data['safe_drop']==1 ? 'yes' : 'no')
+			);
+			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
+		}
+		
 		$articleData = str_replace($search, $replace, $template);
 		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
 	
 	public static function prepareArticleDataBulk($data,$order,$shipCountry=false)
 	{
-		$isInternational = self::isInternationalDelivery($shipCountry);
+		$isInternational = ($shipCountry != 'AU')?true:false;
 		$address = get_post_meta($order->id);
 		$chargeCode = self::getChargeCode($order);
 		
@@ -5861,6 +5875,10 @@ class LinksynceparcelHelper
 		$totalCost = 0;
 		foreach($rows as $row) {
 			$prodid = wc_get_order_item_meta( $row->order_item_id, '_product_id', true );
+			$varid = wc_get_order_item_meta( $row->order_item_id, '_variation_id', true );
+			if($varid > 0) {
+				$prodid = $varid;
+			}
 			$item_description = get_the_title( $prodid );
 			$weight = get_post_meta( $prodid, '_width', true );
 			if(empty($weight)) {
