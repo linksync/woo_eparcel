@@ -59,15 +59,8 @@ class LinksynceparcelAdminConsignmentsCreateMass
 										LinksynceparcelHelper::updateArticles($orderId,$consignmentNumber,$consignmentData->articles,$data,$content);
 										LinksynceparcelHelper::insertManifest($manifestNumber);
 								
-										if($shipping_country == 'AU') {
-											$labelContent = $consignmentData->lpsLabels->labels->label;
-											LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-										} else {
-											$labelContent = $consignmentData->lpsLabels->labels->label;
-											$docsContent = $consignmentData->lpsLabels->labels->customDocs;
-											LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-											LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
-										}
+										$labelContent = $consignmentData->lpsLabels->labels->label;
+										LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
 										
 										$successmsg = sprintf('Order #%s: Consignment #%s created successfully', $incrementId,$consignmentNumber);
 										LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$successmsg);

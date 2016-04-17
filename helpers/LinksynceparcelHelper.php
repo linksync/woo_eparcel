@@ -349,6 +349,7 @@ class LinksynceparcelHelper
 			$defaults['declared_value'] = 1;
 			$defaults['order_value_insurance'] = 1;
 			$defaults['show_order_items'] = 1;
+			$defaults['product_classification_text'] = 'Merchandise';
 			$defaults['default_contents'] = 'Merchandise';
 			$defaults['international_checker'] = 1;
 		}

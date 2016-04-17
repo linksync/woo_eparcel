@@ -31,7 +31,6 @@ class ConsignmentOrdersList extends WP_List_Table
 			case 'number_of_articles':
 			case 'shipping_description':
 			case 'is_label_printed':
-			case 'is_customdocs_printed':
 			case 'is_return_label_printed':
 			case 'is_next_manifest':
 			case 'weight':
@@ -215,68 +214,6 @@ class ConsignmentOrdersList extends WP_List_Table
 		return $html;
 	}
 	
-	public function column_is_customdocs_printed($item)
-	{
-		$shipping_country = get_post_meta($item->ID,'_shipping_country',true);
-		
-		if(isset($item->is_customdocs_printed) && $shipping_country != 'AU')
-		{
-			$consignmentpdf = linksynceparcel_UPLOAD_BASEURL .'consignment/int_'. $item->consignment_number .'.pdf';
-			$consignmentpdf_check = linksynceparcel_UPLOAD_DIR .'consignment/int_'. $item->consignment_number .'.pdf';
-			if(!file_exists($consignmentpdf_check)) {
-				$consignmentpdf = linksynceparcel_URL .'assets/label/consignment/int_'. $item->consignment_number .'.pdf';
-			}
-			
-			if($item->is_customdocs_printed == 1)
-			{
-				$html = '<a lang="int'.$item->consignment_number.'" href="'. $consignmentpdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span></a>';
-			}
-			else if($item->is_label_created == 1)
-			{
-				$html = '<a class="print_label" lang="int'.$item->consignment_number.'" href="'. $consignmentpdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
-			}
-			else
-			{
-				$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&action=massGenerateLabels&order[]='.$item->order_consignment).'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
-			}
-		}
-		else
-		{
-			$html = '&nbsp;';
-		}
-		return $html;
-	}
-	
-	public function column_is_return_label_printed($item)
-	{
-		if($item->print_return_labels)
-		{
-			$returnlabelspdf = linksynceparcel_UPLOAD_BASEURL .'returnlabels/'. $item->consignment_number .'.pdf';
-			$returnlabelspdf_check = linksynceparcel_UPLOAD_DIR .'returnlabels/'. $item->consignment_number .'.pdf';
-			if(!file_exists($returnlabelspdf_check)) {
-				$returnlabelspdf = linksynceparcel_URL .'assets/label/returnlabels/'. $item->consignment_number .'.pdf';
-			}
-			
-			if($item->is_return_label_printed == 1)
-			{
-				$html = '<a lang="'.$item->consignment_number.'" href="'. $returnlabelspdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span></a>';
-			}
-			else if(file_exists($returnlabelspdf))
-			{
-				$html = '<a class="print_return_label" lang="'.$item->consignment_number.'" href="'. $returnlabelspdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
-			}
-			else
-			{
-				$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&action=massGenerateReturnLabels&order[]='.$item->order_consignment).'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
-			}
-		}
-		else
-		{
-			$html = '&nbsp;';
-		}
-		return $html;
-	}
-	
 	public function column_is_next_manifest($item)
 	{
 		if(isset($item->is_next_manifest))
@@ -312,8 +249,6 @@ class ConsignmentOrdersList extends WP_List_Table
 			'consignment_number' => 'Consignment Number',
 			'shipping_description' => 'Delivery Type',
 			'is_label_printed' => 'Labels Printed?',
-			'is_customdocs_printed' => 'Customs Docs Printed?',
-			'is_return_label_printed' => 'Return Labels Printed?',
 			'is_next_manifest' => 'Next Manifest?',
 			'number_of_articles' => 'No. of Articles',
 			'add_date' => 'Date Created',
@@ -342,12 +277,6 @@ class ConsignmentOrdersList extends WP_List_Table
 			}
 			if(isset($user_defaults['show_deliverytype']) && empty($user_defaults['show_deliverytype'])) {
 				unset($columns['shipping_description']);
-			}
-			if(isset($user_defaults['show_customdocs']) && empty($user_defaults['show_customdocs'])) {
-				unset($columns['is_customdocs_printed']);
-			}
-			if(isset($user_defaults['show_returnlabelsprinted']) && empty($user_defaults['show_returnlabelsprinted'])) {
-				unset($columns['is_return_label_printed']);
 			}
 			if(isset($user_defaults['show_numberofarticles']) && empty($user_defaults['show_numberofarticles'])) {
 				unset($columns['number_of_articles']);
@@ -683,15 +612,10 @@ class ConsignmentOrdersList extends WP_List_Table
 		
 		$actions2 = array(
 			'massGenerateLabels' => 'Generate Labels',
-			// 'massGenerateDocs' => 'Generate Docs',
-			'massGenerateReturnLabels' => 'Generate Return Labels',
 			'massUnassignConsignment' => 'Remove from Manifest',
 			'massAssignConsignment' => 'Add to Manifest',
 			'massDeleteConsignment' => 'Delete Consignment'
 		);
-		
-		// Hide for this release
-		unset($actions2['massGenerateReturnLabels']);
 		
 		if(isset($actions) && is_array($actions))
 			$actions = array_merge($actions,$actions2);

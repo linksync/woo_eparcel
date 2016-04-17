@@ -328,82 +328,75 @@ class LinksynceparcelAdminConsignmentsOrdersList
 						$isInternational = true;
 				}
 				
-				if(!$isInternational) {
-					$valid = true;
-					if($isExpressCode && $isStandardCode) {
-						$valid = false;
-					}
-					if($isExpressCode && $isInternational) {
-						$valid = false;
-					}
-					if($isStandardCode && $isInternational) {
-						$valid = false;
-					}
-					
-					if ($valid) {
-						$consignmentNumbers = array();
-						$chargeCodes = array();
-						foreach ($ids as $id) 
+				$valid = true;
+				if($isExpressCode && $isStandardCode) {
+					$valid = false;
+				}
+				if($isExpressCode && $isInternational) {
+					$valid = false;
+				}
+				if($isStandardCode && $isInternational) {
+					$valid = false;
+				}
+				
+				if ($valid) {
+					$consignmentNumbers = array();
+					$chargeCodes = array();
+					foreach ($ids as $id) 
+					{
+						$values = explode('_',$id);
+						$orderId = (int)($values[0]);
+						$consignmentNumber = $values[1];
+						$incrementId = $orderId;
+						if($consignmentNumber != '0')
 						{
-							$values = explode('_',$id);
-							$orderId = (int)($values[0]);
-							$consignmentNumber = $values[1];
-							$incrementId = $orderId;
-							if($consignmentNumber != '0')
-							{
-								$consignmentNumbers[] = $consignmentNumber;
-								
-								$chargeCode = LinksynceparcelHelper::getOrderChargeCode($orderId,$consignmentNumber);
-								$chargeCodes[] = $chargeCode;
-								$labelContent = LinksynceparcelApi::getLabelsByConsignments($consignmentNumber, $chargeCode);
-								if($labelContent)
-								{
-									$filename = $consignmentNumber.'.pdf';
-									$filepath = linksynceparcel_UPLOAD_DIR.'consignment/'.$filename;
-									$handle = fopen($filepath,'wb');
-									fwrite($handle, $labelContent);
-									fclose($handle);
-		
-									LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'label', $filename);
-									LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_created', 1);
-									LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_printed', 1);
-								}
-							}
-						}
-						
-						if(count($consignmentNumbers) > 0)
-						{
-							$labelContent = LinksynceparcelApi::getLabelsByConsignments(implode(',',$consignmentNumbers), $chargeCodes[0]);
+							$consignmentNumbers[] = $consignmentNumber;
+							
+							$chargeCode = LinksynceparcelHelper::getOrderChargeCode($orderId,$consignmentNumber);
+							$chargeCodes[] = $chargeCode;
+							$labelContent = LinksynceparcelApi::getLabelsByConsignments($consignmentNumber, $chargeCode);
 							if($labelContent)
 							{
-								$filename = 'bulk-consignments-label.pdf';
+								$filename = $consignmentNumber.'.pdf';
 								$filepath = linksynceparcel_UPLOAD_DIR.'consignment/'.$filename;
 								$handle = fopen($filepath,'wb');
 								fwrite($handle, $labelContent);
 								fclose($handle);
-								$labelLink = linksynceparcel_UPLOAD_BASEURL.'consignment/';
-								$success = sprintf('Label is generated. <a href="%s" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>',$labelLink.$filename.'?'.time());
-								LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$success);
+	
+								LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'label', $filename);
+								LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_created', 1);
+								LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_printed', 1);
 							}
-							else
-							{
-								LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error','Failed to generate label');
-							}
+						}
+					}
+					
+					if(count($consignmentNumbers) > 0)
+					{
+						$labelContent = LinksynceparcelApi::getLabelsByConsignments(implode(',',$consignmentNumbers), $chargeCodes[0]);
+						if($labelContent)
+						{
+							$filename = 'bulk-consignments-label.pdf';
+							$filepath = linksynceparcel_UPLOAD_DIR.'consignment/'.$filename;
+							$handle = fopen($filepath,'wb');
+							fwrite($handle, $labelContent);
+							fclose($handle);
+							$labelLink = linksynceparcel_UPLOAD_BASEURL.'consignment/';
+							$success = sprintf('Label is generated. <a href="%s" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>',$labelLink.$filename.'?'.time());
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$success);
 						}
 						else
 						{
-							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error','None of the selected items have consignments');
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error','Failed to generate label');
 						}
 					}
 					else
 					{
-						$error = 'You can only print multiple consignment labels for the same Delivery Type - they must be all Express Post or all eParcel Standard.';
-						LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
+						LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error','None of the selected items have consignments');
 					}
 				}
 				else
 				{
-					$error = 'At this time linksync does not support bulk label creation for international consignments.';
+					$error = 'You can only print multiple consignment labels for the same Delivery Type - they must be all Express Post or all eParcel Standard.';
 					LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 				}
 			}

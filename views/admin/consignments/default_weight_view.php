@@ -340,36 +340,6 @@ if($default_article_weight)
              <?php echo ($consignment->is_label_printed ? 'Reprint' : 'Print');?> Label
         </a>
         <?php endif;?>
-		<?php if(!empty($consignment->customdocs) && $shipCountry != 'AU'):?>
-		<?php
-			$customdocspdf = linksynceparcel_UPLOAD_BASEURL .'consignment/int_'. $consignment->consignment_number .'.pdf';
-			$customdocspdf_check = linksynceparcel_UPLOAD_DIR .'consignment/int_'. $consignment->consignment_number .'.pdf';
-			if(!file_exists($customdocspdf_check)) {
-				$customdocspdf = linksynceparcel_URL .'assets/label/consignment/int_'. $consignment->consignment_number .'.pdf';
-			}
-		?>
-        <a class="button print_label" lang="int<?php echo $consignment->consignment_number?>" target="_blank" 
-        	href="<?php echo $customdocspdf.'?'.time()?>" 
-         	type="button" title="Print Label">
-             <?php echo ( $consignment->is_customdocs_printed ? 'Reprint' : 'Print');?> Documents
-        </a>
-        <?php endif;?>
-        <?php if(!empty($consignment->print_return_labels)):?>
-		<?php
-			$returnlabelspdf = linksynceparcel_UPLOAD_BASEURL .'returnlabels/'. $consignment->consignment_number .'.pdf';
-			$returnlabelspdf_check = linksynceparcel_UPLOAD_DIR .'returnlabels/'. $consignment->consignment_number .'.pdf';
-			if(!file_exists($returnlabelspdf_check)) {
-				$returnlabelspdf = linksynceparcel_URL .'assets/label/returnlabels/'. $consignment->consignment_number .'.pdf';
-			}
-		?>
-			<?php if(file_exists(linksynceparcel_DIR.'assets/label/returnlabels/'.$consignment->consignment_number.'.pdf')):?>
-                <a class="button print_return_label" lang="<?php echo $consignment->consignment_number?>" target="_blank" 
-                    href="<?php echo $returnlabelspdf.'?'.time()?>" 
-                    type="button">
-                     <?php echo ($consignment->is_return_label_printed ? 'Reprint' : 'Print');?> Return Label
-                </a>
-            <?php endif;?>
-         <?php endif;?>
 		<?php if(!$consignment->despatched):?>
 			<?php if($shipCountry == 'AU') : ?>
 				<?php if(count($articles) < 20):?>

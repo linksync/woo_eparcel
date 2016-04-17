@@ -18,8 +18,17 @@ class LinksynceparcelValidator
 			$errors[] = 'SFTP username is a required field.';
 		if(empty($data['sftp_password']))
 			$errors[] = 'SFTP password is a required field.';
-		if(empty($data['lps_username']))
+		if(empty($data['lps_username'])) {
 			$errors[] = 'LPS username is a required field.';
+		} else {
+			if(is_email($data['lps_username'])) {
+				if(strpos($data['lps_username'], '@auspost.com.au') === false) {
+					$errors[] = 'LPS username is invalid. Similar to "6f4d9019-cxx4-4e5c-x786-0753b97d903e@auspost.com.au"';
+				}
+			} else {
+				$errors[] = 'LPS username is invalid.';
+			}
+		}
 		if(empty($data['lps_password']))
 			$errors[] = 'LPS password is a required field.';
 		if(empty($data['return_address_name']))

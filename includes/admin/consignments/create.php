@@ -58,15 +58,9 @@ class LinksynceparcelAdminConsignmentsCreate
 							LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
 							LinksynceparcelHelper::insertManifest($manifestNumber);
 							
-							if($shipping_country == 'AU') {
-								$labelContent = $consignmentData->lpsLabels->labels->label;
-								LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-							} else {
-								$labelContent = $consignmentData->lpsLabels->labels->label;
-								$docsContent = $consignmentData->lpsLabels->labels->customDocs;
-								LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-								LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
-							}
+							$labelContent = $consignmentData->lpsLabels->labels->label;
+							LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+							
 							update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
 							if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
 								update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');
@@ -135,15 +129,9 @@ class LinksynceparcelAdminConsignmentsCreate
 					LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
 					LinksynceparcelHelper::insertManifest($manifestNumber);
 			
-					if($shipping_country == 'AU') {
-						$labelContent = $consignmentData->lpsLabels->labels->label;
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-					} else {
-						$labelContent = $consignmentData->lpsLabels->labels->label;
-						$docsContent = $consignmentData->lpsLabels->labels->customDocs;
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
-					}
+					$labelContent = $consignmentData->lpsLabels->labels->label;
+					LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+						
 					update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
 					if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
 						update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');
@@ -211,15 +199,9 @@ class LinksynceparcelAdminConsignmentsCreate
 					LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
 					LinksynceparcelHelper::insertManifest($manifestNumber);
 			
-					if($shipping_country == 'AU') {
-						$labelContent = $consignmentData->lpsLabels->labels->label;
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-					} else {
-						$labelContent = $consignmentData->lpsLabels->labels->label;
-						$docsContent = $consignmentData->lpsLabels->labels->customDocs;
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$docsContent,'customdocs');
-					}
+					$labelContent = $consignmentData->lpsLabels->labels->label;
+					LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+					
 					update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
 					if(isset($data['totalOrderWeight']) && $data['totalOrderWeight'] == 1 && $shipping_country != 'AU') {
 						update_option('linksynceparcel_order_view_error','You need to create another consignments because the weight of the order is over the maximum weight.');

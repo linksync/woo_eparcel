@@ -83,6 +83,8 @@
                     <td align="left" colspan="2">
                        <input type="text" size="40" name="linksynceparcel[lps_username]" value="<?php echo LinksynceparcelHelper::getFormValue('lps_username',get_option('linksynceparcel_lps_username'))?>">
                        <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="The LPS username relate to the Australia Post Label Printing Service - please contact linksync for further information."/>
+					   <br />
+                        <span class="comment">The format of the LPS username should look similar to '6f4d9019-cxx4-4e5c-x786-0753b97d903e@auspost.com.au' - please refer to <a href="https://www.linksync.com/help/lps" target="_blank">Registering for Australia Post Label Print Service (LPS)</a> for more information.</span>
                  </td>
               </tr>
                <tr>
@@ -455,7 +457,7 @@
 						<input type="number" name="linksynceparcel[express_post_right_offset]" value="<?php echo $express_post_right_offset; ?>" min="-999" max="999">&nbsp;mm
 					</td>
 				</tr>
-				<tr>
+				<tr style="display:none;">
 					<td width="25%" valign="top" ><?php _e('Int. Economy Air','linksynceparcel'); ?></td>
 					<td width="25%" align="left" >
 						<select name="linksynceparcel[int_economy_label]">
@@ -481,7 +483,7 @@
 						<input type="number" name="linksynceparcel[int_economy_right_offset]" value="<?php echo $int_economy_right_offset; ?>" min="-999" max="999">&nbsp;mm
 					</td>
 				</tr>
-				<tr>
+				<tr style="display:none;">
 					<td width="25%" valign="top" ><?php _e('Int. Express Courier','linksynceparcel'); ?></td>
 					<td width="25%" align="left" >
 						<select name="linksynceparcel[int_express_courier_label]">
@@ -507,7 +509,7 @@
 						<input type="number" name="linksynceparcel[int_express_courier_right_offset]" value="<?php echo $int_express_courier_right_offset; ?>" min="-999" max="999">&nbsp;mm
 					</td>
 				</tr>
-				<tr>
+				<tr style="display:none;">
 					<td width="25%" valign="top" ><?php _e('Int. Express Post','linksynceparcel'); ?></td>
 					<td width="25%" align="left" >
 						<select name="linksynceparcel[int_express_post_label]">
@@ -533,7 +535,7 @@
 						<input type="number" name="linksynceparcel[int_express_post_right_offset]" value="<?php echo $int_express_post_right_offset; ?>" min="-999" max="999">&nbsp;mm
 					</td>
 				</tr>
-				<tr>
+				<tr style="display:none;">
 					<td width="25%" valign="top" ><?php _e('Int. Pack & Track','linksynceparcel'); ?></td>
 					<td width="25%" align="left" >
 						<select name="linksynceparcel[int_pack_track_label]">
@@ -559,7 +561,7 @@
 						<input type="number" name="linksynceparcel[int_pack_track_right_offset]" value="<?php echo $int_pack_track_right_offset; ?>" min="-999" max="999">&nbsp;mm
 					</td>
 				</tr>
-				<tr>
+				<tr style="display:none;">
 					<td width="25%" valign="top" ><?php _e('Int. Registered','linksynceparcel'); ?></td>
 					<td width="25%" align="left" >
 						<select name="linksynceparcel[int_registered_label]">

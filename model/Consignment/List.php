@@ -94,26 +94,6 @@ class ConsignmentList extends WP_List_Table
 		return $html;
 	}
 	
-	public function column_docs($item)
-	{
-		$meta = get_post_meta($item->order_id);
-		if($meta['_shipping_country'][0] != "AU") {
-			if(!empty($item->customdocs)) {
-				$consignmentpdf = linksynceparcel_UPLOAD_BASEURL .'consignment/int_'. $item->consignment_number .'.pdf';
-				$consignmentpdf_check = linksynceparcel_UPLOAD_DIR .'consignment/int_'. $item->consignment_number .'.pdf';
-				if(!file_exists($consignmentpdf_check)) {
-					$consignmentpdf = linksynceparcel_URL .'assets/label/consignment/int_'. $item->consignment_number .'.pdf';
-				}
-				$html = '<a class="print_label" lang="int'.$item->consignment_number.'" href="'. $consignmentpdf .'?'.time().'" target="_blank" >View</a>';
-			} else {
-				$html = '<a href="javascript:void(0)" >---</a>';
-			}
-		} else {
-			$html = '<a href="javascript:void(0)" >---</a>';
-		}
-		return $html;
-	}
-	
 	public function column_track($item)
 	{
 		$html = '<a href="http://auspost.com.au/track/track.html?id='.$item->consignment_number.'" target="_blank" >Click</a>';
@@ -138,7 +118,6 @@ class ConsignmentList extends WP_List_Table
 			'despatch_date' => 'Despatch Date',
 			'number_of_articles' => 'No. of Articles',
 			'label' => 'Label',
-			'docs' => 'Docs',
 			'track' => 'Track',
         );
 		return $columns;
