@@ -45,13 +45,6 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
     	</button>
 </div>
 
-<div>
-    <br />
-    <a href="javascript:void(0)" class="edit-consignments-defaults" style="text-decoration:none"><span style="font-size:13px; color:#F60">Edit Consignment Defaults</span></a>
-    <br />
-    <br />
-</div>
-
 <div class="box consignment-fields" style="display:none">
     <h3>Consignment Fields</h3>
     <table width="100%" border="0" cellspacing="6" cellpadding="6" class="tablecustom">
@@ -64,26 +57,18 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
       <tr>
         <td width="30%">Partial Delivery allowed?</td>
         <td>
-        <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
-        <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
-            <option value="0">No</option>
-        </select>
-        <?php else: ?>
         <select id="partial_delivery_allowed" name="partial_delivery_allowed"  style="width:140px">
             <option value="1" <?php echo (get_option('linksynceparcel_partial_delivery_allowed')==1?'selected':'')?>>Yes</option>
             <option value="0" <?php echo (get_option('linksynceparcel_partial_delivery_allowed')!=1?'selected':'')?>>No</option>
         </select>
-         <?php endif; ?>
         </td>
       </tr>
       
-      <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
       <tr>
         <td>Cash to collect</td>
         <td><input id="cash_to_collect" name="cash_to_collect" type="text" /></td>
       </tr>
-      <?php endif; ?>
-      
+	  
       <tr>
         <td>Delivery signature required?</td>
         <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">>
@@ -91,14 +76,13 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
             <option value="0" <?php echo (get_option('linksynceparcel_signature_required')!=1?'selected':'')?>>No</option>
         </select></td>
       </tr>
-	  <?php
-		$opt_drop = 'hide-tr';
-		$opt_drop_val = 0;
-		if(get_option('linksynceparcel_signature_required') == 1) {
-			$opt_drop = 'show-tr';
-			$opt_drop_val = get_option('linksynceparcel_safe_drop');
-		}
-	  ?>
+	  <tr>
+        <td>Safe Drop</td>
+        <td><select id="safe_drop" name="safe_drop">
+			<option value="1" <?php echo (get_option('linksynceparcel_safe_drop') == 1?'selected="selected"':'');?>>Yes</option>
+            <option value="0" <?php echo (get_option('linksynceparcel_safe_drop') != 1?'selected="selected"':'');?>>No</option>
+        </select></td>
+      </tr>
 	  <tr>
 		<td>Insurance</td>
 		<td>

@@ -146,27 +146,29 @@ class LinksynceparcelValidator
 		return false;
 	}
 	
-	public static function validateInternationalCosignmentsValue($data, $chargecodedata) {
+	public static function validateInternationalCosignmentsValue($data, $chargecodedata, $country=false, $weight = false) {
 		if($data['number_of_articles'] > 1) {
 			return array('error_msg' => 'International article cannot be more/less than 1.');
-		}
-		
-		if($data['articles_type'] == 'Custom' && !empty($data['article1'])) {
-			$weight = $data['article1']['weight'];
-		} else {
-			$articles_type = $data['articles_type'];
-			$articles = explode('<=>',$articles_type);
-			$weight = $articles[1];
 		}
 		
 		// All validated International Articles
 		$intArticle = array(
 			'Int. Economy Air' 	=> array('weight' => 20, 'insurance' => 5000),
 			'Int. Express Courier' => array('weight' => 20, 'insurance' => 5000),
+			'Int. Express Courier Document' => array('weight' => 0.5, 'insurance' => 5000),
 			'Int. Express Post' => array('weight' => 20, 'insurance' => 5000),
 			'Int. Pack & Track' => array('weight' => 2, 'insurance' => 500),
 			'Int. Registered' 	=> array('weight' => 2, 'insurance' => 5000),
 		);
+		
+		if($country) {	
+			$isvalidCountries = self::validCountry();
+			if($chargecodedata['key'] == 'int_pack_track') {
+				if(!array_key_exists($country,$isvalidCountries)) {
+					return array('error_msg' => 'Pack & Track service is not permitted for this order. Valid countries for Pack & Track service are '. implode(', ', $isvalidCountries));
+				}
+			}
+		}
 		
 		$label = $chargecodedata['labelType'];
 		if(!empty($intArticle[$label]['weight'])){	
@@ -179,6 +181,39 @@ class LinksynceparcelValidator
 			return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
 		}
 		return true;
+	}
+	
+	public static function validCountry() {
+		$countries = array(
+			'BE' => 'Belgium',
+			'CA' => 'Canada',
+			'CN' => 'China',
+			'HR' => 'Croatia',
+			'DK' => 'Denmark',
+			'EE' => 'Estonia',
+			'FR' => 'France',
+			'DE' => 'Germany',
+			'HK' => 'Hong Kong',
+			'HU' => 'Hungary',
+			'IE' => 'Ireland',
+			'IL' => 'Israel',
+			'KR' => 'Korea, Republic of (South Korea)',
+			'LT' => 'Lithuania',
+			'MY' => 'Malaysia',
+			'MT' => 'Malta',
+			'NL' => 'Netherlands',
+			'NZ' => 'New Zealand',
+			'PL' => 'Poland',
+			'PT' => 'Portugal',
+			'SG' => 'Singapore',
+			'SI' => 'Slovenia',
+			'ES' => 'Spain',
+			'SE' => 'Sweden',
+			'GB' => 'United Kingdom',
+			'US' => 'USA'
+		);
+		
+		return $countries;
 	}
 }
 ?>

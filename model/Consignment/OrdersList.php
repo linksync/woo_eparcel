@@ -152,6 +152,18 @@ class ConsignmentOrdersList extends WP_List_Table
 		return '<a href="http://maps.google.com/maps?&q='. urlencode($f_address . $ship_country) .'&z=16">'. $meta['_shipping_first_name'][0].' '.$meta['_shipping_last_name'][0] .', '. $f_address .'</a>';
 	}
 	
+	public function column_customers_note($item)
+	{
+		$order_id = $item->ID;
+		$order = new WC_Order( $order_id );
+		$notes = $order->customer_message;
+		if(!empty($notes)) {
+			return '<span class="notes_head tips tooltip" title="'. $notes .'">Customer Message</span>';
+		} else {
+			return "-";
+		}
+	}
+	
 	public function column_shipping_description($item)
 	{
 		$chargecode = $item->chargecode;
@@ -244,6 +256,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			'order_item' => 'Order Item',
 			'order_status' => '<span class="status_head tips" title="Status">Status</span>',
 			'customer_name' => 'Ship to',
+			'customers_note' => '<span class="notes_head tips tooltip" title="Customer Message">Customer Message</span>',
 			'weight' => 'Weight',
 			'is_address_valid' => 'Address Valid',
 			'consignment_number' => 'Consignment Number',
@@ -271,6 +284,9 @@ class ConsignmentOrdersList extends WP_List_Table
 			}
 			if(isset($user_defaults['show_shipto']) && empty($user_defaults['show_shipto'])) {
 				unset($columns['customer_name']);
+			}
+			if(isset($user_defaults['show_customernotes']) && empty($user_defaults['show_customernotes'])) {
+				unset($columns['customers_note']);
 			}
 			if(isset($user_defaults['show_weight']) && empty($user_defaults['show_weight'])) {
 				unset($columns['weight']);
@@ -587,7 +603,7 @@ class ConsignmentOrdersList extends WP_List_Table
 	
 	public function column_cb($item)
 	{
-	 	return sprintf('<input type="checkbox" name="%1$s[]" value="%2$s" />', $this->_args['singular'], (is_object($item) ? $item->order_consignment : $item['order_consignment']));
+	 	return sprintf('<input type="checkbox" name="%1$s[]" class="massaction-checkbox" value="%2$s" />', $this->_args['singular'], (is_object($item) ? $item->order_consignment : $item['order_consignment']));
 	}
 	
 	public function get_bulk_actions()
@@ -658,7 +674,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			echo '<tr>';
 			foreach ( $columns as $column_key => $column_display_name )
 			{
-				if($column_key != 'order_item' && $column_key != 'customer_name' && $column_key != 'cb' && $column_key != 'number_of_articles'  && $column_key != 'order_status' && $column_key != 'weight')
+				if($column_key != 'order_item' && $column_key != 'customer_name' && $column_key != 'customers_note' && $column_key != 'cb' && $column_key != 'number_of_articles'  && $column_key != 'order_status' && $column_key != 'weight')
 				{
 					if($column_key == 'add_date')
 					{

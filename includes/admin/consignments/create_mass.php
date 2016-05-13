@@ -15,6 +15,14 @@ class LinksynceparcelAdminConsignmentsCreateMass
 					$values = explode('_',$id);
 					$orderId = (int)($values[0]);
 					$order = new WC_Order($orderId);
+					
+					// Render all defaults
+					if(get_option('linksynceparcel_copy_order_notes') == 1)
+					{
+						$ordernotes = $order->customer_message;
+						$data['delivery_instruction'] = $ordernotes;
+					}
+					
 					$shipping_country = get_post_meta($orderId,'_shipping_country',true);
 					$consignmentNumber = $values[1];
 					$incrementId = $orderId;

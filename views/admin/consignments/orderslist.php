@@ -1,7 +1,9 @@
 <?php global $my_plugin_hook,$linksynceparcel_consignment_menu; ?>
 <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="<?php echo linksynceparcel_URL?>assets/css/linksynctooltip.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<script type="text/javascript" src="<?php echo linksynceparcel_URL?>assets/js/linksynctooltip.js"></script>
 <div class="wrap woocommerce">
 	<?php
 	$error = get_option('linksynceparcel_consignment_error');
@@ -87,9 +89,20 @@ table.order_items td {
     border-radius: 10px;
     font-weight: 600;
 }
+span.notes_head.tips.tooltip.linksynctooltiped {
+    margin: 5px auto;
+    text-align: center;
+}
+td.customers_note.column-customers_note {
+    text-align: center;
+}
 </style>
 <script>
 jQuery(document).ready(function(){
+	jQuery('.tooltip').linksynctooltip({
+		theme: 'linksynctooltip-shadow',
+		contentAsHTML: true
+	});
 	jQuery('#the-list').delegate('.handler', 'click', function() {
 		var key = jQuery(this).data('key');
 		if(jQuery(this).hasClass('inactive') || !jQuery(this).hasClass('outactive')) {
@@ -159,6 +172,34 @@ function submitConsignmentForm()
 		return confirm('Are you sure?');
 	}
 	return true;
+}
+
+$jEparcel = jQuery.noConflict();
+$jEparcel(document).ready(function(){
+	jQuery('#doaction').click(function(e) {
+		if(jQuery('#bulk-action-selector-top').val() == 'massCreateConsignment') {
+			var c = checkAllOrders();
+			if(c.length > 0) {
+				var conf = confirm('Consignments already exist for order '+ c.join(', ') +'. Do you want to continue with creating consignments?');
+				if(conf != true) {
+					window.location.href = "<?php echo admin_url('admin.php?page=linksynceparcel'); ?>";
+					return false;
+				}
+			}
+		}
+	});
+});
+function checkAllOrders()
+{
+	var allvalues = [];
+	jQuery('.massaction-checkbox:checked').each(function() {
+		var v = jQuery(this).val();
+		var r = v.split("_");
+		if(r[1] != 0) {
+			allvalues.push(r[0]);
+		}
+	});
+	return allvalues;
 }
 </script>
 <style>

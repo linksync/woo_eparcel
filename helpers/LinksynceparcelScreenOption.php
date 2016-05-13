@@ -273,10 +273,9 @@ function eparcel_default_settings_panel(){
         'show_orderstatus' => 'Order status',
         'show_orderitem' => 'Order Item',
         'show_shipto' => 'Ship to',
+        'show_customernotes' => 'Customer Notes',
         'show_weight' => 'Weight',
         'show_deliverytype' => 'Delivery Type',
-        'show_customdocs' => 'Customs Docs',
-        // 'show_returnlabelsprinted' => 'Return Labels Printed',
         'show_numberofarticles' => 'No. of Articles',
      );
       
@@ -308,10 +307,9 @@ function eparcel_get_default_settings(){
 		'show_orderstatus' => true,
 		'show_orderitem' => true,
 		'show_shipto' => true,
+		'show_customernotes' => true,
 		'show_weight' => true,
 		'show_deliverytype' => true,
-		'show_customdocs' => true,
-		// 'show_returnlabelsprinted' => true,
 		'show_numberofarticles' => true,
 	);
 	

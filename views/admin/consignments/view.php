@@ -303,6 +303,7 @@
         <td><input id="transit_cover_amount" type="text" size="14" class="positive-number" label="Transit cover amount" name="transit_cover_amount" value="<?php echo get_option('linksynceparcel_default_insurance_value')?>" /></td>
       </tr>
 	  <?php endif; ?>
+	  <?php if($shipping_country == 'AU') : ?>
       <tr>
         <td>Shipment contains dangerous goods?</td>
         <td><select id="contains_dangerous_goods" name="contains_dangerous_goods" style="width:140px">
@@ -310,7 +311,6 @@
             <option value="0" selected>No</option>
         </select></td>
       </tr>
-	  <?php if($shipping_country == 'AU') : ?>
       <tr>
         <td>Australia Post email notification?</td>
         <td><select id="email_notification" name="email_notification" style="width:140px">
@@ -466,11 +466,11 @@
 			<td><?php echo $int_fields->default_contents; ?></td>
 		  </tr>
 		  <?php endif; ?>
+		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
 			<td>Shipment contains dangerous goods?</td>
 			<td><?php echo ($consignment->contains_dangerous_goods==1?'Yes':'No')?></td>
 		  </tr>
-		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
 			<td>Australia Post email notification?</td>
 			<td><?php echo ($consignment->email_notification==1?'Yes':'No')?></td>

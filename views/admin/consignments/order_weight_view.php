@@ -304,6 +304,7 @@ if($shipping_country != 'AU') {
 		</td>
       </tr>
 	  <?php endif; ?>
+	  <?php if($shipping_country == 'AU') { ?>
       <tr>
         <td>Shipment contains dangerous goods?</td>
         <td><select id="contains_dangerous_goods" name="contains_dangerous_goods" style="width:140px">
@@ -311,7 +312,6 @@ if($shipping_country != 'AU') {
             <option value="0" selected>No</option>
         </select></td>
       </tr>
-	  <?php if($shipping_country == 'AU') { ?>
       <tr>
         <td>Australia Post email notification?</td>
         <td><select id="email_notification" name="email_notification" style="width:140px">
@@ -468,11 +468,11 @@ if($shipping_country != 'AU') {
 			<td><?php echo $int_fields->default_contents; ?></td>
 		  </tr>
 		  <?php endif; ?>
+		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
 			<td>Shipment contains dangerous goods?</td>
 			<td><?php echo ($consignment->contains_dangerous_goods==1?'Yes':'No')?></td>
 		  </tr>
-		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
 			<td>Australia Post email notification?</td>
 			<td><?php echo ($consignment->email_notification==1?'Yes':'No')?></td>
