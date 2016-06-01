@@ -393,6 +393,31 @@
 						<input type="text" name="linksynceparcel[default_contents]" value="<?php echo LinksynceparcelHelper::getFormValue('default_contents',get_option('linksynceparcel_default_contents')); ?>">
 					</td>
 				</tr>
+				<?php
+					$user_order_details = LinksynceparcelHelper::getFormValue('user_order_details',get_option('linksynceparcel_user_order_details'));
+				?>
+				<tr>
+                    <td width="20%" valign="top" ><?php _e('User order details for description on customs docs','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select id="user_order_details" name="linksynceparcel[user_order_details]">
+                            <option value="1" <?php if ($user_order_details == '1'){ echo 'selected="selected"'; }?>><?php _e('Yes','linksynceparcel'); ?></option>
+                            <option value="0" <?php if ($user_order_details == '0'){ echo 'selected="selected"'; }?>><?php _e('No','linksynceparcel'); ?></option>
+						</select>
+					</td>
+				</tr>
+				<?php
+					$class = 'class="hide-tr"';
+					if($user_order_details == '0') {
+						$class = 'class="show-tr"';
+					}
+				?>
+				<tr id="default_good_description" <?php echo $class; ?>>
+                    <td width="20%" valign="top" ><?php _e('Default Product Description','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<input type="text" class="default_good_description_text" name="linksynceparcel[default_good_description]" value="<?php echo LinksynceparcelHelper::getFormValue('default_good_description',get_option('linksynceparcel_default_good_description')); ?>">
+					</td>
+				</tr>
+				
 				</table>
 				<h3>Label Settings</h3>
 				<table width="100%" border="0" cellspacing="0" cellpadding="6">
@@ -948,6 +973,17 @@ jQuery(document).ready(function() {
 			jQuery('#product_classification_text').removeClass("show-tr");
 			jQuery('#product_classification_text').addClass("hide-tr");
 			jQuery('.product_classification_text').val("");
+		}
+	});
+	
+	jQuery('#user_order_details').change(function() {
+		var $this_val = jQuery(this).val();
+		if($this_val == '0') {
+			jQuery('#default_good_description').removeClass("hide-tr");
+			jQuery('#default_good_description').addClass("show-tr");
+		} else {
+			jQuery('#default_good_description').removeClass("show-tr");
+			jQuery('#default_good_description').addClass("hide-tr");
 		}
 	});
 	

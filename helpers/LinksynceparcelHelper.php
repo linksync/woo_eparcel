@@ -5909,6 +5909,10 @@ class LinksynceparcelHelper
 				$parent_id = wp_get_post_parent_id($varid);
 			}
 			$item_description = get_the_title( $parent_id );
+			$user_order_details = get_option('linksynceparcel_user_order_details');
+			if($user_order_details == 0) {
+				$item_description = get_option('linksynceparcel_default_good_description');
+			}
 			
 			$weight = $singleWeight;
 			if($weight == 0){

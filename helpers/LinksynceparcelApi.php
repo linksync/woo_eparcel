@@ -252,13 +252,20 @@ class LinksynceparcelApi
 			
 				$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 				$codeData = $chargeCodeData[$chargeCode];
+				if($codeData['serviceType'] == 'international') {
+					$arg3 = 'A4-1pp';
+					$arg4 = 'true';
+					$arg5 = 0;
+					$arg6 = 0;
+				} else {
+					$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
+					$labelType = explode('_', $service);
+					$arg3 = $labelType[0];
+					$arg4 = ($labelType[1]==0)?'false':'true';
+					$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
+					$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
+				}
 				
-				$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
-				$labelType = explode('_', $service);
-				$arg3 = $labelType[0];
-				$arg4 = ($labelType[1]==0)?'false':'true';
-				$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
-				$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
 				$laid = get_option('linksynceparcel_laid');
 				
 				$stdClass = $client->createConsignment2($laid,$article,linksynceparcel_SITE_URL,$arg3,$arg4,$arg5,$arg6); 
@@ -777,6 +784,11 @@ class LinksynceparcelApi
 			}
 			throw $e;
 		}
+	}
+	
+	public static function removeEncodedData($string,$tags)
+	{
+		return preg_replace('#<(' . implode( '|', $tags) . ')(?:[^>]+)?>.*?</\1>#s', '', $string);
 	}
 }
 ?>
