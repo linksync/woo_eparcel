@@ -209,6 +209,45 @@
 		</td>
       </tr>
 	  <tr>
+		<td>Declare Value</td>
+		<td>
+			<?php
+				$order_value_declared_value = get_option('linksynceparcel_order_value_declared_value');
+			?>
+			<select id="order_value_declared_value" name="order_value_declared_value" <?php echo $product_classification_disable; ?>>
+				<option value="0" <?php if ($order_value_declared_value == '0'){ echo 'selected="selected"'; }?>>Order Value</option>
+				<option value="1" <?php if ($order_value_declared_value == '1'){ echo 'selected="selected"'; }?>>Order Value with Maximum</option>
+				<option value="2" <?php if ($order_value_declared_value == '2'){ echo 'selected="selected"'; }?>>Fixed Value</option>
+			</select>
+		</td>
+	</tr>
+	<?php 
+		$maximum_declared_value = get_option('linksynceparcel_maximum_declared_value');
+		$maximum_declared_value_class = 'hide-tr';
+		if($order_value_declared_value == 1) {
+			$maximum_declared_value_class = 'show-tr';
+		}
+	?>
+	<tr id="maximum_declared_value" class="<?php echo $maximum_declared_value_class; ?>">
+		<td>Maximum Declared Value</td>
+		<td>
+			<input type="number" class="maximum_declared_value" name="maximum_declared_value" value="<?php echo $maximum_declared_value; ?>"><br />
+		</td>
+	</tr>
+	<?php 
+		$fixed_declared_value = get_option('linksynceparcel_fixed_declared_value');
+		$fixed_declared_value_class = 'hide-tr';
+		if($order_value_declared_value == 2) {
+			$fixed_declared_value_class = 'show-tr';
+		}
+	?>
+	<tr id="fixed_declared_value" class="<?php echo $fixed_declared_value_class; ?>">
+		<td>Fixed Declared Value</td>
+		<td>
+			<input type="number" class="fixed_declared_value" name="fixed_declared_value" value="<?php echo $fixed_declared_value; ?>"><br />
+		</td>
+	</tr>
+	  <tr>
         <td>Has Commercial Value</td>
         <td>
 		<?php
@@ -588,6 +627,27 @@ $jEparcel(document).ready(function(){
 			$jEparcel('.declared_value_text_field').addClass('show-tr');
 		}
 	});
+	
+	jQuery('#order_value_declared_value').change(function() {
+		var $this_val = jQuery(this).val();
+		if($this_val == 1) {
+			jQuery('#maximum_declared_value').removeClass('hide-tr');
+			jQuery('#maximum_declared_value').addClass('show-tr');
+			jQuery('#fixed_declared_value').removeClass('show-tr');
+			jQuery('#fixed_declared_value').addClass('hide-tr');
+		} else if($this_val == 2) {
+			jQuery('#fixed_declared_value').removeClass('hide-tr');
+			jQuery('#fixed_declared_value').addClass('show-tr');
+			jQuery('#maximum_declared_value').removeClass('show-tr');
+			jQuery('#maximum_declared_value').addClass('hide-tr');
+		} else {
+			jQuery('#maximum_declared_value').removeClass('show-tr');
+			jQuery('#maximum_declared_value').addClass('hide-tr');
+			jQuery('#fixed_declared_value').removeClass('show-tr');
+			jQuery('#fixed_declared_value').addClass('hide-tr');
+		}
+	});
+	
 	$jEparcel('#has_commercial_value').change(function() {
 		var $this_val = $jEparcel('#has_commercial_value:checked').length > 0;
 		if($this_val) {

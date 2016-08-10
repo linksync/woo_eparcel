@@ -147,6 +147,14 @@ class LinksynceparcelValidator
 	}
 	
 	public static function validateInternationalCosignmentsValue($data, $chargecodedata, $country=false, $weight = false) {
+		if($chargecodedata['serviceType'] == 'international' && $country == 'AU') {
+			return array('error_msg' => 'International chargecode could not be use for domestic country. Please check and try again.');
+		}
+
+		if($chargecodedata['serviceType'] != 'international' && $country != 'AU') {
+			return array('error_msg' => 'Domestic chargecode could not be use for international. Please check and try again.');
+		}
+		
 		if($data['number_of_articles'] > 1) {
 			return array('error_msg' => 'International article cannot be more/less than 1.');
 		}

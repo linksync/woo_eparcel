@@ -47,7 +47,12 @@ class LinksynceparcelAdminAssignShippingTypes
 			}
 			$chargeCodes = LinksynceparcelHelper::getChargeCodeValues(true);
 			$methods = WC()->shipping->load_shipping_methods();
-			$shipping_titles = LinksynceparcelHelper::getOrderedShippingDescriptions();
+			$shipping_titles = LinksynceparcelHelper::listOfShippingMethods();
+			
+			$pass = LinksynceparcelHelper::requiredWooVersion();
+			if($pass) {
+				$availableMethods = LinksynceparcelHelper::availableShippingMethods();
+			}
 			include_once(linksynceparcel_DIR.'views/admin/assign_shipping_type/add.php');
 		}
 		else if($action == 'edit')
@@ -103,7 +108,12 @@ class LinksynceparcelAdminAssignShippingTypes
 			$type = $type[0];
 			$chargeCodes = LinksynceparcelHelper::getChargeCodeValues(true);
 			$methods = WC()->shipping->load_shipping_methods();
-			$shipping_titles = LinksynceparcelHelper::getOrderedShippingDescriptions();
+			$shipping_titles = LinksynceparcelHelper::listOfShippingMethods();
+			
+			$pass = LinksynceparcelHelper::requiredWooVersion();
+			if($pass) {
+				$availableMethods = LinksynceparcelHelper::availableShippingMethods();
+			}
 			include_once(linksynceparcel_DIR.'views/admin/assign_shipping_type/edit.php');
 		}
 		else

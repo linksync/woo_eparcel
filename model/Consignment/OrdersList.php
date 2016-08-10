@@ -182,8 +182,12 @@ class ConsignmentOrdersList extends WP_List_Table
 		$shipping_country = get_post_meta($item->ID,'_shipping_country',true);
 		$order_id = $item->ID;
 		if($shipping_country == 'AU') {
-			if($item->is_address_valid == 1)
+			$valid = LinksynceparcelHelper::isOrderAddressValid($order_id);
+			if($item->is_address_valid == 1 && isset($item->consignment_number))
 			{
+				$html = '<span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span>';
+			}
+			elseif($valid == 1) {
 				$html = '<span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span>';
 			}
 			else
@@ -459,6 +463,12 @@ class ConsignmentOrdersList extends WP_List_Table
 			$joinFields .= ',main_table.ID as order_id';
 			$joinFields .= ',c.is_label_printed,c.is_customdocs_printed,c.is_return_label_printed,c.consignment_number,c.add_date,c.is_next_manifest,c.is_label_created,c.print_return_labels';
 		}
+		
+		$orderids = LinksynceparcelHelper::getAllOrderId();
+		if($orderids != false) {
+			$where .= ' AND main_table.ID IN ('. $orderids .')';
+		}
+		
 		if(isset($_REQUEST['service']) && !empty($_REQUEST['service']))
 		{
 			$service = $_REQUEST['service'];

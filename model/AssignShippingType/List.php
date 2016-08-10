@@ -65,9 +65,20 @@ class AssignShippingTypeList extends WP_List_Table
 			'edit' => sprintf('<a href="?page=%s&subpage=%s&action=%s&id=%s">Edit</a>',$_REQUEST['page'],$_REQUEST['subpage'],'edit',(is_object($item) ? $item->id : $item['id'])),
 			'delete' => sprintf('<a href="?page=%s&subpage=%s&action=%s&id=%s">Delete</a>',$_REQUEST['page'],$_REQUEST['subpage'],'delete',(is_object($item) ? $item->id : $item['id'])),
 		);
+		
+		$methodname = (is_object($item) ? ucwords(str_replace('_',' ',$item->method)) : $item['method']);
+		
+		$pass = LinksynceparcelHelper::requiredWooVersion();
+		if(is_object($item) && $pass) {
+			$method = explode(':', $item->method);
+			$name = LinksynceparcelHelper::getShippingMethodName($method[1], $method[0]);
+			if($name != false) {
+				$methodname = $name;
+			}
+		}
 		 
 		return sprintf('%1$s %2$s',
-			(is_object($item) ? ucwords(str_replace('_',' ',$item->method)) : $item['method']),
+			$methodname,
 			$this->row_actions($actions)
 		);
 	}

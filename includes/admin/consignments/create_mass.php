@@ -22,6 +22,9 @@ class LinksynceparcelAdminConsignmentsCreateMass
 						$ordernotes = $order->customer_message;
 						$data['delivery_instruction'] = $ordernotes;
 					}
+					$data['order_value_declared_value'] = get_option('linksynceparcel_order_value_declared_value');
+					$data['maximum_declared_value'] = get_option('linksynceparcel_maximum_declared_value');
+					$data['fixed_declared_value'] = get_option('linksynceparcel_fixed_declared_value');
 					
 					$shipping_country = get_post_meta($orderId,'_shipping_country',true);
 					$consignmentNumber = $values[1];

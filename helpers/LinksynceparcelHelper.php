@@ -37,7 +37,7 @@ class LinksynceparcelHelper
 				`notify_customers` tinyint(1) DEFAULT '0',
 				`is_return_label_printed` tinyint(1) DEFAULT '0',
 				`chargecode` varchar(255) CHARACTER SET utf8
-		  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
+		  );";
 		dbDelta( $sql );
 		
 		$table_name = $wpdb->prefix . "linksynceparcel_article"; 
@@ -53,7 +53,7 @@ class LinksynceparcelHelper
 				`transit_cover_amount` varchar(255) CHARACTER SET utf8 NOT NULL,
 				`length` varchar(40) CHARACTER SET utf8 NOT NULL,
 				`width` varchar(255) CHARACTER SET utf8
-		  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
+		  );";
 		dbDelta( $sql );
 		
 		$table_name = $wpdb->prefix . "linksynceparcel_manifest"; 
@@ -64,7 +64,7 @@ class LinksynceparcelHelper
 				`label` varchar(255) CHARACTER SET utf8 NOT NULL,
 				`number_of_articles` int(11) NOT NULL,
 				`number_of_consignments` int(11) NOT NULL
-		  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
+		  );";
 		dbDelta( $sql );
 		
 		$table_name = $wpdb->prefix . "linksynceparcel_article_preset"; 
@@ -77,7 +77,7 @@ class LinksynceparcelHelper
 				`length` varchar(40) CHARACTER SET utf8 NOT NULL,
 				`status` tinyint(1) NOT NULL DEFAULT '1',
 				PRIMARY KEY  (`id`)
-		  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
+		  );";
 		dbDelta( $sql );
 		
 		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
@@ -86,7 +86,7 @@ class LinksynceparcelHelper
 				`method` varchar(255) CHARACTER SET utf8 NOT NULL,
 				`charge_code` varchar(255) CHARACTER SET utf8 NOT NULL,
 				PRIMARY KEY  (`id`)
-		  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
+		  );";
 
 		dbDelta( $sql );
 		
@@ -3602,9 +3602,13 @@ class LinksynceparcelHelper
 	public static function getOrderChargeCode($id_order,$consignment_number='')
 	{
 		$method = self::getShippingMethod($id_order);
-		if(preg_match('/table_rate/i',$method))
-		{
-			$method = 'table_rate';
+		
+		$pass = self::requiredWooVersion();
+		if(!$pass) {
+			if(preg_match('/table_rate/i',$method))
+			{
+				$method = 'table_rate';
+			}
 		}
 		
 		$allowedChargeCodes = self::getEParcelChargeCodes();
@@ -3632,6 +3636,44 @@ class LinksynceparcelHelper
 			return $charge_code;
 		}
 		
+		return false;
+	}
+	
+	public static function getShippingZone()
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "woocommerce_shipping_zone_methods"; 
+		$sql = "SELECT * FROM $table_name";
+		$results = $wpdb->get_results($sql);
+		return $results;
+	}
+	
+	public static function availableShippingMethods()
+	{
+		$arr = array();
+		$methods = self::getShippingZone();
+		foreach($methods as $code => $method) {
+			if($method->instance_id) {
+				$name = self::getShippingMethodName($method->instance_id, $method->method_id);
+				if($name == false) {
+					$name = ucfirst(str_replace('_', ' ', $method->method_id));
+				}
+				$arr[$method->method_id.':'.$method->instance_id] = array(
+					'method_id' => $method->method_id,
+					'title' => $name
+				);
+			}
+		}
+		return $arr;
+	}
+	
+	public static function getShippingMethodName($instanceid, $option_name)
+	{
+		$option = 'woocommerce_'. $option_name .'_'. $instanceid .'_settings';
+		$optionval = get_option($option, true);
+		if($optionval) {
+			return $optionval['title'];	
+		}
 		return false;
 	}
 	
@@ -5728,6 +5770,34 @@ class LinksynceparcelHelper
 		return $wpdb->get_results($query);
 	}
 	
+	public static function listOfShippingMethods()
+	{
+		global $wpdb;
+	    $table_name = $wpdb->prefix . "woocommerce_order_items";
+		$query = "SELECT order_item_id, order_item_name FROM {$table_name} WHERE order_item_type = 'shipping'";
+		$usedMethods = $wpdb->get_results($query);
+		
+		$arr = array();
+		foreach($usedMethods as $key=>$val) {
+			$methodId = self::getMethodId($val->order_item_id);
+			$arr[$methodId] = array(
+				'method_id' => $methodId,
+				'title' => $val->order_item_name
+			);
+		}
+		
+		return $arr;
+	}
+	
+	public static function getMethodId($id)
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "woocommerce_order_itemmeta";
+		$query = "SELECT meta_value FROM {$table_name} WHERE order_item_id = {$id} AND meta_key='method_id'";
+		$result = $wpdb->get_row($query);
+		return $result->meta_value;
+	}
+	
 	/* 
      *
      * International Functions
@@ -5898,6 +5968,51 @@ class LinksynceparcelHelper
 			$singleWeight = self::getSingleWeight($rows, $total_weight);
 		}
 		
+		$pass = false;
+		$declared_option_value = 0;
+		
+		if($data['order_value_declared_value'] != 0) {
+			$checktotal = 0;
+			$totalqty = 0;
+			$cntr = 0;
+			foreach($rows as $row) {
+				$prodid_1 = wc_get_order_item_meta( $row->order_item_id, '_product_id', true );
+				$varid_1 = wc_get_order_item_meta( $row->order_item_id, '_variation_id', true );
+				if($varid_1 > 0) {
+					$prodid_1 = $varid_1;
+				}
+				$item_qty_1 = wc_get_order_item_meta( $row->order_item_id, '_qty', true );
+				$sale_price_1 = get_post_meta( $prodid_1, '_sale_price', true );
+				$unitvalue_1 = $sale_price_1;
+				if(empty($sale_price_1))
+					$unitvalue_1 = get_post_meta( $prodid_1, '_regular_price', true );
+				
+				$value_1 = $unitvalue_1 * $item_qty_1;
+				
+				if($cntr > 0) {
+					$totalqty += $item_qty_1;
+				}
+					
+				$checktotal += $value_1;
+				$cntr++;
+			}
+			
+			
+			if($data['order_value_declared_value'] == 1) {
+				if($checktotal >= $data['maximum_declared_value']) {
+					$pass = true;
+					$declared_option_value = $data['maximum_declared_value'] - $totalqty;
+				}
+			}
+			
+			if($data['order_value_declared_value'] == 2) {
+				$pass = true;
+				$declared_option_value = $data['fixed_declared_value'] - $totalqty;
+			}
+		}
+		
+		$alter = false;
+		$cnt = 0;
 		$contents = '';
 		$totalCost = 0;
 		foreach($rows as $row) {
@@ -5910,11 +6025,23 @@ class LinksynceparcelHelper
 			}
 			$item_description = get_the_title( $parent_id );
 			$user_order_details = get_option('linksynceparcel_user_order_details');
-			if($user_order_details == 0) {
+			if(isset($user_order_details) && $user_order_details == 0) {
 				$item_description = get_option('linksynceparcel_default_good_description');
 			}
 			
-			$weight = $singleWeight;
+			$item_qty = wc_get_order_item_meta( $row->order_item_id, '_qty', true );
+			$sale_price = get_post_meta( $prodid, '_sale_price', true );
+			$unitvalue = $sale_price;
+			if(empty($sale_price))
+				$unitvalue = get_post_meta( $prodid, '_regular_price', true );
+			
+			$value = wc_get_order_item_meta( $row->order_item_id, '_line_total', true );
+			if(empty($unitvalue)) {
+				$unitvalue = 0.01;
+				$value = $item_qty * $unitvalue;
+			}
+			
+			$weight = $singleWeight * $item_qty;
 			if($weight == 0){
 				$weight = get_post_meta( $prodid, '_width', true );
 				if(empty($weight)) {
@@ -5928,19 +6055,23 @@ class LinksynceparcelHelper
 					}
 				}
 			}
-			$item_qty = wc_get_order_item_meta( $row->order_item_id, '_qty', true );
-			$sale_price = get_post_meta( $prodid, '_sale_price', true );
-			$unitvalue = $sale_price;
-			if(empty($sale_price))
-				$unitvalue = get_post_meta( $prodid, '_regular_price', true );
-			
-			$value = wc_get_order_item_meta( $row->order_item_id, '_line_total', true );
-			if(empty($unitvalue)) {
-				$unitvalue = 0.01;
-				$value = $item_qty * $unitvalue;
-			}
 			
 			$totalCost += $value;
+			
+			if($pass) {
+				if($cnt == 0) {
+					$alter = true;
+					$maxval = $declared_option_value;
+					$unitval = $maxval / $item_qty;
+					$unitvalue = $unitval;
+					$value = $maxval;
+				}
+				
+				if($alter && $cnt > 0) {
+					$unitvalue = 1;
+					$value = $item_qty;
+				}
+			}
 			
 			$contents .= '<content>';
 			$contents .= '<goodsDescription>'. $item_description .'</goodsDescription>';
@@ -5951,6 +6082,8 @@ class LinksynceparcelHelper
 			$contents .= '<countryOriginCode>'. $countryOrigin .'</countryOriginCode>';
 			$contents .= '<hSTariff>'. $hsTariff .'</hSTariff>';
 			$contents .= '</content>';
+			
+			$cnt++;
 		}
 		return ($totalonly)?$totalCost:array('totalcost' => $totalCost, 'contents' => $contents);
 	}
@@ -5968,7 +6101,7 @@ class LinksynceparcelHelper
 	public static function getSingleWeight($rows, $total_weight) {
 		$cntr = 0;
 		foreach($rows as $row) {
-			$cntr++;
+			$cntr += wc_get_order_item_meta( $row->order_item_id, '_qty', true );
 		}
 		
 		$weight = $total_weight/$cntr;
@@ -6223,6 +6356,54 @@ class LinksynceparcelHelper
 		if(isset($_POST['_wpnonce-eParcel-default-settings'])) {
 			eparcel_save_new_defaults($_POST);
 		}
+	}
+	
+	public static function getAllOrderId()
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "posts"; 
+		
+		$status_condition = 'post_status="wc-pending" OR post_status="wc-processing" OR post_status="wc-on-hold" OR ';
+			
+		$display_choosen_status = (int)get_option('linksynceparcel_display_choosen_status');
+		if($display_choosen_status == 1)
+		{
+			$chosen_statuses = get_option('linksynceparcel_chosen_statuses');
+			if($chosen_statuses && count($chosen_statuses) > 0)
+			{
+				$status_condition = '';
+				foreach($chosen_statuses as $chosen_status)
+				{
+					$status_condition .= 'post_status="'.$chosen_status.'" OR ';
+				}
+			}
+		}
+		
+		$status_condition = substr($status_condition, 0, -4);
+		
+		$sql = 'SELECT ID FROM '. $table_name .' WHERE post_type = "shop_order" AND ('. $status_condition .')';
+		$results = $wpdb->get_results($sql);
+		if(count($results) > 0) {
+			$string = '';
+			foreach($results as $result) {
+				if(self::getOrderChargeCode($result->ID)) {
+					$string .= $result->ID .',';
+				}
+			}
+			return substr($string, 0, -1);
+		}
+		return false;
+	}
+	
+	public static function requiredWooVersion()
+	{
+		$pass = false;
+		$woo_version = self::wpbo_get_woo_version_number();
+		$req_version = '2.6.1';
+		if($woo_version >= $req_version) {
+			$pass = true;
+		}
+		return $pass;
 	}
 }
 

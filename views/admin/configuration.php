@@ -313,11 +313,43 @@
 						$declared_text_option = 'show-tr';
 					}
 				?>
-				<tr id="declared_value_text" class="hide-tr">
-                    <td width="20%" valign="top"></td>
+				<tr>
+                    <td width="20%" valign="top"><?php _e('Declare Value','linksynceparcel'); ?></td>
+                    <td align="left" colspan="2">
+						<?php
+							$order_value_declared_value = LinksynceparcelHelper::getFormValue('order_value_declared_value',get_option('linksynceparcel_order_value_declared_value'));
+						?>
+                        <select id="order_value_declared_value" name="linksynceparcel[order_value_declared_value]" <?php echo $product_classification_disable; ?>>
+                            <option value="0" <?php if ($order_value_declared_value == '0'){ echo 'selected="selected"'; }?>><?php _e('Order Value','linksynceparcel'); ?></option>
+                            <option value="1" <?php if ($order_value_declared_value == '1'){ echo 'selected="selected"'; }?>><?php _e('Order Value with Maximum','linksynceparcel'); ?></option>
+							<option value="2" <?php if ($order_value_declared_value == '2'){ echo 'selected="selected"'; }?>><?php _e('Fixed Value','linksynceparcel'); ?></option>
+						</select>
+					</td>
+				</tr>
+				<?php 
+					$maximum_declared_value = LinksynceparcelHelper::getFormValue('maximum_declared_value',get_option('linksynceparcel_maximum_declared_value'));
+					$maximum_declared_value_class = 'hide-tr';
+					if($order_value_declared_value == 1) {
+						$maximum_declared_value_class = 'show-tr';
+					}
+				?>
+				<tr id="maximum_declared_value" class="<?php echo $maximum_declared_value_class; ?>">
+                    <td width="20%" valign="top"><?php _e('Maximum Declared Value','linksynceparcel'); ?></td>
 					<td align="left" colspan="2">
-						<input type="number" class="declared_value_text" name="linksynceparcel[declared_value_text]" value="<?php echo $declared_text; ?>"><br />
-						<span class="comment"><?php _e("Please input integer.",'linksynceparcel'); ?></span>
+						<input type="number" class="maximum_declared_value" name="linksynceparcel[maximum_declared_value]" value="<?php echo $maximum_declared_value; ?>"><br />
+					</td>
+				</tr>
+				<?php 
+					$fixed_declared_value = LinksynceparcelHelper::getFormValue('fixed_declared_value',get_option('linksynceparcel_fixed_declared_value'));
+					$fixed_declared_value_class = 'hide-tr';
+					if($order_value_declared_value == 2) {
+						$fixed_declared_value_class = 'show-tr';
+					}
+				?>
+				<tr id="fixed_declared_value" class="<?php echo $fixed_declared_value_class; ?>">
+                    <td width="20%" valign="top"><?php _e('Fixed Declared Value','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<input type="number" class="fixed_declared_value" name="linksynceparcel[fixed_declared_value]" value="<?php echo $fixed_declared_value; ?>"><br />
 					</td>
 				</tr>
 				<tr>
@@ -947,6 +979,26 @@ jQuery(document).ready(function() {
 		} else {
 			jQuery('#declared_value_text').removeClass('show-tr');
 			jQuery('#declared_value_text').addClass('hide-tr');
+		}
+	});
+	
+	jQuery('#order_value_declared_value').change(function() {
+		var $this_val = jQuery(this).val();
+		if($this_val == 1) {
+			jQuery('#maximum_declared_value').removeClass('hide-tr');
+			jQuery('#maximum_declared_value').addClass('show-tr');
+			jQuery('#fixed_declared_value').removeClass('show-tr');
+			jQuery('#fixed_declared_value').addClass('hide-tr');
+		} else if($this_val == 2) {
+			jQuery('#fixed_declared_value').removeClass('hide-tr');
+			jQuery('#fixed_declared_value').addClass('show-tr');
+			jQuery('#maximum_declared_value').removeClass('show-tr');
+			jQuery('#maximum_declared_value').addClass('hide-tr');
+		} else {
+			jQuery('#maximum_declared_value').removeClass('show-tr');
+			jQuery('#maximum_declared_value').addClass('hide-tr');
+			jQuery('#fixed_declared_value').removeClass('show-tr');
+			jQuery('#fixed_declared_value').addClass('hide-tr');
 		}
 	});
 	

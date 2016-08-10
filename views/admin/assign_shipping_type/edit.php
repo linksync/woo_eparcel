@@ -21,49 +21,71 @@
         ?>
         <fieldset style="border:1px solid">
             <table width="100%" border="0" cellspacing="0" cellpadding="6">
+				<tr>
+					<td width="20%" valign="top"><?php _e('Shipping Type','linksynceparcel'); ?></td>
+					<td align="left">
+						<select name="linksynceparcel[shipping_type]" style="width:200px" id="shipping_type">
+							 <option value="code" <?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) != 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Method','linksynceparcel'); ?></option>
+							<option value="desc" <?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) == 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Description','linksynceparcel'); ?></option>
+						</select>
+					</td>
+				</tr>
+				
+				<?php if($pass) { ?>
+				
+					<tr class="shipping_code">
+						<td width="20%" valign="top"><?php _e('Shipping Methods','linksynceparcel'); ?></td>
+						<td align="left">
+							<select name="linksynceparcel[method]" style="width:200px">
+								<option value="" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == ''){ echo 'selected="selected"'; }?>>
+									<?php _e('Please select','linksynceparcel'); ?>
+								</option>
+								<?php foreach($availableMethods as $code => $method) {?>
+								<option value="<?php echo $code?>" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == $code){ echo 'selected="selected"'; }?>>
+									<?php echo $method['title']; ?>
+								</option>
+								<?php } ?>
+							</select>
+						</td>
+					</tr>
+				
+				<?php } else { ?>
             
-			   <tr>
-                    <td width="20%" valign="top"><?php _e('Shipping Type','linksynceparcel'); ?></td>
-                    <td align="left">
-                       <select name="linksynceparcel[shipping_type]" style="width:200px" id="shipping_type">
-                             <option value="code" <?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) != 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Method','linksynceparcel'); ?></option>
-                        	<option value="desc" <?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) == 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Description','linksynceparcel'); ?></option>
-                       </select>
-                   </td>
-              </tr>
-            
-             <tr class="shipping_code" style="<?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) == 'desc'){?>display:none<?php }?>">
-                    <td width="20%" valign="top"><?php _e('Shipping Methods','linksynceparcel'); ?></td>
-                    <td align="left">
-                       <select name="linksynceparcel[method]" style="width:200px">
-                        	<option value="" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == ''){ echo 'selected="selected"'; }?>>
+				
+					<tr class="shipping_code" style="<?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) == 'desc'){?>display:none<?php }?>">
+						<td width="20%" valign="top"><?php _e('Shipping Methods','linksynceparcel'); ?></td>
+						<td align="left">
+							<select name="linksynceparcel[method]" style="width:200px">
+								<option value="" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == ''){ echo 'selected="selected"'; }?>>
+									<?php _e('Please select','linksynceparcel'); ?>
+								</option>
+								<?php foreach($methods as $code => $method) {?>
+								<option value="<?php echo $code?>" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == $code){ echo 'selected="selected"'; }?>>
+									<?php echo $method->method_title?>
+								</option>
+								<?php } ?>
+							</select>
+						</td>
+					</tr>
+				<?php } ?>
+				
+				<tr class="shipping_desc" style="<?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) != 'desc'){?>display:none<?php }?>">
+					<td width="20%" valign="top"><?php _e('Shipping Description','linksynceparcel'); ?></td>
+					<td align="left">
+					   <select name="linksynceparcel[method2]" style="width:200px">
+							<option value="" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == ''){ echo 'selected="selected"'; }?>>
 								<?php _e('Please select','linksynceparcel'); ?>
-                            </option>
-                            <?php foreach($methods as $code => $method) {?>
-                            <option value="<?php echo $code?>" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == $code){ echo 'selected="selected"'; }?>>
-                                <?php echo $method->method_title?>
-                            </option>
-                            <?php } ?>
-                       </select>
-                   </td>
-              </tr>
-            
-              <tr class="shipping_desc" style="<?php if (LinksynceparcelHelper::getFormValue('shipping_type', $type->shipping_type) != 'desc'){?>display:none<?php }?>">
-                    <td width="20%" valign="top"><?php _e('Shipping Description','linksynceparcel'); ?></td>
-                    <td align="left">
-                       <select name="linksynceparcel[method2]" style="width:200px">
-                        	<option value="" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == ''){ echo 'selected="selected"'; }?>>
-								<?php _e('Please select','linksynceparcel'); ?>
-                            </option>
-                            <?php foreach($shipping_titles as $shipping_title) {?>
-                            <option value="<?php echo $shipping_title->code?>" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == $shipping_title->code){ echo 'selected="selected"'; }?>>
-                                <?php echo $shipping_title->code?>
-                            </option>
-                            <?php } ?>
-                       </select>
-                   </td>
-              </tr>
-              <tr>
+							</option>
+							<?php foreach($shipping_titles as $key=>$shipping_title) {?>
+							<option value="<?php echo $key; ?>" <?php if (LinksynceparcelHelper::getFormValue('method', $type->method) == $key){ echo 'selected="selected"'; }?>>
+								<?php echo $shipping_title['title']; ?>
+							</option>
+							<?php } ?>
+						</select>
+					</td>
+				</tr>
+			  
+				<tr>
                     <td width="20%" valign="top"><?php _e('Charge Code','linksynceparcel'); ?></td>
                     <td align="left">
                      	<select name="linksynceparcel[charge_code]" style="width:200px">
@@ -78,7 +100,7 @@
                             <?php } ?>
                        </select>
                    </td>
-              </tr>
+				</tr>
  
           </table>
 		</fieldset>
