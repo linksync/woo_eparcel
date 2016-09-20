@@ -1,4 +1,6 @@
 <?php
+set_time_limit(0);
+
 if(!defined('LINKSYNC_EPARCEL_URL1'))
 	define('LINKSYNC_EPARCEL_URL1','api.linksync.com');
 if(!defined('LINKSYNC_EPARCEL_URL2'))

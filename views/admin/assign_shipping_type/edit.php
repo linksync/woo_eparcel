@@ -86,7 +86,7 @@
 				</tr>
 			  
 				<tr>
-                    <td width="20%" valign="top"><?php _e('Charge Code','linksynceparcel'); ?></td>
+                    <td width="20%" valign="top"><?php _e('Services','linksynceparcel'); ?></td>
                     <td align="left">
                      	<select name="linksynceparcel[charge_code]" style="width:200px">
                         	<option value="" <?php if (LinksynceparcelHelper::getFormValue('charge_code', $type->charge_code) == ''){ echo 'selected="selected"'; }?>>
@@ -94,8 +94,8 @@
                             </option>
                             <?php 
 							foreach($chargeCodes as $code => $codeLabel) {?>
-                            <option value="<?php echo $code?>" <?php if (LinksynceparcelHelper::getFormValue('charge_code', $type->charge_code) == $code){ echo 'selected="selected"'; }?>>
-                                <?php echo $code .' - '. $codeLabel['name']; ?>
+                            <option value="<?php echo $code?>-<?php echo $codeLabel['key']?>" <?php if (LinksynceparcelHelper::getFormValue('charge_code', $type->charge_code) == $code){ echo 'selected="selected"'; }?>>
+                                <?php echo $codeLabel['name']; ?>
                             </option>
                             <?php } ?>
                        </select>
