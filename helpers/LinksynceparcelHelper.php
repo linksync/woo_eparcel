@@ -176,28 +176,12 @@ class LinksynceparcelHelper
 			$wpdb->query( $sql );
 		}
 		
-		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'date_process'";
-		$records = $wpdb->query( $sql );
-		if(!$records)
-		{
-			$sql = "ALTER TABLE $table_name ADD `date_process` varchar(250)";
-			$wpdb->query( $sql );
-		}
-		
 		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'shipping_type'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
 		{
 			$sql = "ALTER TABLE $table_name ADD shipping_type varchar(20)";
-			$wpdb->query( $sql );
-		}
-		
-		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'service_type'";
-		$records = $wpdb->query( $sql );
-		if(!$records)
-		{
-			$sql = "ALTER TABLE $table_name ADD service_type varchar(100)";
 			$wpdb->query( $sql );
 		}
 		
@@ -215,15 +199,6 @@ class LinksynceparcelHelper
 		if(!$records)
 		{
 			$sql = "ALTER TABLE $table_name ADD insurance tinyint(1) NOT NULL DEFAULT '0' AFTER `modify_date`";
-			$wpdb->query( $sql );
-		}
-		
-		$table_name = $wpdb->prefix . "linksynceparcel_manifest";
-		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'despatch_complete'";
-		$records = $wpdb->query( $sql );
-		if(!$records)
-		{
-			$sql = "ALTER TABLE $table_name ADD despatch_complete tinyint(1) NOT NULL DEFAULT '0'";
 			$wpdb->query( $sql );
 		}
 	}
@@ -249,17 +224,7 @@ class LinksynceparcelHelper
 			`hs_tariff` varchar(255) DEFAULT NULL,
 			`default_contents` varchar(255) DEFAULT NULL,
 			`ship_country` varchar(255) DEFAULT NULL
-		  );";
-		  
-		dbDelta( $sql );
-		
-		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses"; 
-		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
-			`id` int(11) NOT NULL auto_increment,
-			`status` varchar(255) NOT NULL,
-			`status_name` varchar(255) NOT NULL,
-			PRIMARY KEY  (`id`)
-		  );";
+		  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 		  
 		dbDelta( $sql );
 	}
@@ -411,22 +376,6 @@ class LinksynceparcelHelper
 		foreach($values as $key => $val)
 		{
 			update_option( 'linksynceparcel_'.$key, $val);
-		}
-	}
-	
-	public static function updateShippingChargecode($data)
-	{
-		global $wpdb;
-		$table = $wpdb->prefix ."linksynceparcel_nonlinksync";
-		
-		$services = self::eParcelServices();
-		
-		foreach($services as $k => $service) {
-			$v = self::getSingleChargeCode($k);
-			$data = array('charge_code' => $v);
-			$where = array('service_type' => $k);
-			
-			$wpdb->update( $table, $data, $where);
 		}
 	}
 	
@@ -1071,7 +1020,7 @@ class LinksynceparcelHelper
 			'3E05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1081,7 +1030,7 @@ class LinksynceparcelHelper
 			'7E05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1111,7 +1060,7 @@ class LinksynceparcelHelper
 			'3E35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1121,7 +1070,7 @@ class LinksynceparcelHelper
 			'7E35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1151,7 +1100,7 @@ class LinksynceparcelHelper
 			'3E55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1161,7 +1110,7 @@ class LinksynceparcelHelper
 			'7E55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1191,7 +1140,7 @@ class LinksynceparcelHelper
 			'3E85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1201,7 +1150,7 @@ class LinksynceparcelHelper
 			'7E85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1221,7 +1170,7 @@ class LinksynceparcelHelper
 			'2A35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '500g Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1241,7 +1190,7 @@ class LinksynceparcelHelper
 			'2B35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '500g Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1261,7 +1210,7 @@ class LinksynceparcelHelper
 			'2C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '500g Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1281,7 +1230,7 @@ class LinksynceparcelHelper
 			'2D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '500g Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1301,7 +1250,7 @@ class LinksynceparcelHelper
 			'2G35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '500g Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1321,7 +1270,7 @@ class LinksynceparcelHelper
 			'2H35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '500g Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1341,7 +1290,7 @@ class LinksynceparcelHelper
 			'2I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '500g Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1361,7 +1310,7 @@ class LinksynceparcelHelper
 			'2J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '500g Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1381,7 +1330,7 @@ class LinksynceparcelHelper
 			'3B05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1401,7 +1350,7 @@ class LinksynceparcelHelper
 			'3C05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1421,7 +1370,7 @@ class LinksynceparcelHelper
 			'3C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1441,7 +1390,7 @@ class LinksynceparcelHelper
 			'3C55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1461,7 +1410,7 @@ class LinksynceparcelHelper
 			'3C85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1481,7 +1430,7 @@ class LinksynceparcelHelper
 			'3D05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1501,7 +1450,7 @@ class LinksynceparcelHelper
 			'3D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1521,7 +1470,7 @@ class LinksynceparcelHelper
 			'3D55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1541,7 +1490,7 @@ class LinksynceparcelHelper
 			'3D85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1561,7 +1510,7 @@ class LinksynceparcelHelper
 			'3H05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1581,7 +1530,7 @@ class LinksynceparcelHelper
 			'3I05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1601,7 +1550,7 @@ class LinksynceparcelHelper
 			'3I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1621,7 +1570,7 @@ class LinksynceparcelHelper
 			'3I55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1641,7 +1590,7 @@ class LinksynceparcelHelper
 			'3I85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1661,7 +1610,7 @@ class LinksynceparcelHelper
 			'3J05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1681,7 +1630,7 @@ class LinksynceparcelHelper
 			'3J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1701,7 +1650,7 @@ class LinksynceparcelHelper
 			'3J55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1721,7 +1670,7 @@ class LinksynceparcelHelper
 			'3J85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1741,7 +1690,7 @@ class LinksynceparcelHelper
 			'3K05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1761,7 +1710,7 @@ class LinksynceparcelHelper
 			'3K35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1781,7 +1730,7 @@ class LinksynceparcelHelper
 			'3K55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1801,7 +1750,7 @@ class LinksynceparcelHelper
 			'3K85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1821,7 +1770,7 @@ class LinksynceparcelHelper
 			'4A35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '1kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1841,7 +1790,7 @@ class LinksynceparcelHelper
 			'4B35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '1kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1861,7 +1810,7 @@ class LinksynceparcelHelper
 			'4C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '1kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1881,7 +1830,7 @@ class LinksynceparcelHelper
 			'4D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '1kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1901,7 +1850,7 @@ class LinksynceparcelHelper
 			'4I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '1kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1921,7 +1870,7 @@ class LinksynceparcelHelper
 			'4J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '1kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -1941,7 +1890,7 @@ class LinksynceparcelHelper
 			'7B05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1961,7 +1910,7 @@ class LinksynceparcelHelper
 			'7B35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -1981,7 +1930,7 @@ class LinksynceparcelHelper
 			'7B55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2001,7 +1950,7 @@ class LinksynceparcelHelper
 			'7B85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2021,7 +1970,7 @@ class LinksynceparcelHelper
 			'7C05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2041,7 +1990,7 @@ class LinksynceparcelHelper
 			'7C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2061,7 +2010,7 @@ class LinksynceparcelHelper
 			'7C55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2081,7 +2030,7 @@ class LinksynceparcelHelper
 			'7C85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2101,7 +2050,7 @@ class LinksynceparcelHelper
 			'7D05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2121,7 +2070,7 @@ class LinksynceparcelHelper
 			'7D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2141,7 +2090,7 @@ class LinksynceparcelHelper
 			'7D55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2161,7 +2110,7 @@ class LinksynceparcelHelper
 			'7D85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2181,7 +2130,7 @@ class LinksynceparcelHelper
 			'7H05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2201,7 +2150,7 @@ class LinksynceparcelHelper
 			'7H35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2221,7 +2170,7 @@ class LinksynceparcelHelper
 			'7H55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2241,7 +2190,7 @@ class LinksynceparcelHelper
 			'7H85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2261,7 +2210,7 @@ class LinksynceparcelHelper
 			'7I05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2281,7 +2230,7 @@ class LinksynceparcelHelper
 			'7I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2301,7 +2250,7 @@ class LinksynceparcelHelper
 			'7I55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2321,7 +2270,7 @@ class LinksynceparcelHelper
 			'7I85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2341,7 +2290,7 @@ class LinksynceparcelHelper
 			'7J05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2361,7 +2310,7 @@ class LinksynceparcelHelper
 			'7J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2381,7 +2330,7 @@ class LinksynceparcelHelper
 			'7J55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2401,7 +2350,7 @@ class LinksynceparcelHelper
 			'7J85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2421,7 +2370,7 @@ class LinksynceparcelHelper
 			'7K05'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2441,7 +2390,7 @@ class LinksynceparcelHelper
 			'7K35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2461,7 +2410,7 @@ class LinksynceparcelHelper
 			'7K55'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2481,7 +2430,7 @@ class LinksynceparcelHelper
 			'7K85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2501,7 +2450,7 @@ class LinksynceparcelHelper
 			'7N35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2521,7 +2470,7 @@ class LinksynceparcelHelper
 			'7N85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2541,7 +2490,7 @@ class LinksynceparcelHelper
 			'7O35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2561,7 +2510,7 @@ class LinksynceparcelHelper
 			'7O85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2581,7 +2530,7 @@ class LinksynceparcelHelper
 			'7P35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2601,7 +2550,7 @@ class LinksynceparcelHelper
 			'7P85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2621,7 +2570,7 @@ class LinksynceparcelHelper
 			'7T35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2641,7 +2590,7 @@ class LinksynceparcelHelper
 			'7T85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2661,7 +2610,7 @@ class LinksynceparcelHelper
 			'7U35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2681,7 +2630,7 @@ class LinksynceparcelHelper
 			'7U85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2701,7 +2650,7 @@ class LinksynceparcelHelper
 			'7V35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2721,7 +2670,7 @@ class LinksynceparcelHelper
 			'7V85'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post Wine + Signature',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2741,7 +2690,7 @@ class LinksynceparcelHelper
 			'8A35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '3kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2761,7 +2710,7 @@ class LinksynceparcelHelper
 			'8B35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '3kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2781,7 +2730,7 @@ class LinksynceparcelHelper
 			'8C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '3kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2801,7 +2750,7 @@ class LinksynceparcelHelper
 			'8D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '3kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2821,7 +2770,7 @@ class LinksynceparcelHelper
 			'8G35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '3kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2841,7 +2790,7 @@ class LinksynceparcelHelper
 			'8H35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '3kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2861,7 +2810,7 @@ class LinksynceparcelHelper
 			'8I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '3kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2881,7 +2830,7 @@ class LinksynceparcelHelper
 			'8J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '3kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -2901,7 +2850,7 @@ class LinksynceparcelHelper
 			'9A35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '5kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2921,7 +2870,7 @@ class LinksynceparcelHelper
 			'9B35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '5kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2941,7 +2890,7 @@ class LinksynceparcelHelper
 			'9C35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '5kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2961,7 +2910,7 @@ class LinksynceparcelHelper
 			'9D35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '5kg Parcel Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 93,
 				'labelType' 	=> 'Parcel Post',
 				'template' 		=> 'EPARCEL',
@@ -2981,7 +2930,7 @@ class LinksynceparcelHelper
 			'9G35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '5kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -3001,7 +2950,7 @@ class LinksynceparcelHelper
 			'9H35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '5kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -3021,7 +2970,7 @@ class LinksynceparcelHelper
 			'9I35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '5kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -3041,7 +2990,7 @@ class LinksynceparcelHelper
 			'9J35'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> '5kg Express Post Satchel + Sig',
-				'serviceCode' 	=> 2,
+				'serviceCode' 	=> 0,
 				'prodCode' 		=> 96,
 				'labelType' 	=> 'Express Post',
 				'template' 		=> 'EPARCEL EXPRESS',
@@ -3592,43 +3541,6 @@ class LinksynceparcelHelper
 		return $chargeCode;
 	}
 	
-	public static function getCombination($chargecode)
-	{
-		$chargeCodes = self::getEParcelChargeCodes();
-		$cc = $chargeCodes[$chargecode];
-		if($cc['serviceCode'] != 0 && $cc['prodCode'] != 0) {
-			$sc_pc = $cc['serviceCode'] .'_'. $cc['prodCode'];
-			return self::combinationData($sc_pc);
-		}
-		return false;
-	}
-	
-	public static function combinationData($sc_pc) 
-	{
-		$combinations = array(
-			'2_93' => array(
-				'delivery_signature_allowed' => 1,
-				'partial_delivery_allowed' => 0
-			),
-			'2_96' => array(
-				'delivery_signature_allowed' => 1,
-				'partial_delivery_allowed' => 0
-			),
-			'9_91' => array(
-				'delivery_signature_allowed' => 0,
-				'partial_delivery_allowed' => 1
-			),
-			'9_87' => array(
-				'delivery_signature_allowed' => 0,
-				'partial_delivery_allowed' => 1
-			)
-		);
-		if(isset($combinations[$sc_pc])) {	
-			return $combinations[$sc_pc];
-		}
-		return false;
-	}
-	
 	public static function getChargeCodeValues($none=false)
 	{
 		$chargeCodes = self::getEParcelChargeCodes();
@@ -3933,17 +3845,8 @@ class LinksynceparcelHelper
 		// Validate order weight and insurance value
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 		$chargeCodeData = $allowedChargeCodes[$chargeCode];
-		
-		$combinations = self::getCombination($chargeCode);
-		if($combinations) {
-			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
-			if(is_array($validateCombination)) {
-				return $validateCombination;
-			}
-		}
-		
-		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
-		if(is_array($validateIntVal)) {
+		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight']);
+		if(is_array($validateIntVal) && $isInternational) {
 			return $validateIntVal;
 		}
 		
@@ -3958,7 +3861,7 @@ class LinksynceparcelHelper
 			);
 			
 			$replace = array(
-				$articlesInternationalInfo['content'],
+				$articlesInternationalInfo,
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
 				$order->id,
@@ -4029,17 +3932,8 @@ class LinksynceparcelHelper
 		// Validate order weight and insurance value
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 		$chargeCodeData = $allowedChargeCodes[$chargeCode];
-		
-		$combinations = self::getCombination($chargeCode);
-		if($combinations) {
-			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
-			if(is_array($validateCombination)) {
-				return $validateCombination;
-			}
-		}
-		
-		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
-		if(is_array($validateIntVal)) {
+		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight']);
+		if(is_array($validateIntVal) && $isInternational) {
 			return $validateIntVal;
 		}
 		
@@ -4054,7 +3948,7 @@ class LinksynceparcelHelper
 			);
 			
 			$replace = array(
-				$articlesInternationalInfo['content'],
+				$articlesInternationalInfo,
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
 				$order->id,
@@ -4123,17 +4017,8 @@ class LinksynceparcelHelper
 		// Validate order weight and insurance value
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 		$chargeCodeData = $allowedChargeCodes[$chargeCode];
-		
-		$combinations = self::getCombination($chargeCode);
-		if($combinations) {
-			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
-			if(is_array($validateCombination)) {
-				return $validateCombination;
-			}
-		}
-		
-		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
-		if(is_array($validateIntVal)) {
+		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight']);
+		if(is_array($validateIntVal) && $isInternational) {
 			return $validateIntVal;
 		}
 		
@@ -4148,7 +4033,7 @@ class LinksynceparcelHelper
 			);
 			
 			$replace = array(
-				$articlesInternationalInfo['content'],
+				$articlesInternationalInfo,
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
 				$order->id,
@@ -4419,8 +4304,6 @@ class LinksynceparcelHelper
 			
 			$article['weight'] = number_format($article['weight'],2,'.', '');
 			$total_weight += $article['weight'];
-
-			$article['weight'] = self::calculateWeightDefault($article['weight']);
 			
 			if($isInternational) {
 				$search = array(
@@ -4502,8 +4385,6 @@ class LinksynceparcelHelper
 			
 			$article['weight'] = number_format($article['weight'],2,'.', '');
 			$totalWeight += $article['weight'];
-
-			$article['weight'] = self::calculateWeightDefault($article['weight']);
 			
 			if($isInternational) {
 				$search = array(
@@ -4605,8 +4486,6 @@ class LinksynceparcelHelper
 				
 				$total_weight += $article['weight'];
 				
-				$article['weight'] = self::calculateWeightDefault($article['weight']);
-
 				if($isInternational) {
 					$search = array(
 						'[[articleDescription]]',
@@ -4702,8 +4581,6 @@ class LinksynceparcelHelper
 
 					$article['weight'] = number_format($article['weight'],2,'.', '');
 					$total_weight += $article['weight'];
-
-					$article['weight'] = self::calculateWeightDefault($article['weight']);
 					
 					if($isInternational) {
 						$search = array(
@@ -4761,8 +4638,6 @@ class LinksynceparcelHelper
 				
 				$article['weight'] = number_format($article['weight'],2,'.', '');
 				$total_weight += $article['weight'];
-
-				$article['weight'] = self::calculateWeightDefault($article['weight']);
 					
 				if($isInternational) {
 					$search = array(
@@ -4824,7 +4699,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."'";
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4868,7 +4743,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "UPDATE {$table_name} SET delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', label = '', is_label_printed=0, is_label_created=0, weight = '".$total_weight."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."'";
+		$query = "UPDATE {$table_name} SET delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', notify_customers = '".$data['notify_customers']."', chargecode = '".$chargeCode."', label = '', is_label_printed=0, is_label_created=0, weight = '".$total_weight."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."'";
 		
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
@@ -5287,8 +5162,6 @@ class LinksynceparcelHelper
 			}
 			
 			$total_weight += $article->actual_weight;
-
-			$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
 		
 			$replace = array(
 				trim($article->actual_weight),
@@ -5385,8 +5258,6 @@ class LinksynceparcelHelper
 			
 			$total_weight += $article->actual_weight;
 			
-			$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
-
 			$default_width = 0;
 			$use_article_dimensions = (int)get_option('linksynceparcel_use_dimension');
 			if($use_article_dimensions == 1)
@@ -5459,8 +5330,6 @@ class LinksynceparcelHelper
 		
 		$article['weight'] = number_format($article['weight'],2,'.', '');
 		$total_weight += $article['weight'];
-
-		$article['weight'] = self::calculateWeightDefault($article['weight']);
 	
 		$replace = array(
 			trim($article['weight']),
@@ -5559,9 +5428,6 @@ class LinksynceparcelHelper
 				$article = $data['article'];
 				$article['weight'] = number_format($article['weight'],2,'.', '');
 				$total_weight += $article['weight'];
-
-				$article['weight'] = self::calculateWeightDefault($article['weight']);
-
 				$replace = array(
 					trim($article['weight']),
 					self::xmlData(trim($article['description'])),
@@ -5583,8 +5449,6 @@ class LinksynceparcelHelper
 				}
 				
 				$total_weight += $article->actual_weight;
-
-				$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
 				
 				$replace = array(
 					trim($article->actual_weight),
@@ -5755,43 +5619,46 @@ class LinksynceparcelHelper
 		$consignments = self::getConsignmentsByNumber($manifestNumber);
 		foreach($consignments as $consignment)
 		{
-			$address = get_post_meta($consignment->order_id);
-			$toEmail = $address['_billing_email'][0];
-			$toName = $address['_billing_first_name'][0].' '.$address['_billing_last_name'][0];
-			$fromEmail  = get_option('linksynceparcel_from_email_address');
-			$fromName = get_bloginfo('name');
-			$subject  = get_option('linksynceparcel_subject');
-			$siteUrl = get_bloginfo('url');
-
-			$content  = get_option('linksynceparcel_email_body');
-			$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
-			
-			$order = new WC_Order($consignment->order_id);
-			
-			$search = array(
-				'[TrackingNumber]',
-				'[OrderNumber]',
-				'[CustomerFirstname]'
-			);
-	
-			$replace = array(
-				$consignment->consignment_number,
-				self::getIncrementId($order),
-				$address['_billing_first_name'][0]
-			);
-			
-			$subject = str_replace($search, $replace, $subject);
-			$content = str_replace($search, $replace, $content);
-			
-			$headers = 'From: '.$fromName;
-			if(!empty($fromEmail))
+			if($consignment->notify_customers)
 			{
-				$headers .= ' <'.$fromEmail.'>';
-			}
+				$address = get_post_meta($consignment->order_id);
+				$toEmail = $address['_billing_email'][0];
+				$toName = $address['_billing_first_name'][0].' '.$address['_billing_last_name'][0];
+				$fromEmail  = get_option('linksynceparcel_from_email_address');
+				$fromName = get_bloginfo('name');
+				$subject  = get_option('linksynceparcel_subject');
+				$siteUrl = get_bloginfo('url');
+
+				$content  = get_option('linksynceparcel_email_body');
+				$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
+				
+				$order = new WC_Order($consignment->order_id);
+				
+				$search = array(
+					'[TrackingNumber]',
+					'[OrderNumber]',
+					'[CustomerFirstname]'
+				);
 		
-			add_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
-			wp_mail($toEmail, $subject, $content,$headers);
-			remove_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+				$replace = array(
+					$consignment->consignment_number,
+					self::getIncrementId($order),
+					$address['_billing_first_name'][0]
+				);
+				
+				$subject = str_replace($search, $replace, $subject);
+				$content = str_replace($search, $replace, $content);
+				
+				$headers = 'From: '.$fromName;
+				if(!empty($fromEmail))
+				{
+					$headers .= ' <'.$fromEmail.'>';
+				}
+			
+				add_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+				wp_mail($toEmail, $subject, $content,$headers);
+				remove_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+			}
 		}
 	}
 	
@@ -6184,7 +6051,7 @@ class LinksynceparcelHelper
 					{
 						$weight = $default_article_weight;
 					} else {
-						$weight = 0.01;
+						$weight = 0.00;
 					}
 				}
 			}
@@ -6291,7 +6158,7 @@ class LinksynceparcelHelper
 		);
 		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articleall-template.xml');
-		return array('content' => str_replace($search, $replace, $template), 'totalcost' => $articleContents['totalcost']);
+		return str_replace($search, $replace, $template);
 	}
 	
 	public static function prepareInternationalOrderWeightArticles($data,$order) {
@@ -6341,7 +6208,7 @@ class LinksynceparcelHelper
 		);
 		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articleall-template.xml');
-		return array('content' => str_replace($search, $replace, $template), 'totalcost' => $articleContents['totalcost']);
+		return str_replace($search, $replace, $template);
 	}
 	
 	public static function deliveryFailureDetails() {
@@ -6528,56 +6395,6 @@ class LinksynceparcelHelper
 		return false;
 	}
 	
-	public static function saveOrderStatuses()
-	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-		
-		$statuses = LinksynceparcelHelper::getOrderStatuses();
-		
-		$values = '';
-		$cnt = 0;
-		foreach($statuses as $slug => $status) {
-			$check = self::checkOrderStatus($slug);
-			if(!$check) {
-				$values .= '("'. $slug .'", "'. $status .'"),';
-				$cnt++;
-			}
-		}
-		
-		if($cnt > 0) {
-			$data_values = substr($values, 0, -1);
-			$wpdb->query('INSERT INTO '. $table_name .' (`status`, `status_name`) VALUES '. $data_values);
-		}
-	}
-	
-	public static function checkOrderStatus($status)
-	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-		
-		$result = $wpdb->get_row( "SELECT `status` FROM ". $table_name ." WHERE status='". $status ."'" );
-		if(!empty($result)) {
-			return true;
-		}
-		return false;
-	}
-	
-	public static function getListOrderStatuses()
-	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-		
-		$results = $wpdb->get_results( 'SELECT `status`, `status_name` FROM '. $table_name );
-		
-		$data = array();
-		foreach($results as $result) {
-			$data[$result->status] = $result->status_name;
-		}
-		
-		return $data;
-	}
-	
 	public static function requiredWooVersion()
 	{
 		$pass = false;
@@ -6587,90 +6404,6 @@ class LinksynceparcelHelper
 			$pass = true;
 		}
 		return $pass;
-	}
-	
-	public static function displayGroupedChargeCode($formValue, $service_key, $chargecodes = NULL)
-	{
-		if($chargecodes == NULL)
-		{
-			$chargecodes = self::getEParcelChargeCodes();
-		}
-		
-		foreach ($chargecodes as $ppcc_key => $ppcc_val) {
-			if($ppcc_val['key'] == $service_key) {
-			?>
-			   <option value="<?php echo $ppcc_key; ?>" <?php if($formValue==$ppcc_key){ echo "selected='selected'"; }?>> <?php echo $ppcc_key; ?> </option>
-			<?php
-			}
-		}
-	}
-	
-	public static function getAllChargeCodesOptions()
-	{
-		$services = self::eParcelServices();
-		$data = array();
-		foreach($services as $key => $service) {
-			$chargecode = self::getSingleChargeCode($key);
-			
-			$data[$chargecode] = array(
-				'key' => $key,
-				'name' => $service
-			);
-		}
-		
-		return $data;
-	}
-	
-	public static function getSingleChargeCode($key)
-	{
-		return get_option('linksynceparcel_'. $key .'_charge_code');
-	}
-	
-	public static function eParcelServices()
-	{
-		$services = array(
-			'parcel_post' => 'Parcel Post',
-			'express_post' => 'Express Post eParcel',
-			'int_economy' => 'Int. Economy Air',
-			'int_express_courier' => 'Int. Express Courier Document',
-			'int_express_post' => 'Int. Express Post',
-			'int_pack_track' => 'Int. Pack & Track',
-			'int_registered' => 'Int. Registered',
-		);
-		return $services;
-	}
-	
-	public static function checkConsignmentProcessExist($dateprocess)
-	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
-		
-		$result = $wpdb->get_row( 'SELECT `date_process` FROM '. $table_name .' WHERE date_process="'. $dateprocess .'"' );
-		if(!empty($result)) {
-			return $result;
-		}
-		return false;
-	}
-
-	public static function calculateWeightDefault($weight)
-	{
-		if($weight==floatval(0.00))
-		{
-			return 0.01;
-		}
-
-		return $weight;
-	}
-	
-	public static function session_logs($session, $content)
-	{
-		$filename = $session.'.txt';
-		$filepath = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/';
-		if (!file_exists($filepath)) {
-			mkdir($filepath, 0777, true);
-		}
-		$path = $filepath.$filename;
-		file_put_contents($path, $content);
 	}
 }
 

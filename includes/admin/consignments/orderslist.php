@@ -667,30 +667,18 @@ class LinksynceparcelAdminConsignmentsOrdersList
 		wp_redirect(admin_url('admin.php?page=linksynceparcel'));
 	}
 	
-	public static function despatchManifestData()
+	public static function despatchManifest() 
 	{
-		if(!session_id()) {
-			session_start();
-		}
-		
 		global $is_greater_than_21;
 		try 
 		{
-			$arr_content = json_encode(array('percentage' => 1, 'message' => 'processed'));
-			LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-			
-			$arr_content = '';
 			$isManifest = false;
 			$manifestNumber = false;
 			$manifests = LinksynceparcelApi::getManifest();
 			$xml = simplexml_load_string($manifests);
 			$currentManifest = '';
-			
-			$arr_content = json_encode(array('percentage' => 5, 'message' => 'processed'));
-			LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-			
-			if($xml) {
-				$manifest = $xml->manifest;
+			if($xml)
+			{
 				foreach($xml->manifest as $manifest)
 				{
 					$manifestNumber = $manifest->manifestNumber;
@@ -706,39 +694,26 @@ class LinksynceparcelAdminConsignmentsOrdersList
 						$isManifest = true;
 					}
 				}
-				
-				$arr_content = json_encode(array('percentage' => 15, 'message' => 'processed'));
-				LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 			}
 			
 			if(!$isManifest)
 			{
-				$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-				LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-				
-				return array("error" => 1, "msg" => "No consignments are available in the current manifest");
+				throw new Exception('No consignments are available in the current manifest');
 			}
-			
-			$arr_content = json_encode(array('percentage' => 24, 'message' => 'processed'));
-			LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 			
 			$notDespatchedConsignmentNumbers = LinksynceparcelHelper::getNotDespatchedAssignedConsignmentNumbers();
 			if(count($notDespatchedConsignmentNumbers) == 0)
 			{
-				$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-				LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-				
 				$error = 'No consignments are available in the current manifest';
-				return array("error" => 1, "msg" => $error);
-			} else {
-				try {
-					$arr_content = json_encode(array('percentage' => 45, 'message' => 'processed'));
-					LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
-					$statuses = LinksynceparcelHelper::getListOrderStatuses();
+				LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
+			} 
+			else 
+			{
+				try 
+				{
+					$statuses = LinksynceparcelHelper::getOrderStatuses();
 					
 					$despatch = true;
-					$notdespatched_msg = '';
 					foreach ($notDespatchedConsignmentNumbers as $consignmentNumber) 
 					{
 						$consignmentNumber = trim($consignmentNumber);
@@ -746,44 +721,42 @@ class LinksynceparcelAdminConsignmentsOrdersList
 						if(!$consignment)
 						{
 							LinksynceparcelApi::deleteConsignment($consignmentNumber);
+							continue;
 							$despatch = false;
-							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': not in the current DB. Please try again.<br>';
+							$error = sprintf('Consignment #%s: not in the current DB', $consignmentNumber);
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 						}
 						else if(!$consignment->is_label_printed)
 						{
 							$despatch = false;
-							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': you have not printed labels for this consignment.<br>';
+							$error = sprintf('Consignment #%s: you have not printed labels for this consignment.', $consignmentNumber);
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 						}
 						else if($consignment->print_return_labels && !$consignment->is_return_label_printed)
 						{
 							$despatch = false;
-							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': you have not printed return labels for this consignment.<br>';
+							$error = sprintf('Consignment #%s: you have not printed return labels for this consignment.', $consignmentNumber);
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 						}
 					}
-					$arr_content = json_encode(array('percentage' => 63, 'message' => 'processed'));
-					LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 					
-					if($despatch) {
-						try {
+					if($despatch)
+					{
+						try 
+						{
 							$status = LinksynceparcelApi::despatchManifest();
 							$status = trim(strtolower($status));
 							if($status == 'ok')
 							{
-								$arr_content = json_encode(array('percentage' => 74, 'message' => 'processed'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
 								$timestamp = time();
 								$date = date('Y-m-d H:i:s', $timestamp);
 								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_date',$date);
 								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'despatched',1);
 								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'is_next_manifest',0);
-					
+								
 								$changeState = get_option('linksynceparcel_change_order_status');
 								if(!empty($changeState))
 								{
-									$arr_content = json_encode(array('percentage' => 85, 'message' => 'processed'));
-									LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-									
 									$ordersList = LinksynceparcelHelper::getOrdersByManifest($currentManifest);
 									if($ordersList)
 									{
@@ -829,28 +802,18 @@ class LinksynceparcelAdminConsignmentsOrdersList
 													}
 												}
 											}
+											
 										}
 									}
 								}
 								
-								$arr_content = json_encode(array('percentage' => 91, 'message' => 'processed'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-								
-								$multiple_msg = array();
-								
 								$success = 'Despatching manifest is successful';
-								$multiple_msg[] = array(
-									'error' => 0,
-									'msg' => $success
-								);
+								LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$success);
 									
 								$labelContent = LinksynceparcelApi::printManifest($currentManifest);
-							
+
 								if($labelContent)
 								{
-									$arr_content = json_encode(array('percentage' => 95, 'message' => 'processed'));
-									LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
 									$filename = $currentManifest.'.pdf';
 									$filepath = linksynceparcel_UPLOAD_DIR.'manifest/'.$filename;
 									$handle = fopen($filepath,'wb');
@@ -861,75 +824,40 @@ class LinksynceparcelAdminConsignmentsOrdersList
 									
 									$labelLink =linksynceparcel_UPLOAD_BASEURL.'manifest/';
 									$success = sprintf('Your Manifest Summary has been generated. <a href="%s" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>', $labelLink.$filename.'?'.time());
-									
-									$multiple_msg[] = array(
-										'error' => 0,
-										'msg' => $success
-									);
+									LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$success);
 								}
 								else
 								{
 									$error = 'Manifest label content is empty';
-									$multiple_msg[] = array(
-										'error' => 1,
-										'msg' => $error
-									);
+									LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 								}
-								$arr_content = json_encode(array('percentage' => 97, 'message' => 'processed'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
-								$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
-								if($notifyCustomerOption == 1) {
-									LinksynceparcelHelper::notifyCustomers($currentManifest);
-								}
-								$arr_content = json_encode(array('percentage' => 100, 'message' => 'completed'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 								
-								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_complete',1);
-					
-								return array("error" => 2, "msg" => $multiple_msg);
+								LinksynceparcelHelper::notifyCustomers($currentManifest);
 							}
 							else
 							{
-								$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-								
 								$error = 'Despatching manifest is failed';
-								return array("error" => 1, "msg" => $error);
+								LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 							}
 						}
 						catch (Exception $e) 
 						{
-							$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-							LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-							
-							return array("error" => 1, "msg" => $e->getMessage());
+							$error = sprintf('Despatching manifest, Error: %s', $e->getMessage());
+							LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$error);
 						}
-					} else {
-						$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-						LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-				
-						$error = substr($notdespatched_msg, 0, -4);
-						return array("error" => 1, "msg" => $error);
 					}
-				}
+				} 
 				catch (Exception $e) 
 				{
-						
-					$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-					LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
-					return array("error" => 1, "msg" => $e->getMessage());
+					LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$e->getMessage());
 				}
 			}
 		}
 		catch (Exception $e) 
 		{
-			$arr_content = json_encode(array('percentage' => null, 'message' => 'cancelled'));
-			LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-			
-			return array("error" => 1, "msg" => $e->getMessage());
+			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$e->getMessage());
 		}
-	}
+        wp_redirect(admin_url('admin.php?page=linksynceparcel'));
+    }
 }
 ?>

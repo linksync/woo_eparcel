@@ -215,6 +215,13 @@ if($weight <= $weightPerArticle)
         </select></td>
       </tr>
       <tr>
+        <td>Australia Post email notification?</td>
+        <td><select id="email_notification" name="email_notification" style="width:140px">>
+            <option value="1" <?php echo ($consignment->email_notification==1?'selected':'')?>>Yes</option>
+            <option value="0" <?php echo ($consignment->email_notification!=1?'selected':'')?>>No</option>
+        </select></td>
+      </tr>
+      <tr>
         <td>Notify Customers?</td>
         <td><select id="notify_customers" name="notify_customers" style="width:140px">>
             <option value="1" <?php echo ($consignment->notify_customers==1?'selected':'')?>>Yes</option>

@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.3
+ * Version: 1.1.2
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -129,9 +129,7 @@ function linksynceparcel_init()
 			__FILE__,
 			'master'
 		);
-		
 		LinksynceparcelHelper::saveScreenOptions();
-		LinksynceparcelHelper::saveOrderStatuses();
 	}
 }
 
@@ -141,6 +139,7 @@ register_activation_hook( __FILE__, array( new linksynceparcel, 'activate_eparce
 register_deactivation_hook( __FILE__, array( new linksynceparcel, 'deactivate_eparcel' ) );
 add_action( 'admin_footer', array( new linksynceparcel, 'add_to_admin_footer'),10 );
 add_action( 'add_meta_boxes', array( new linksynceparcel, 'add_meta_boxes'));
+add_action( 'woocommerce_checkout_order_processed', array( new linksynceparcel,'on_neworder') );
 add_action( 'woocommerce_process_shop_order_meta', array( new linksynceparcel, 'on_editorder'), 100);
 
 function my_plugin_help($contextual_help, $screen_id, $screen) 
@@ -185,7 +184,6 @@ class linksynceparcel
 		{
 			LinksynceparcelHelper::upgradeTables();
 			add_action('admin_menu',array(&$this,'admin_menu'));
-			add_action('init', array(&$this,'eParcel_startsession'), 1);
 			
 			add_screen_options_panel(
 				'eParcel-default-settings',       //Panel ID
@@ -507,6 +505,11 @@ class linksynceparcel
 			{
 				include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
 				LinksynceparcelAdminConsignmentsOrdersList::massMarkDespatched();
+			}
+			else if( (isset($_REQUEST['action']) && $_REQUEST['action'] == 'despatchManifest') )
+			{
+				include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
+				LinksynceparcelAdminConsignmentsOrdersList::despatchManifest();
 			}
 			else
 			{
@@ -971,40 +974,6 @@ class linksynceparcel
 			'href' => admin_url( 'admin.php?page=linksynceparcel&subpage=configuration'),
 			'meta' => array('title' => __( 'linksync eParcel Configuration')),
 		));
-	}
-	
-	public function eParcel_startsession() {
-		if(!session_id()) {
-			session_start();
-		}
-	}
-	
-	/* Process AJAX */
-	public function despatched_Manifest()
-	{
-		include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
-		$response = LinksynceparcelAdminConsignmentsOrdersList::despatchManifestData();
-		$error = $response['error'];
-		$message = $response['msg'];
-		if($error == 0) {
-			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$message);
-		}
-		if($error == 1) {
-			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$message);
-		} 
-		if($error == 2 && is_array($message)) {
-			foreach($message as $msg)
-			{
-				if($msg['error'] == 0) {
-					LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$msg['msg']);
-				}
-				if($msg['error'] == 1) {
-					LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$msg['msg']);
-				} 
-			}
-		}
-		echo 2;
-		exit;
 	}
 }
 

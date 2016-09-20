@@ -34,7 +34,6 @@ class LinksynceparcelAdminConfiguration
 				}
 				
 				LinksynceparcelHelper::saveConfiguration($data);
-				LinksynceparcelHelper::updateShippingChargecode($data);
 				
 				LinksynceparcelHelper::saveLabelLogo();
 				$result = __( 'Configuration updated successfully.', 'linksynceparcel' );

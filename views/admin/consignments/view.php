@@ -92,7 +92,6 @@
  
 <div class="box_ls consignment-fields" style="display:none">
     <h3>Consignment Fields</h3>
-	<input type="hidden" name="date_process" value="<?php echo base64_encode(date("Y-m-d H:i:s")); ?>"/>
     <table width="100%" border="0" cellspacing="6" cellpadding="6" class="tablecustom">
 		<tr>
 			<td width="30%">Delivery instructions</td>
@@ -351,6 +350,20 @@
             <option value="0" selected>No</option>
         </select></td>
       </tr>
+      <tr>
+        <td>Australia Post email notification?</td>
+        <td><select id="email_notification" name="email_notification" style="width:140px">
+            <option value="1" <?php echo (get_option('linksynceparcel_post_email_notification')==1?'selected':'')?>>Yes</option>
+            <option value="0" <?php echo (get_option('linksynceparcel_post_email_notification')!=1?'selected':'')?>>No</option>
+        </select></td>
+      </tr>
+      <tr>
+        <td>Notify Customers?</td>
+        <td><select id="notify_customers" name="notify_customers" style="width:140px">
+            <option value="1" <?php echo (get_option('linksynceparcel_notify_customers')==1?'selected':'')?>>Yes</option>
+            <option value="0" <?php echo (get_option('linksynceparcel_notify_customers')!=1?'selected':'')?>>No</option>
+        </select></td>
+      </tr>
 	  <?php endif; ?>
     </table>
 </div>
@@ -496,6 +509,14 @@
 		  <tr>
 			<td>Shipment contains dangerous goods?</td>
 			<td><?php echo ($consignment->contains_dangerous_goods==1?'Yes':'No')?></td>
+		  </tr>
+		  <tr>
+			<td>Australia Post email notification?</td>
+			<td><?php echo ($consignment->email_notification==1?'Yes':'No')?></td>
+		  </tr>
+		  <tr>
+			<td>Notify Customers?</td>
+			<td><?php echo ($consignment->notify_customers==1?'Yes':'No')?></td>
 		  </tr>
 		  <?php endif; ?>
 		</table>

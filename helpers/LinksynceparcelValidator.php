@@ -131,9 +131,6 @@ class LinksynceparcelValidator
 		if(empty($country_origin))
 			$errors[] = '<strong>Country of Origin</strong> is a required field.';
 		
-		if((isset($_POST['has_commercial_value']) && $_POST['has_commercial_value'] == 1) && empty($_POST['hs_tariff']))
-			$errors[] = '<strong>HS Tarrif Number</strong> is a required field.';
-		
 		if(!empty($_POST['hs_tariff']))
 			if(is_numeric($_POST['hs_tariff'])) {
 				$count_digits = strlen($_POST['hs_tariff']);
@@ -149,51 +146,47 @@ class LinksynceparcelValidator
 		return false;
 	}
 	
-	public static function validateInternationalCosignmentsValue($data, $chargecodedata, $country=false, $weight = false, $totalcost = false) {
-
+	public static function validateInternationalCosignmentsValue($data, $chargecodedata, $country=false, $weight = false) {
 		if($chargecodedata['serviceType'] == 'international' && $country == 'AU') {
 			return array('error_msg' => 'International chargecode could not be use for domestic country. Please check and try again.');
 		}
-		
+
 		if($chargecodedata['serviceType'] != 'international' && $country != 'AU') {
 			return array('error_msg' => 'Domestic chargecode could not be use for international. Please check and try again.');
 		}
 		
-		if($country != 'AU') {
-			if($data['number_of_articles'] > 1) {
-				return array('error_msg' => 'International article cannot be more/less than 1.');
-			}
-			
-			// All validated International Articles
-			$intArticle = array(
-				'Int. Economy Air' 	=> array('weight' => 20, 'insurance' => 5000),
-				'Int. Express Courier' => array('weight' => 20, 'insurance' => 5000),
-				'Int. Express Courier Document' => array('weight' => 0.5, 'insurance' => 5000),
-				'Int. Express Post' => array('weight' => 20, 'insurance' => 5000),
-				'Int. Pack & Track' => array('weight' => 2, 'insurance' => 500),
-				'Int. Registered' 	=> array('weight' => 2, 'insurance' => 5000),
-			);
-			
-			$label = $chargecodedata['labelType'];
+		if($data['number_of_articles'] > 1) {
+			return array('error_msg' => 'International article cannot be more/less than 1.');
+		}
+		
+		// All validated International Articles
+		$intArticle = array(
+			'Int. Economy Air' 	=> array('weight' => 20, 'insurance' => 5000),
+			'Int. Express Courier' => array('weight' => 20, 'insurance' => 5000),
+			'Int. Express Courier Document' => array('weight' => 0.5, 'insurance' => 5000),
+			'Int. Express Post' => array('weight' => 20, 'insurance' => 5000),
+			'Int. Pack & Track' => array('weight' => 2, 'insurance' => 500),
+			'Int. Registered' 	=> array('weight' => 2, 'insurance' => 5000),
+		);
+		
+		if($country) {	
+			$isvalidCountries = self::validCountry();
 			if($chargecodedata['key'] == 'int_pack_track') {
-				$isvalidCountries = self::validCountry();
 				if(!array_key_exists($country,$isvalidCountries)) {
 					return array('error_msg' => 'Pack & Track service is not permitted for this order. Valid countries for Pack & Track service are '. implode(', ', $isvalidCountries));
 				}
-				if($intArticle[$label]['weight'] < $weight && $intArticle[$label]['insurance'] < $totalcost) {
-					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg and maximum cost of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
-				}
 			}
-			
-			if(!empty($intArticle[$label]['weight'])){	
-				if($intArticle[$label]['weight'] < $weight) {
-					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg.');
-				}
+		}
+		
+		$label = $chargecodedata['labelType'];
+		if(!empty($intArticle[$label]['weight'])){	
+			if($intArticle[$label]['weight'] < $weight) {
+				return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg.');
 			}
-			
-			if($data['insurance'] == 1 && $intArticle[$label]['insurance'] < $data['insurance_value']) {
-				return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
-			}
+		}
+		
+		if($data['insurance'] == 1 && $intArticle[$label]['insurance'] < $data['insurance_value']) {
+			return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
 		}
 		return true;
 	}
@@ -229,20 +222,6 @@ class LinksynceparcelValidator
 		);
 		
 		return $countries;
-	}
-	
-	public static function validateCombination($data, $combinations, $chargecode)
-	{
-		$delivery_signature = $data['delivery_signature_allowed'];
-		$partial_delivery = $data['partial_delivery_allowed'];
-		if($combinations) {
-			if($combinations['delivery_signature_allowed'] != $delivery_signature || $combinations['partial_delivery_allowed'] != $partial_delivery) {
-				$pda = ($combinations['partial_delivery_allowed']==1)?'Yes':'No';
-				$dsa = ($combinations['delivery_signature_allowed']==1)?'Yes':'No';
-				return array('error_msg' => 'You current chargecode <strong>'. $chargecode .'</strong> has invalid combination of data. Please make the <strong>Partial Delivery allowed?</strong> to <strong>'. $pda .'</strong> value and <strong>Delivery signature required?</strong> to <strong>'. $dsa .'</strong> value' );
-			}
-		}
-		return true;
 	}
 }
 ?>

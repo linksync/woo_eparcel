@@ -13,13 +13,6 @@ class LinksynceparcelAdminAssignShippingTypes
 				{
 					$data['method'] = $data['method2'];
 				}
-				
-				$chargecode = $data['charge_code'];
-				$ex_c = explode('-', $chargecode);
-				
-				$data['charge_code'] = $ex_c[0];
-				$data['service_type'] = $ex_c[1];
-				
 				unset($data['method2']);
 									
 				$errors = LinksynceparcelValidator::validateAssignShippingTypes($data);
@@ -52,7 +45,7 @@ class LinksynceparcelAdminAssignShippingTypes
 					}
 				}
 			}
-			$chargeCodes = LinksynceparcelHelper::getAllChargeCodesOptions();
+			$chargeCodes = LinksynceparcelHelper::getChargeCodeValues(true);
 			$methods = WC()->shipping->load_shipping_methods();
 			$shipping_titles = LinksynceparcelHelper::listOfShippingMethods();
 			
@@ -75,13 +68,6 @@ class LinksynceparcelAdminAssignShippingTypes
 				{
 					$data['method'] = $data['method2'];
 				}
-				
-				$chargecode = $data['charge_code'];
-				$ex_c = explode('-', $chargecode);
-				
-				$data['charge_code'] = $ex_c[0];
-				$data['service_type'] = $ex_c[1];
-				
 				unset($data['method2']);
 				$errors = LinksynceparcelValidator::validateAssignShippingTypes($data);
 				if($errors)
@@ -120,7 +106,7 @@ class LinksynceparcelAdminAssignShippingTypes
 			}
 			$type = $assignShippingType->get_by(array('id' => $id));
 			$type = $type[0];
-			$chargeCodes = LinksynceparcelHelper::getAllChargeCodesOptions();
+			$chargeCodes = LinksynceparcelHelper::getChargeCodeValues(true);
 			$methods = WC()->shipping->load_shipping_methods();
 			$shipping_titles = LinksynceparcelHelper::listOfShippingMethods();
 			
