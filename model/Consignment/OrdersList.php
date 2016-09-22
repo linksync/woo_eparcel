@@ -663,7 +663,7 @@ class ConsignmentOrdersList extends WP_List_Table
         <?php
 			if ( 'top' == $which)
 			{
-				echo '<a id="despatchManifest" href="javascript:void(0)" onclick="setLocationConfirmDialog(\''.admin_url('admin.php?page=linksynceparcel&action=despatchManifest').'\')" class="button '.(!LinksynceparcelHelper::isCurrentMainfestHasConsignmentsForDespatch() ? 'disabled': '').'">Despatch</a>';
+				echo '<a id="despatchManifest" href="javascript:void(0)" onclick="setLocationConfirmDialog()" class="button '.(!LinksynceparcelHelper::isCurrentMainfestHasConsignmentsForDespatch() ? 'disabled': '').'">Despatch</a>';
 				echo '&nbsp;&nbsp;';
 				echo '<a href="'.admin_url('admin.php?page=linksynceparcel&reset=1').'" class="button">Reset Filter</a>';
 				echo '&nbsp;&nbsp;';

@@ -647,10 +647,108 @@
 				<tr>
 					<td colspan="4" valign="top" ><a target="_blank" href="https://www.linksync.com/help/labeltypes">Click here for an explanation of each Label Type.</a></td>
 				</tr>
-				 </table>
-			  <h3>General Settings</h3>
-			   <table width="100%" border="0" cellspacing="0" cellpadding="6">
-              <tr>
+				</table>
+				<h3>Assign Charge Codes</h3>
+				<table width="100%" border="0" cellspacing="0" cellpadding="6">
+				<tr>
+					<td width="25%" valign="top" ><strong><?php _e('Service','linksynceparcel'); ?></strong></td>
+					<td align="left" colspan="2"><strong><?php _e('Charge Code','linksynceparcel'); ?></strong></td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Parcel Post','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[parcel_post_charge_code]">
+						<?php
+						$parcel_post_charge_code = LinksynceparcelHelper::getFormValue('parcel_post_charge_code',get_option('linksynceparcel_parcel_post_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($parcel_post_charge_code, 'parcel_post');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Express Post eParcel','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[express_post_charge_code]">
+						<?php
+						$express_post_charge_code = LinksynceparcelHelper::getFormValue('express_post_charge_code',get_option('linksynceparcel_express_post_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($express_post_charge_code, 'express_post');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Int. Economy Air','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[int_economy_charge_code]">
+						<?php
+						$int_economy_charge_code = LinksynceparcelHelper::getFormValue('int_economy_charge_code',get_option('linksynceparcel_int_economy_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($int_economy_charge_code, 'int_economy');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Int. Express Courier Document','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[int_express_courier_charge_code]">
+						<?php
+						$int_express_courier_charge_code = LinksynceparcelHelper::getFormValue('int_express_courier_charge_code',get_option('linksynceparcel_int_express_courier_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($int_express_courier_charge_code, 'int_express_courier');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Int. Express Post','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[int_express_post_charge_code]">
+						<?php
+						$int_express_post_charge_code = LinksynceparcelHelper::getFormValue('int_express_post_charge_code',get_option('linksynceparcel_int_express_post_charge_code'));
+						?>
+						<?php 
+						LinksynceparcelHelper::displayGroupedChargeCode($int_express_post_charge_code, 'int_express_post');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Int. Pack & Track','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[int_pack_track_charge_code]">
+						<?php
+						$int_pack_track_charge_code = LinksynceparcelHelper::getFormValue('int_pack_track_charge_code',get_option('linksynceparcel_int_pack_track_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($int_pack_track_charge_code, 'int_pack_track');
+						?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="25%" valign="top" ><?php _e('Int. Registered','linksynceparcel'); ?></td>
+					<td align="left" colspan="2">
+						<select name="linksynceparcel[int_registered_charge_code]">
+						<?php
+						$int_registered_charge_code = LinksynceparcelHelper::getFormValue('int_registered_charge_code',get_option('linksynceparcel_int_registered_charge_code'));
+						?>
+						<?php 
+							LinksynceparcelHelper::displayGroupedChargeCode($int_registered_charge_code, 'int_registered');
+						?>
+						</select>
+					</td>
+				</tr>
+				</table>
+				<h3>General Settings</h3>
+				<table width="100%" border="0" cellspacing="0" cellpadding="6">
+				<tr>
                     <td width="20%" valign="top"><?php _e('Copy order notes to label?','linksynceparcel'); ?></td>
                     <td align="left" colspan="2">
                         <select name="linksynceparcel[copy_order_notes]">
