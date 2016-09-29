@@ -4375,9 +4375,9 @@ class LinksynceparcelHelper
 				$article = array();
 				$article['description'] = $articles[0];
 				$article['weight'] = $articles[1];
-				$article['height'] = $articles[2];
-				$article['length'] = $articles[3];
-				$article['width'] = $articles[4];
+				$article['height'] = trim($articles[2]);
+				$article['length'] = trim($articles[3]);
+				$article['width'] = trim($articles[4]);
 				
 				$use_order_total_weight = (int)get_option('linksynceparcel_use_order_weight');
 				if($use_order_total_weight == 1)
@@ -4434,9 +4434,9 @@ class LinksynceparcelHelper
 				$replace = array(
 					self::xmlData(trim($article['description'])),
 					trim($article['weight']),
-					trim($article['width']),
-					trim($article['height']),
-					trim($article['length'])
+					empty($article['width'])?0:$article['width'],
+					empty($article['height'])?0:$article['height'],
+					empty($article['length'])?0:$article['length']
 				);
 				
 				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
@@ -4455,9 +4455,9 @@ class LinksynceparcelHelper
 				$replace = array(
 					trim($article['weight']),
 					self::xmlData(trim($article['description'])),
-					trim($article['height']),
-					trim($article['length']),
-					'<width>'.trim($article['width']).'</width>',
+					$article['height'],
+					$article['length'],
+					'<width>'.$article['width'].'</width>',
 					($data['transit_cover_required'] ? 'Y' : 'N'),
 					($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
 					(isset($article['article_number']) ? '<articleNumber>'.trim($article['article_number']).'</articleNumber>' : '')
@@ -6685,6 +6685,41 @@ class LinksynceparcelHelper
 		}
 		$path = $filepath.$filename;
 		file_put_contents($path, $content);
+	}
+	
+	public static function session_maifest($session, $content)
+	{
+		$filename = 'manifest_'. $session .'.txt';
+		$filepath = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/';
+		if (!file_exists($filepath)) {
+			mkdir($filepath, 0777, true);
+		}
+		$path = $filepath.$filename;
+		file_put_contents($path, $content);
+	}
+	
+	public static function get_session_manifest($session)
+	{
+		$file = str_replace(".", "", $session);
+		$file = 'manifest_'. $session .'.txt';
+		$file = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $file;
+		if (file_exists($file)) {
+			$text = file_get_contents($file);
+			$obj = json_decode($text, true);
+			return $obj;
+		}
+	}
+	
+	public static function remove_manifest_session($session)
+	{
+		$file = str_replace(".", "", $session);
+		$file = 'manifest_'. $session .'.txt';
+		$file = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $file;
+		unlink($file);
+		
+		$filename = $session .'.txt';
+		$filename = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $filename;
+		unlink($file);
 	}
 
 	public static function checkNewChargeCodeConfig()

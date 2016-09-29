@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -142,6 +142,7 @@ register_deactivation_hook( __FILE__, array( new linksynceparcel, 'deactivate_ep
 add_action( 'admin_footer', array( new linksynceparcel, 'add_to_admin_footer'),10 );
 add_action( 'add_meta_boxes', array( new linksynceparcel, 'add_meta_boxes'));
 add_action( 'woocommerce_process_shop_order_meta', array( new linksynceparcel, 'on_editorder'), 100);
+add_action( 'admin_init', array( new linksynceparcel, 'change_order_status') );
 
 function my_plugin_help($contextual_help, $screen_id, $screen) 
 {
@@ -1005,6 +1006,74 @@ class linksynceparcel
 		}
 		echo 2;
 		exit;
+	}
+	
+	public function change_order_status()
+	{
+		if(!session_id()) {
+			session_start();
+		}
+		
+		global $is_greater_than_21;
+		
+		$statuses = LinksynceparcelHelper::getListOrderStatuses();
+		$changeState = get_option('linksynceparcel_change_order_status');
+		
+		$current_manifest = LinksynceparcelHelper::get_session_manifest(session_id());
+		if(!empty($current_manifest)) {
+			
+			if(!empty($current_manifest['orders'])) {
+				foreach($current_manifest['orders'] as $k => $orderid) {
+					$order = new WC_Order($orderid);
+					
+					$current_status = '';
+													
+					if($is_greater_than_21)
+					{
+						foreach($statuses as $term_id => $status)
+						{
+							if($term_id == $order->post_status)
+							{
+								$current_status = $term_id;
+							}
+						}
+							
+						if ($changeState && ($changeState !== $current_status))
+						{
+							$order->update_status($changeState);
+						}
+					}
+					else
+					{
+						foreach($statuses as $status)
+						{
+							if($status->slug == $order->status)
+							{
+								$current_status = $status->term_id;
+							}
+						}
+							
+						if ($changeState && ($changeState !== $current_status))
+						{
+							foreach($statuses as $status)
+							{
+								if($status->term_id == $changeState)
+								{
+									$order->update_status($status->slug);
+								}
+							}
+						}
+					}
+				}
+			}
+			if(!empty($current_manifest['manifestnumber'])) {
+				$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
+				if($notifyCustomerOption == 1) {
+					LinksynceparcelHelper::notifyCustomers($current_manifest['manifestnumber']);
+				}
+			}
+			LinksynceparcelHelper::remove_manifest_session(session_id());
+		}
 	}
 }
 

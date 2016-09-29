@@ -259,7 +259,7 @@ function setLocationConfirmDialog()
 		var mode = '<?php echo trim(get_option('linksynceparcel_operation_mode'))?>';		
 		if(mode == 1)
 		{
-			jQuery("#dialog").dialog("open");
+			jQuery("#dialog2").dialog("open");
 		}
 		else
 		{

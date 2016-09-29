@@ -206,7 +206,7 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 	<tr>
 		<td>Country of Origin</td>
 		<td>
-			<select data-default="<?php echo get_option('linksynceparcel_country_origin'); ?>" id="country_origin" name="country_origin" disabled>
+			<select data-default="<?php echo get_option('linksynceparcel_country_origin'); ?>" id="country_origin" name="country_origin">
 				<option value="" <?php if (get_option('linksynceparcel_country_origin') == ''){ echo 'selected="selected"'; }?>>
 					<?php _e('Please select','linksynceparcel'); ?>
 				</option>
@@ -221,7 +221,7 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 	 <tr>
         <td>HS Tariff</td>
         <td>
-			<input type="number" data-default="<?php echo get_option('linksynceparcel_hs_tariff'); ?>" id="hs_tariff" name="hs_tariff" value="<?php echo get_option('linksynceparcel_hs_tariff'); ?>" min="0" disabled><br/>
+			<input type="number" data-default="<?php echo get_option('linksynceparcel_hs_tariff'); ?>" id="hs_tariff" name="hs_tariff" value="<?php echo get_option('linksynceparcel_hs_tariff'); ?>" min="0"><br/>
 			<span class="comment"><a target="_blank" href="http://www.foreign-trade.com/reference/hscode.htm"><?php _e("Click here for HS Tariff list",'linksynceparcel'); ?></a></span>
 		</td>
       </tr>

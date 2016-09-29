@@ -276,7 +276,7 @@ class LinksynceparcelApi
 				{
 					if(LINKSYNC_DEBUG == 1)
 					{
-						//LinksynceparcelHelper::log('createConsignment Request: '.$client->__getLastRequest());
+						LinksynceparcelHelper::log('createConsignment Request: '.$client->__getLastRequest());
 						LinksynceparcelHelper::log('createConsignment Response: '.$client->__getLastResponse());
 					}
 					return $stdClass;

@@ -787,49 +787,16 @@ class LinksynceparcelAdminConsignmentsOrdersList
 									$ordersList = LinksynceparcelHelper::getOrdersByManifest($currentManifest);
 									if($ordersList)
 									{
+										$orderids = array();
 										foreach($ordersList as $orderObj)
 										{
-											$order = new WC_Order($orderObj->order_id);
-			
-											$current_status = '';
-											
-											if($is_greater_than_21)
-											{
-												foreach($statuses as $term_id => $status)
-												{
-													if($term_id == $order->post_status)
-													{
-														$current_status = $term_id;
-													}
-												}
-													
-												if ($changeState && ($changeState !== $current_status))
-												{
-													$order->update_status($changeState);
-			  									}
-											}
-											else
-											{
-												foreach($statuses as $status)
-												{
-													if($status->slug == $order->status)
-													{
-														$current_status = $status->term_id;
-													}
-												}
-													
-												if ($changeState && ($changeState !== $current_status))
-												{
-													foreach($statuses as $status)
-													{
-														if($status->term_id == $changeState)
-														{
-															$order->update_status($status->slug);
-														}
-													}
-												}
-											}
+											$orderids[] = $orderObj->order_id;
 										}
+										$manifestdata = json_encode(array(
+											'manifestnumber' => $currentManifest,
+											'orders' => $orderids
+										));
+										LinksynceparcelHelper::session_maifest(session_id(), $manifestdata);
 									}
 								}
 								
@@ -878,15 +845,10 @@ class LinksynceparcelAdminConsignmentsOrdersList
 								$arr_content = json_encode(array('percentage' => 97, 'message' => 'processed'));
 								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 					
-								$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
-								if($notifyCustomerOption == 1) {
-									LinksynceparcelHelper::notifyCustomers($currentManifest);
-								}
-								$arr_content = json_encode(array('percentage' => 100, 'message' => 'completed'));
-								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-								
 								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_complete',1);
 					
+								$arr_content = json_encode(array('percentage' => 100, 'message' => 'completed'));
+								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 								return array("error" => 2, "msg" => $multiple_msg);
 							}
 							else
