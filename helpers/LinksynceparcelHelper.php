@@ -3961,7 +3961,7 @@ class LinksynceparcelHelper
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
-				$order->id,
+				self::getIncrementId($order),
 				$chargeCode,
 				($data['contains_dangerous_goods'] ? 'true' : 'false')
 			);
@@ -3994,7 +3994,7 @@ class LinksynceparcelHelper
 				($data['delivery_signature_allowed'] ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
-				$order->id,
+				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
 				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
@@ -4057,7 +4057,7 @@ class LinksynceparcelHelper
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
-				$order->id,
+				self::getIncrementId($order),
 				$chargeCode,
 				($data['contains_dangerous_goods'] ? 'true' : 'false')
 			);
@@ -4090,7 +4090,7 @@ class LinksynceparcelHelper
 				($data['delivery_signature_allowed'] ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
-				$order->id,
+				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
 				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
@@ -4151,7 +4151,7 @@ class LinksynceparcelHelper
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
 				$returnInternationalAddress,
-				$order->id,
+				self::getIncrementId($order),
 				$chargeCode,
 				($data['contains_dangerous_goods'] ? 'true' : 'false')
 			);
@@ -4184,7 +4184,7 @@ class LinksynceparcelHelper
 				($data['delivery_signature_allowed'] ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
-				$order->id,
+				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
 				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
@@ -5247,7 +5247,7 @@ class LinksynceparcelHelper
 			($consignment->delivery_signature_allowed ? 'true' : 'false'),
 			self::getIncrementId($order),
 			$chargeCode,
-			$order->id,
+			self::getIncrementId($order),
 			($consignment->contains_dangerous_goods ? 'true' : 'false'),
 			($consignment->print_return_labels ? 'true' : 'false'),
 			($consignment->partial_delivery_allowed ? 'Y' : 'N'),
@@ -5350,7 +5350,7 @@ class LinksynceparcelHelper
 			($data['delivery_signature_allowed'] ? 'true' : 'false'),
 			self::getIncrementId($order),
 			$chargeCode,
-			$order->id,
+			self::getIncrementId($order),
 			($data['contains_dangerous_goods'] ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
 			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
@@ -5522,7 +5522,7 @@ class LinksynceparcelHelper
 			($data['delivery_signature_allowed'] ? 'true' : 'false'),
 			self::getIncrementId($order),
 			$chargeCode,
-			$order->id,
+			self::getIncrementId($order),
 			($data['contains_dangerous_goods'] ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
 			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
@@ -5752,46 +5752,48 @@ class LinksynceparcelHelper
 	
 	public static function notifyCustomers($manifestNumber)
 	{
-		$consignments = self::getConsignmentsByNumber($manifestNumber);
-		foreach($consignments as $consignment)
-		{
-			$address = get_post_meta($consignment->order_id);
-			$toEmail = $address['_billing_email'][0];
-			$toName = $address['_billing_first_name'][0].' '.$address['_billing_last_name'][0];
-			$fromEmail  = get_option('linksynceparcel_from_email_address');
-			$fromName = get_bloginfo('name');
-			$subject  = get_option('linksynceparcel_subject');
-			$siteUrl = get_bloginfo('url');
-
-			$content  = get_option('linksynceparcel_email_body');
-			$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
-			
-			$order = new WC_Order($consignment->order_id);
-			
-			$search = array(
-				'[TrackingNumber]',
-				'[OrderNumber]',
-				'[CustomerFirstname]'
-			);
-	
-			$replace = array(
-				$consignment->consignment_number,
-				self::getIncrementId($order),
-				$address['_billing_first_name'][0]
-			);
-			
-			$subject = str_replace($search, $replace, $subject);
-			$content = str_replace($search, $replace, $content);
-			
-			$headers = 'From: '.$fromName;
-			if(!empty($fromEmail))
+		$consignments = self::getConsignmentsByNumber($manifestNumber[0]);
+		if($consignments){	
+			foreach($consignments as $consignment)
 			{
-				$headers .= ' <'.$fromEmail.'>';
-			}
+				$address = get_post_meta($consignment->order_id);
+				$toEmail = $address['_billing_email'][0];
+				$toName = $address['_billing_first_name'][0].' '.$address['_billing_last_name'][0];
+				$fromEmail  = get_option('linksynceparcel_from_email_address');
+				$fromName = get_bloginfo('name');
+				$subject  = get_option('linksynceparcel_subject');
+				$siteUrl = get_bloginfo('url');
+
+				$content  = get_option('linksynceparcel_email_body');
+				$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
+				
+				$order = new WC_Order($consignment->order_id);
+				
+				$search = array(
+					'[TrackingNumber]',
+					'[OrderNumber]',
+					'[CustomerFirstname]'
+				);
 		
-			add_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
-			wp_mail($toEmail, $subject, $content,$headers);
-			remove_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+				$replace = array(
+					$consignment->consignment_number,
+					self::getIncrementId($order),
+					$address['_billing_first_name'][0]
+				);
+				
+				$subject = str_replace($search, $replace, $subject);
+				$content = str_replace($search, $replace, $content);
+				
+				$headers = 'From: '.$fromName;
+				if(!empty($fromEmail))
+				{
+					$headers .= ' <'.$fromEmail.'>';
+				}
+			
+				add_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+				wp_mail($toEmail, $subject, $content,$headers);
+				remove_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
+			}
 		}
 	}
 	
@@ -6434,24 +6436,29 @@ class LinksynceparcelHelper
 	}
 	
 	public static function createUploadDirectory() {
-		$filepath = linksynceparcel_UPLOAD_URL.'/linksync/label/';
+		$filepath = linksynceparcel_UPLOAD_URL.'/linksync_uploads/label/';
 		
 		if (!file_exists($filepath.'/consignment')) {
-			mkdir($filepath.'/consignment', 0777, true);
+			mkdir($filepath.'/consignment', 0740, true);
 		}
 		if (!file_exists($filepath.'/manifest')) {
-			mkdir($filepath.'/manifest', 0777, true);
+			mkdir($filepath.'/manifest', 0740, true);
 		}
 		if (!file_exists($filepath.'/returnlabels')) {
-			mkdir($filepath.'/returnlabels', 0777, true);
+			mkdir($filepath.'/returnlabels', 0740, true);
 		}
 		
-		$logpath = linksynceparcel_UPLOAD_URL .'/linksync/';
+		$logpath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/';
 		if (!file_exists($logpath.'log')) {
-			mkdir($logpath.'log', 0777, true);
+			mkdir($logpath.'log', 0740, true);
 		}
 		
-		$filename = linksynceparcel_UPLOAD_URL .'/linksync/index.html';
+		$logpath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/';
+		if (!file_exists($logpath.'session-logs')) {
+			mkdir($logpath.'session-logs', 0740, true);
+		}
+		
+		$filename = linksynceparcel_UPLOAD_URL .'/linksync_uploads/index.html';
 		if (!file_exists($filename)) {
 			// Create index.html file
 			$filecontent = '<html><body><a href="https://www.linksync.com/integrate/woocommerce-eparcel-integration/">Integrate WooCommerce with Australia Post eParcel with linksync</a></body></html>';
@@ -6679,7 +6686,7 @@ class LinksynceparcelHelper
 	public static function session_logs($session, $content)
 	{
 		$filename = $session.'.txt';
-		$filepath = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/';
+		$filepath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/';
 		if (!file_exists($filepath)) {
 			mkdir($filepath, 0777, true);
 		}
@@ -6690,7 +6697,7 @@ class LinksynceparcelHelper
 	public static function session_maifest($session, $content)
 	{
 		$filename = 'manifest_'. $session .'.txt';
-		$filepath = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/';
+		$filepath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/';
 		if (!file_exists($filepath)) {
 			mkdir($filepath, 0777, true);
 		}
@@ -6702,7 +6709,7 @@ class LinksynceparcelHelper
 	{
 		$file = str_replace(".", "", $session);
 		$file = 'manifest_'. $session .'.txt';
-		$file = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $file;
+		$file = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/'. $file;
 		if (file_exists($file)) {
 			$text = file_get_contents($file);
 			$obj = json_decode($text, true);
@@ -6714,12 +6721,16 @@ class LinksynceparcelHelper
 	{
 		$file = str_replace(".", "", $session);
 		$file = 'manifest_'. $session .'.txt';
-		$file = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $file;
-		unlink($file);
+		$file = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/'. $file;
+		if(file_exists($file)) {			
+			unlink($file);
+		}
 		
 		$filename = $session .'.txt';
-		$filename = linksynceparcel_UPLOAD_URL .'/linksync/session-logs/'. $filename;
-		unlink($file);
+		$filename = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/'. $filename;
+		if(file_exists($filename)) {
+			unlink($filename);
+		}
 	}
 
 	public static function checkNewChargeCodeConfig()

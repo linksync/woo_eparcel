@@ -55,7 +55,34 @@ if($shipping_country != 'AU') {
 #new-buttons-set .button{
 	font-size:11px !important;
 }
+
+div#loading {
+    width: 100%;
+    text-align: center;
+    background-color: #ddd;
+}
+div#img-loader {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    display: block;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
+div#img-loader img {
+    margin-top: 180px;
+    width: 250px;
+}
 </style>
+<div id="loading" style="display:none;">
+	<div id="img-loader">
+		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
+	</div>
+</div>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
         <?php if($weight > $weightPerArticle): ?>
 			<h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
@@ -93,10 +120,14 @@ if($shipping_country != 'AU') {
 		<?php
             }
          ?>
-    	<input type="submit" name="createConsignment" value="Create Consignment" onclick="return submitForm2()" class="button-primary button create-consignment1 scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
+    	<input id="consignment_submit2" type="submit" name="createConsignment" value="Create Consignment" class="button-primary button create-consignment1 scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
     
 </div>
-
+<div id="loading" style="display:none;">
+	<div id="img-loader">
+		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
+	</div>
+</div>
 <div class="box_ls custom_articles_template" style="display:none">
     <h3 style="margin:10px 0">Article</h3>
     <span class="field-row1">
@@ -141,7 +172,7 @@ if($shipping_country != 'AU') {
         <span><span><span>Back to Preset</span></span></span>
     </button>
     &nbsp;&nbsp;
-    <input type="submit" name="createConsignment"  value="Create Consignment" onclick="return submitForm()" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
+    <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
     
 </div>
 
@@ -444,14 +475,10 @@ if($shipping_country != 'AU') {
 		<a class="button" target="_blank" href="http://auspost.com.au/track/track.html?id=<?php echo $consignment->consignment_number?>">Track</a>
         <?php if(!empty($consignment->label)):?>
 		<?php
-			$consignmentpdf = linksynceparcel_UPLOAD_BASEURL .'consignment/'. $consignment->consignment_number .'.pdf';
-			$consignmentpdf_check = linksynceparcel_UPLOAD_DIR .'consignment/'. $consignment->consignment_number .'.pdf';
-			if(!file_exists($consignmentpdf_check)) {
-				$consignmentpdf = linksynceparcel_URL .'assets/label/consignment/'. $consignment->consignment_number .'.pdf';
-			}
+			$consignmentpdf = admin_url() ."?f_key=". $consignment->consignment_number ."&f_type=consignment";
 		?>
         <a class="button print_label" lang="<?php echo $consignment->consignment_number?>" target="_blank" 
-        	href="<?php echo $consignmentpdf.'?'.time()?>" 
+        	href="<?php echo $consignmentpdf ?>" 
          	type="button" title="Print Label">
              <?php echo ($consignment->is_label_printed ? 'Reprint' : 'Print');?> Label
         </a>
@@ -640,6 +667,16 @@ $jEparcel(document).ready(function(){
 			jQuery('.order_value_insurance').removeClass('hide-tr');
 			jQuery('.order_value_insurance').addClass('show-tr');
 		}
+	});
+
+	$jEparcel("#consignment_submit2").click(function(e) {
+		submitForm2();
+		e.preventDefault();
+	});
+
+	$jEparcel("#consignment_submit").click(function(e) {
+		submitForm();
+		e.preventDefault();
 	});
 	
 	jQuery('#order_value_insurance').change(function() {
@@ -980,13 +1017,13 @@ function submitForm()
 	{
 		if(!confirm('Combined article weight is less than the total order weight. Do you want to continue?'))
 			return false;
-		$('#createConsignmentHidden').val(1);
-		$jEparcel('#post').submit();
+		create_consignment_ajax();
+		return false;
 	}
 	else
 	{
-		$('#createConsignmentHidden').val(1);
-		$jEparcel('#post').submit();
+		create_consignment_ajax();
+		return false;
 	}
 }
 
@@ -1019,11 +1056,20 @@ function submitForm2()
 	
 	if(valid)
 	{
-		$jEparcel('#post').submit();
+		create_consignment_ajax();
+		return false;
 	}
 	else
 	{
 		return false;
 	}
+}
+
+function create_consignment_ajax() {
+	jQuery('#loading').show();
+	var data = $jEparcel('#post').serialize() + '&action=create_consignment_ajax';
+	$jEparcel.post('<?= admin_url('admin-ajax.php') ?>', data, function(res) {
+		window.location.reload(true);
+	});
 }
 </script>

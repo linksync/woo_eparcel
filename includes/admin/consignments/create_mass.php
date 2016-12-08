@@ -102,7 +102,7 @@ class LinksynceparcelAdminConsignmentsCreateMass
 			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$e->getMessage());
 			LinksynceparcelHelper::deleteManifest();
 		}
-		wp_redirect(admin_url('admin.php?page=linksynceparcel'));
+		echo 1;
 	}
 }
 ?>

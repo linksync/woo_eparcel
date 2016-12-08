@@ -56,7 +56,7 @@ class ManifestList extends WP_List_Table
 			if(!file_exists($manifestpdf_check)) {
 				$manifestpdf = linksynceparcel_URL .'assets/label/manifest/'. $item->label;
 			}
-			$html = '<a class="print_label" lang="'.$item->label.'" href="'. $manifestpdf .'?'.time().'" target="_blank" >View</a>';
+			$html = '<a class="print_label" lang="'.$item->label.'" href="'. admin_url() .'?f_key='. $item->manifest_number .'&f_type=manifest" target="_blank" >View</a>';
 		}
 		else
 		{

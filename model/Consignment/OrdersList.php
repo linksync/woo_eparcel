@@ -205,18 +205,13 @@ class ConsignmentOrdersList extends WP_List_Table
 	{
 		if(isset($item->is_label_printed))
 		{
-			$consignmentpdf = linksynceparcel_UPLOAD_BASEURL .'consignment/'. $item->consignment_number .'.pdf';
-			$consignmentpdf_check = linksynceparcel_UPLOAD_DIR .'consignment/'. $item->consignment_number .'.pdf';
-			if(!file_exists($consignmentpdf_check)) {
-				$consignmentpdf = linksynceparcel_URL .'assets/label/consignment/'. $item->consignment_number .'.pdf';
-			}
 			if($item->is_label_printed == 1)
 			{
-				$html = '<a lang="'.$item->consignment_number.'" href="'. $consignmentpdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span></a>';
+				$html = '<a lang="'.$item->consignment_number.'" href="'. admin_url() .'?f_key='. $item->consignment_number .'&f_type=consignment" target="_blank" ><span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span></a>';
 			}
 			else if($item->is_label_created == 1)
 			{
-				$html = '<a class="print_label" lang="'.$item->consignment_number.'" href="'. $consignmentpdf .'?'.time().'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
+				$html = '<a class="print_label" lang="'.$item->consignment_number.'" href="'. admin_url() .'?f_key='. $item->consignment_number .'&f_type=consignment" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
 			}
 			else
 			{

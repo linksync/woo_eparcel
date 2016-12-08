@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.5
+ * Version: 1.1.6
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -55,10 +55,13 @@ $url = str_replace('www.', '', str_replace($parseurl['scheme'].'://', '', $url))
 define( 'linksynceparcel_SITE_URL', $url );
 
 define( 'linksynceparcel_UPLOAD_URL', WP_CONTENT_DIR );
-define( 'linksynceparcel_LOG_DIR', WP_CONTENT_DIR .'/linksync/log/' );
-define( 'linksynceparcel_LOG_URL', WP_CONTENT_URL .'/linksync/log/' );
-define( 'linksynceparcel_UPLOAD_DIR', WP_CONTENT_DIR .'/linksync/label/' );
-define( 'linksynceparcel_UPLOAD_BASEURL', WP_CONTENT_URL.'/linksync/label/' );
+define( 'linksynceparcel_LOG_DIR', WP_CONTENT_DIR .'/linksync_uploads/log/' );
+define( 'linksynceparcel_LOG_URL', WP_CONTENT_URL .'/linksync_uploads/log/' );
+define( 'linksynceparcel_UPLOAD_DIR', WP_CONTENT_DIR .'/linksync_uploads/label/' );
+define( 'linksynceparcel_UPLOAD_BASEURL', WP_CONTENT_URL.'/linksync_uploads/label/' );
+
+define( 'linksynceparcel_OLD_UPLOAD_DIR', WP_CONTENT_DIR .'/linksync/label/' );
+define( 'linksynceparcel_OLD_UPLOAD_BASEURL', WP_CONTENT_URL.'/linksync/label/' );
 
 ob_start();
 /**
@@ -142,7 +145,10 @@ register_deactivation_hook( __FILE__, array( new linksynceparcel, 'deactivate_ep
 add_action( 'admin_footer', array( new linksynceparcel, 'add_to_admin_footer'),10 );
 add_action( 'add_meta_boxes', array( new linksynceparcel, 'add_meta_boxes'));
 add_action( 'woocommerce_process_shop_order_meta', array( new linksynceparcel, 'on_editorder'), 100);
+add_action( 'wp_ajax_create_consignment_ajax', array(new linksynceparcel, 'create_consignment_ajax') );
+add_action( 'wp_ajax_create_mass_consignment_ajax', array(new linksynceparcel, 'create_mass_consignment_ajax') );
 add_action( 'admin_init', array( new linksynceparcel, 'change_order_status') );
+add_action( 'init', array( new linksynceparcel, 'process_download_pdf'), 10);
 
 function my_plugin_help($contextual_help, $screen_id, $screen) 
 {
@@ -884,7 +890,7 @@ class linksynceparcel
 		LinksynceparcelHelper::log('shrink log started');
 		$lines = 10000;
 		$buffer = 4096;
-		$file = linksynceparcel_DIR.'/log/linksynceparcel.log';
+		$file = linksynceparcel_LOG_DIR .'linksynceparcel.log';
 		
 		$output = '';
 		$chunk = '';
@@ -1007,6 +1013,86 @@ class linksynceparcel
 		echo 2;
 		exit;
 	}
+
+	public function create_consignment_ajax()
+	{
+		$order_id = $_POST['post_ID'];
+		if(LinksynceparcelHelper::isSoapInstalled())
+		{
+			if($order_id > 0)
+			{
+				$order = new WC_Order( $order_id );
+
+				if($this->is_greater_than_21)
+				{
+					if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
+					{
+						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+						{
+							include_once(linksynceparcel_DIR.'includes/admin/consignments/create.php');
+							$use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
+							$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+							if($use_order_weight == 1 && $use_dimension != 1)
+							{
+								LinksynceparcelAdminConsignmentsCreate::saveOrderWeight();
+							}
+							else if($use_order_weight != 1 && $use_dimension != 1)
+							{
+								LinksynceparcelAdminConsignmentsCreate::saveDefaultWeight();
+							}
+							else
+							{
+								LinksynceparcelAdminConsignmentsCreate::save();
+							}
+						}
+					}
+
+					if($order->post_status == 'wc-cancelled')
+					{
+						$this->cancelledOrderConsignments($order_id);
+					}
+				}
+				else
+				{
+					if( !($order->status == 'failed' || $order->status == 'cancelled') )
+					{
+						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+						{
+							include_once(linksynceparcel_DIR.'includes/admin/consignments/create.php');
+							$use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
+							$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+							if($use_order_weight == 1 && $use_dimension != 1)
+							{
+								LinksynceparcelAdminConsignmentsCreate::saveOrderWeight();
+								echo 'success';
+							}
+							else if($use_order_weight != 1 && $use_dimension != 1)
+							{
+								LinksynceparcelAdminConsignmentsCreate::saveDefaultWeight();
+								echo 'success';
+							}
+							else
+							{
+								LinksynceparcelAdminConsignmentsCreate::save();
+								echo 'success';
+							}
+						}
+					}
+
+					if($order->status == 'cancelled')
+					{
+						$this->cancelledOrderConsignments($order_id);
+					}
+				}
+			}		
+		}
+		exit;
+	}	
+
+	public function create_mass_consignment_ajax() {
+		$this->create_mass_consignment();
+		exit;
+ 	}
 	
 	public function change_order_status()
 	{
@@ -1066,6 +1152,7 @@ class linksynceparcel
 					}
 				}
 			}
+			
 			if(!empty($current_manifest['manifestnumber'])) {
 				$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 				if($notifyCustomerOption == 1) {
@@ -1074,6 +1161,103 @@ class linksynceparcel
 			}
 			LinksynceparcelHelper::remove_manifest_session(session_id());
 		}
+	}
+	
+	public function process_download_pdf()
+	{
+		if( isset($_GET['f_key']) && !empty($_GET['f_key']) ) {
+			$filename = false;
+			switch($_GET['f_type']) {
+				case 'consignment':
+					$filename = linksynceparcel_UPLOAD_DIR .'consignment/'. $_GET['f_key'] .'.pdf';
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_OLD_UPLOAD_DIR .'consignment/'. $_GET['f_key'] .'.pdf';
+					}
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_URL .'assets/label/consignment/'. $_GET['f_key'] .'.pdf';
+					}
+					break;
+					
+				case 'manifest':
+					$filename = linksynceparcel_UPLOAD_DIR .'manifest/'. $_GET['f_key'] .'.pdf';
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_OLD_UPLOAD_DIR .'manifest/'. $_GET['f_key'] .'.pdf';
+					}
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_URL .'assets/label/manifest/'. $_GET['f_key'] .'.pdf';
+					}
+					break;
+
+				default:
+					$filename = linksynceparcel_UPLOAD_DIR .'consignment/'. $_GET['f_key'] .'.pdf';
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_OLD_UPLOAD_DIR .'consignment/'. $_GET['f_key'] .'.pdf';
+					}
+					if(!file_exists($filename)) {
+						$filename = linksynceparcel_URL .'assets/label/consignment/'. $_GET['f_key'] .'.pdf';
+					}
+					break;
+			}
+			
+			if ( is_file($filename) ) {
+				// required for IE & Safari
+				if(ini_get('zlib.output_compression')) { ini_set('zlib.output_compression', 'Off');	}
+				
+				header('Pragma: public'); 	// required
+				header('Expires: 0');		// no cache
+				header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+				header('Last-Modified: '.gmdate ('D, d M Y H:i:s', @filemtime ($filename)).' GMT');
+				header('Cache-Control: private',false);
+				header('Content-Type: application/pdf');
+				header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+				header('Content-Transfer-Encoding: binary');
+				header('Content-Length: '. @filesize($filename) );	// provide file size
+				header('Connection: close');
+				$this->readfileChunked( $filename );		// push it out
+				die();
+			}
+		}
+	}
+	
+	public function readfileChunked($filename, $retbytes=true){
+		$chunksize = 1*(1024*1024);
+		$buffer = '';
+		$cnt = 0;
+		$handle = fopen($filename, 'rb');
+		if ($handle === false) {
+			return false;
+		}
+		while (!feof($handle)) {
+			$buffer = fread($handle, $chunksize);
+			echo $buffer;
+			ob_flush();
+			flush();
+			if ($retbytes) {
+				$cnt += strlen($buffer);
+			}
+		}
+		$status = fclose($handle);
+		if ($retbytes && $status) {
+			return $cnt;
+		}
+		return $status;
+	}
+	
+	public function formatSizeUnits($bytes){
+		if ($bytes >= 1073741824){
+			 $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+		} elseif ($bytes >= 1048576) {
+			 $bytes = number_format($bytes / 1048576, 2) . ' MB';
+		} elseif ($bytes >= 1024) {
+			$bytes = number_format($bytes / 1024, 2) . ' KB';
+		} elseif ($bytes > 1) {
+			$bytes = $bytes . ' bytes';
+		} elseif ($bytes == 1) {
+			$bytes = $bytes . ' byte';
+		} else {
+			$bytes = '0 bytes';
+		}
+		return $bytes;
 	}
 }
 

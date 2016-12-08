@@ -826,8 +826,8 @@ class LinksynceparcelAdminConsignmentsOrdersList
 					
 									LinksynceparcelHelper::updateManifestTable($currentManifest,'label',$filename);
 									
-									$labelLink =linksynceparcel_UPLOAD_BASEURL.'manifest/';
-									$success = sprintf('Your Manifest Summary has been generated. <a href="%s" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>', $labelLink.$filename.'?'.time());
+									$labelLink = admin_url() .'?f_key='. $currentManifest .'&f_type=manifest';
+									$success = 'Your Manifest Summary has been generated. <a href="'. $labelLink .'" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>';
 									
 									$multiple_msg[] = array(
 										'error' => 0,

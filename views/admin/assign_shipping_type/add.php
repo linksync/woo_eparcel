@@ -22,6 +22,9 @@
 							 <option value="code" <?php if (LinksynceparcelHelper::getFormValue('shipping_type') != 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Method','linksynceparcel'); ?></option>
 							<option value="desc" <?php if (LinksynceparcelHelper::getFormValue('shipping_type') == 'desc'){ echo 'selected="selected"'; }?>><?php _e('Shipping Description','linksynceparcel'); ?></option>
 					   </select>
+					   <br />
+					   <span style="margin-left:3px; font-size:11px;">
+					   NOTE - when you create a new shipping type for your site IT WILL NOT BE AVAILABLE HERE UNTIL THERE ARE ORDERS USING THE NEW SHIPPING METHOD. <br /> &nbsp;We suggestion you create a test order using the new shipping method and then return to this screen to assign the Charge Code to it.</span>
 					</td>
 				</tr>
 				
@@ -74,9 +77,6 @@
 								}
 								?>
 						   </select>
-						   <br />
-						   <span style="margin-left:3px; font-size:11px;">
-						   NOTE - when you create a new shipping type for your site IT WILL NOT BE AVAILABLE HERE UNTIL THERE ARE ORDERS USING THE NEW SHIPPING METHOD. <br /> &nbsp;We suggestion you create a test order using the new shipping method and then return to this screen to assign the Charge Code to it.</span>
 						</td>
 					</tr>
 				<?php } ?>

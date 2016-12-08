@@ -2,6 +2,36 @@
 $use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
 $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 ?>
+<style>
+div#loading {
+    width: 100%;
+    text-align: center;
+    background-color: #ddd;
+}
+
+div#img-loader {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    display: block;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
+div#img-loader img {
+    margin-top: 180px;
+    width: 250px;
+}
+</style>
+
+<div id="loading" style="display:none;">
+	<div id="img-loader">
+		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
+	</div>
+</div>
 <div class="entry-edit wp-core-ui">
     <h3>Create Consignment</h3>
 </div>
@@ -38,7 +68,7 @@ $use_dimension = (int)get_option('linksynceparcel_use_dimension');
         </select>
         &nbsp;&nbsp;&nbsp;&nbsp;
 
-    	<input type="submit" name="createConsignment" value="Create Consignment" onclick="return submitForm2()" class="button-primary button create-consignment1 scalable save submit-button"/>
+    	<input type="submit" id="createMassButton" name="createConsignment" value="Create Consignment" class="button-primary button create-consignment1 scalable save submit-button"/>
         &nbsp;&nbsp;
         <button onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel')?>')" class="scalable back button" type="button" >
         	<span><span><span>Cancel</span></span></span>
@@ -366,6 +396,11 @@ $jEparcel(document).ready(function(){
 	$jEparcel('.edit-consignments-defaults').click(function(){
 		$jEparcel('.consignment-fields').slideToggle();
 	});
+
+	$jEparcel('#createMassButton').click(function(e) {
+		submitForm2();
+		e.preventDefault();
+	});
 });
 function setLocation(url)
 {
@@ -394,11 +429,22 @@ function submitForm2()
 	
 	if(valid)
 	{
-		$jEparcel('#edit_form').submit();
+		create_mass_consignment_ajax();
+		return false;
 	}
 	else
 	{
 		return false;
 	}
+}
+function create_mass_consignment_ajax() {
+	jQuery('#loading').show();
+	var data = $jEparcel('#edit_form').serialize() + '&action=create_mass_consignment_ajax';
+	$jEparcel.post('<?= admin_url('admin-ajax.php') ?>', data, function(res) {
+		if(res == 1)
+		{
+			window.location.href = "<?= admin_url('admin.php?page=linksynceparcel') ?>";
+		}
+	});
 }
 </script>
