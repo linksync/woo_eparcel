@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.6
+ * Version: 1.1.7
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -1101,6 +1101,9 @@ class linksynceparcel
 		}
 		
 		global $is_greater_than_21;
+
+        // manual
+        // self::manual_change_status_manifest_orders('M000000057');
 		
 		$statuses = LinksynceparcelHelper::getListOrderStatuses();
 		$changeState = get_option('linksynceparcel_change_order_status');
@@ -1162,10 +1165,65 @@ class linksynceparcel
 			LinksynceparcelHelper::remove_manifest_session(session_id());
 		}
 	}
+
+    public function manual_change_status_manifest_orders($manifest_number=false)
+    {
+        global $is_greater_than_21;
+        
+        $statuses = LinksynceparcelHelper::getListOrderStatuses();
+        $changeState = get_option('linksynceparcel_change_order_status');
+        
+        if($manifest_number) {
+            $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
+            
+            foreach($results as $k => $result) {
+                $order = new WC_Order($result);
+                
+                $current_status = '';
+                                                
+                if($is_greater_than_21)
+                {
+                    foreach($statuses as $term_id => $status)
+                    {
+                        if($term_id == $order->post_status)
+                        {
+                            $current_status = $term_id;
+                        }
+                    }
+                        
+                    if ($changeState && ($changeState !== $current_status))
+                    {
+                        $order->update_status($changeState);
+                    }
+                }
+                else
+                {
+                    foreach($statuses as $status)
+                    {
+                        if($status->slug == $order->status)
+                        {
+                            $current_status = $status->term_id;
+                        }
+                    }
+                        
+                    if ($changeState && ($changeState !== $current_status))
+                    {
+                        foreach($statuses as $status)
+                        {
+                            if($status->term_id == $changeState)
+                            {
+                                $order->update_status($status->slug);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 	
 	public function process_download_pdf()
 	{
-		if( isset($_GET['f_key']) && !empty($_GET['f_key']) ) {
+		if( (isset($_GET['f_key']) && !empty($_GET['f_key'])) ||  $_GET['f_type'] == "bulk_labels") {
 			$filename = false;
 			switch($_GET['f_type']) {
 				case 'consignment':

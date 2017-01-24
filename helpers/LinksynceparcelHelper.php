@@ -5749,6 +5749,13 @@ class LinksynceparcelHelper
 		$query = "SELECT * FROM {$table_name} WHERE manifest_number = '{$manifestNumber}'";
 		return $wpdb->get_results($query);
 	}
+
+    public static function formatToHtml($content)
+    {
+        $content = htmlspecialchars($content);
+        $content = str_replace(htmlspecialchars('\"'), "", $content);
+        return html_entity_decode($content);
+    }
 	
 	public static function notifyCustomers($manifestNumber)
 	{
@@ -5764,7 +5771,7 @@ class LinksynceparcelHelper
 				$subject  = get_option('linksynceparcel_subject');
 				$siteUrl = get_bloginfo('url');
 
-				$content  = get_option('linksynceparcel_email_body');
+                $content = static::formatToHtml(get_option('linksynceparcel_email_body'));
 				$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
 				
 				$order = new WC_Order($consignment->order_id);
@@ -6587,6 +6594,21 @@ class LinksynceparcelHelper
 		
 		return $data;
 	}
+
+    public static function getAllNonChangedStatusOrders($manifest_number)
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "linksynceparcel_consignment";
+        
+        $results = $wpdb->get_results( "SELECT order_id FROM ". $table_name ." WHERE manifest_number='". $manifest_number ."'" );
+        
+        $data = array();
+        foreach($results as $result) {
+            $data[] = $result->order_id;
+        }
+        
+        return $data;
+    }
 	
 	public static function requiredWooVersion()
 	{

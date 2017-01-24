@@ -496,6 +496,7 @@
 						?>
                             <option value="A4-3pp_1" <?php if($express_post_label=='A4-3pp_1'){ echo "selected='selected'"; }?>> A4 plain </option>
                             <option value="A4-3pp_0" <?php if($express_post_label=='A4-3pp_0'){ echo "selected='selected'"; }?>> A4 pre-printed </option>
+							<option value="THERMAL LABEL-1PP_1" <?php if($express_post_label=='THERMAL LABEL-1PP_1'){ echo "selected='selected'"; }?>> Single plain </option>
                             <option value="THERMAL LABEL-1PP_0" <?php if($express_post_label=='THERMAL LABEL-1PP_0'){ echo "selected='selected'"; }?>> Single pre-printed </option>
                     	</select>
 					</td>
