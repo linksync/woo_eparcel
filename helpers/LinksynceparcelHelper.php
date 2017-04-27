@@ -3775,7 +3775,7 @@ class LinksynceparcelHelper
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
-		$sql = "SELECT * FROM $table_name WHERE method = '".@mysql_escape_string($method)."'";
+		$sql = "SELECT * FROM $table_name WHERE method = '". self::mres($method) ."'";
 		$results = $wpdb->get_results($sql);
 		foreach($results as $result)
 		{
@@ -4991,7 +4991,7 @@ class LinksynceparcelHelper
 					$width = $article->width;
 					$transitCoverAmount = $article->transitCoverAmount;
 					
-					$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='".@mysql_escape_string(self::xmlData($articleDescription))."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
+					$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='". self::mres(self::xmlData($articleDescription)) ."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
 					$wpdb->query($query);
 				}
 			}
@@ -5031,7 +5031,7 @@ class LinksynceparcelHelper
 			$isTransitCoverRequired = ($data['transit_cover_required'] ? 'Y' : 'N');
 			$transitCoverAmount = ($data['transit_cover_required'] ? $data['transit_cover_amount'] : 0);
 			
-			$query .= "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='".@mysql_escape_string($articleDescription)."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
+			$query .= "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='". self::mres($articleDescription) ."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
 
 			$wpdb->query($query);
 		}
@@ -6109,7 +6109,7 @@ class LinksynceparcelHelper
 		$shipping_cost = self::getShippingMethodDetails($order_id);
 		
 		$singleWeight = 0;
-		if($total_weight) {
+		if($total_weight > 0) {
 			$singleWeight = self::getSingleWeight($rows, $total_weight);
 		}
 		
@@ -6185,13 +6185,15 @@ class LinksynceparcelHelper
 				$unitvalue = 0.01;
 				$value = $item_qty * $unitvalue;
 			}
-			
-			$weight = $singleWeight * $item_qty;
+			if($singleWeight > 0.01) {
+				$weight = $singleWeight * $item_qty;
+			} else {
+				$weight = $singleWeight;
+			}
 			if($weight == 0){
-				$weight = get_post_meta( $prodid, '_width', true );
+				$weight = get_post_meta( $prodid, '_weight', true );
 				if(empty($weight)) {
 					$default_article_weight = get_option('linksynceparcel_default_article_weight');
-
 					if($default_article_weight)
 					{
 						$weight = $default_article_weight;
@@ -6250,6 +6252,10 @@ class LinksynceparcelHelper
 		}
 		
 		$weight = $total_weight/$cntr;
+		$weight = number_format($weight, 2);
+		if($weight < 0.01 ) {
+			return 0.01;
+		}
 		return $weight;
 	}
 	
@@ -6770,6 +6776,14 @@ class LinksynceparcelHelper
 		}
 
 		return false;
+	}
+	
+	public static function mres($value)
+	{
+		$search = array("\\",  "\x00", "\n",  "\r",  "'",  '"', "\x1a");
+		$replace = array("\\\\","\\0","\\n", "\\r", "\'", '\"', "\\Z");
+
+		return str_replace($search, $replace, $value);
 	}
 }
 

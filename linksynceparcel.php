@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.7
+ * Version: 1.1.8
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -117,6 +117,15 @@ function getProtocol()
 include_once(linksynceparcel_DIR.'helpers/LinksynceparcelHelper.php');
 include_once(linksynceparcel_DIR.'helpers/LinksynceparcelPluginUpdateChecker.php');
 include_once(linksynceparcel_DIR.'helpers/LinksynceparcelScreenOption.php');
+include_once(linksynceparcel_DIR.'includes/api/LinksyncApi.php');
+include_once(linksynceparcel_DIR.'includes/api/LinksyncApiController.php');
+
+$laid_info = LinksyncApiController::get_key_info();
+if (!empty($laid_info)) {
+   LinksyncApiController::update_current_laid_info($laid_info);
+}
+
+include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 
 function linksynceparcel_init()
 {
@@ -126,12 +135,11 @@ function linksynceparcel_init()
 	LinksynceparcelHelper::createNewTables();
 	if ( is_admin() ) {
 		// new LinksynceparcelPluginUpdater( __FILE__, 'linksync', 'woo_eparcel' );
-		$className = PucFactory::getLatestClassVersion('PucGitHubChecker');
-		$myUpdateChecker = new $className(
-			'https://github.com/linksync/woo_eparcel',
-			__FILE__,
-			'master'
-		);
+        $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+            'https://github.com/linksync/woo_eparcel',
+            __FILE__,
+            'linksync-eparcel'
+        );
 		
 		LinksynceparcelHelper::saveScreenOptions();
 		LinksynceparcelHelper::saveOrderStatuses();
@@ -1223,7 +1231,7 @@ class linksynceparcel
 	
 	public function process_download_pdf()
 	{
-		if( (isset($_GET['f_key']) && !empty($_GET['f_key'])) ||  $_GET['f_type'] == "bulk_labels") {
+		if( isset($_GET['f_key']) && !empty($_GET['f_key'])) {
 			$filename = false;
 			switch($_GET['f_type']) {
 				case 'consignment':

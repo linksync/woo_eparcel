@@ -24,19 +24,9 @@ class LinksynceparcelAdminConfiguration
 			}
 			else
 			{
-				if (isset($_REQUEST['delete_label_logo']))
-				{
-					if(get_option('linksynceparcel_label_logo') && file_exists(linksynceparcel_DIR.'assets/images/'.get_option('linksynceparcel_label_logo')))
-					{
-						@unlink(linksynceparcel_DIR.'assets/images/'.get_option('linksynceparcel_label_logo'));
-						$data['label_logo'] = '';
-					}
-				}
-				
 				LinksynceparcelHelper::saveConfiguration($data);
 				LinksynceparcelHelper::updateShippingChargecode($data);
 				
-				LinksynceparcelHelper::saveLabelLogo();
 				$result = __( 'Configuration updated successfully.', 'linksynceparcel' );
 				
 				try

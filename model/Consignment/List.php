@@ -76,6 +76,7 @@ class ConsignmentList extends WP_List_Table
 	
 	public function column_label($item)
 	{
+		$meta = get_post_meta($item->order_id);
 		if($meta['_shipping_country'][0] == "AU") {
 			$html = '<a class="print_label" lang="'.$item->consignment_number.'" href="'. admin_url() .'?f_key='. $item->consignment_number .'&f_type=consignment" target="_blank" >View</a>';
 		} else {

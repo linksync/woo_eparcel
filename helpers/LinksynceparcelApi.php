@@ -243,11 +243,11 @@ class LinksynceparcelApi
 			{
 				if(LINKSYNC_DEBUG == 1)
 				{
-					$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1));
+					$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 				}
 				else
 				{
-					$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
+					$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 				}
 				
 				LinksynceparcelHelper::log('Articles: '.preg_replace('/\s+/', ' ', trim($article)));
@@ -301,11 +301,11 @@ class LinksynceparcelApi
 		{
 			if(LINKSYNC_DEBUG == 1)
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1));
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			else
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			
 			LinksynceparcelHelper::log('Modified Articles: '.preg_replace('/\s+/', ' ', trim($article)));
@@ -540,11 +540,11 @@ class LinksynceparcelApi
 		{
 			if(LINKSYNC_DEBUG == 1)
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1));
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			else
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			
 			$laid = get_option('linksynceparcel_laid');
@@ -584,11 +584,11 @@ class LinksynceparcelApi
 		{
 			if(LINKSYNC_DEBUG == 1)
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1));
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			else
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			
 			$laid = get_option('linksynceparcel_laid');
@@ -750,11 +750,11 @@ class LinksynceparcelApi
 		{
 			if(LINKSYNC_DEBUG == 1)
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1));
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			else
 			{
-				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
 			
 			$laid = get_option('linksynceparcel_laid');
