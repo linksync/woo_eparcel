@@ -1,4 +1,5 @@
 <?php
+$order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 $use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
 $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 $weight = 0;
@@ -45,7 +46,7 @@ if($weight <= $weightPerArticle)
 </div>
 
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
-    <form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=add-article&action=save&order_id='.$order->id.'&consignment_number='.$consignment->consignment_number); ?>">
+    <form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=add-article&action=save&order_id='.$order_id.'&consignment_number='.$consignment->consignment_number); ?>">
     	<input id="number_of_articles" name="number_of_articles" size="4" value="1" type="hidden"/>
     	<?php if($use_dimension == 1): ?>
     	<div class="box" id="presets">
@@ -55,7 +56,7 @@ if($weight <= $weightPerArticle)
             foreach($presets as $preset)
             {
                 ?>
-                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->width.'<=>'.$preset->length?>"
+                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->length.'<=>'.$preset->width?>"
                 		<?php 
 							if($preset->weight == $selectedWeight && !$selected)
 							{
@@ -64,7 +65,7 @@ if($weight <= $weightPerArticle)
 							}
 							?>
                 >
-                    <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->width.'x'.$preset->length.')'?>
+                    <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->length.'x'.$preset->width.')'?>
                 </option>
                 <?php
             }
@@ -74,7 +75,7 @@ if($weight <= $weightPerArticle)
         &nbsp;&nbsp;&nbsp;&nbsp;
     	<input type="submit" name="createConsignment" value="Add Article" onclick="return submitForm2()" class="button-primary button create-consignment1 scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
         &nbsp;&nbsp;
-        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order->id.'&action=edit')?>')" class="scalable back button cancel-button" type="button" >
+        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order_id.'&action=edit')?>')" class="scalable back button cancel-button" type="button" >
         	<span><span><span>Cancel</span></span></span>
     	</button>
     
@@ -139,7 +140,7 @@ if($weight <= $weightPerArticle)
     &nbsp;&nbsp;
     <input type="submit" name="createConsignment"  value="Add Article" onclick="return submitForm()" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
     &nbsp;&nbsp;
-    <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order->id.'&action=edit')?>')" class="scalable back button" type="button" >
+    <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order_id.'&action=edit')?>')" class="scalable back button" type="button" >
         <span><span><span>Cancel</span></span></span>
     </button>
     
@@ -162,7 +163,7 @@ if($weight <= $weightPerArticle)
       <tr>
         <td width="30%">Partial Delivery allowed?</td>
         <td>
-        <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
+        <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order_id)): ?>
         <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
             <option value="0">No</option>
         </select>
@@ -175,7 +176,7 @@ if($weight <= $weightPerArticle)
         </td>
       </tr>
       
-      <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+      <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
       <tr>
         <td>Cash to collect</td>
         <td><input id="cash_to_collect" name="cash_to_collect" type="text" value="<?php echo $consignment->cash_to_collect?>" /></td>

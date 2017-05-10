@@ -1,4 +1,5 @@
 <?php
+$order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 $use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
 $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 if($use_order_weight == 1)
@@ -8,7 +9,7 @@ if($use_order_weight == 1)
 ?>
 
 
-<form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=edit-article&action=save&order_id='.$order->id.'&consignment_number='.$consignment->consignment_number.'&article_number='.$articleNumber); ?>">
+<form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=edit-article&action=save&order_id='.$order_id.'&consignment_number='.$consignment->consignment_number.'&article_number='.$articleNumber); ?>">
 <div class="entry-edit wp-core-ui">
     <h3>Edit Article #<?php echo $articleNumber?> for Consignment #<?php echo $consignment->consignment_number?></h3>
     
@@ -58,7 +59,7 @@ if($use_order_weight == 1)
           <tr>
             <td width="30%" height="35">Partial Delivery allowed?</td>
             <td>
-            <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
+            <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order_id)): ?>
             <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
                 <option value="0">No</option>
             </select>
@@ -71,7 +72,7 @@ if($use_order_weight == 1)
             </td>
           </tr>
           
-          <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+          <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
           <tr>
             <td height="35">Cash to collect</td>
             <td><input id="cash_to_collect" name="cash_to_collect" type="text" value="<?php echo $consignment->cash_to_collect?>" /></td>
@@ -123,7 +124,7 @@ if($use_order_weight == 1)
 	<div style="margin-top:15px">
         <input type="submit" name="updateArticle"  value="Update Article" onclick="return submitForm()" class="button-primary button scalable save submit-button"/>
             &nbsp;&nbsp;
-        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order->id.'&action=edit')?>')" class="scalable back button" type="button" >
+        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order_id.'&action=edit')?>')" class="scalable back button" type="button" >
             <span><span><span>Cancel</span></span></span>
         </button>
     </div>

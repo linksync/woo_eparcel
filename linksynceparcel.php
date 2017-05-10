@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.8
+ * Version: 1.1.9
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -350,62 +350,65 @@ class linksynceparcel
 			if(isset($_GET['post']))
 			{
 				$order_id = (int)($_GET['post']);
-				
-				if(LinksynceparcelHelper::getOrderChargeCode($order_id))
-				{
-					$post = get_post($order_id); 
-	
-					if($post->post_type == 'shop_order')
+				if(get_post_type($order_id) == 'shop_order') {
+					if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 					{
-						$order = new WC_Order( $order_id );
-						$address = get_post_meta($order_id);
-						
-						if($address['_shipping_country'][0] == 'AU')
+						$post = get_post($order_id); 
+		
+						if($post->post_type == 'shop_order')
 						{
-							if($this->is_greater_than_21)
+							$order = new WC_Order( $order_id );
+							$address = get_post_meta($order_id);
+							
+							if($address['_shipping_country'][0] == 'AU')
 							{
-								if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
+								if($this->is_greater_than_21)
 								{
-									$valid = LinksynceparcelHelper::getAddressValid($order_id);
-									if(isset($valid->is_address_valid) && $valid->is_address_valid)
+                                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+									if(!($order_status == 'wc-failed' || $order_status == 'wc-cancelled'))
+									{
+										$valid = LinksynceparcelHelper::getAddressValid($order_id);
+										if(isset($valid->is_address_valid) && $valid->is_address_valid)
+										{
+											add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
+										}
+										else
+										{
+											add_meta_box('linksynceparcel_address', 'linksync eParcel Address Validation', array($this, 'address_order_meta_box'), 'shop_order', 'normal', 'high' );
+										}
+									}
+								}
+								else
+								{
+									if( !($order->status == 'failed' || $order->status == 'cancelled') )
+									{
+										$valid = LinksynceparcelHelper::getAddressValid($order_id);
+										if(isset($valid->is_address_valid) && $valid->is_address_valid)
+										{
+											add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
+										}
+										else
+										{
+											add_meta_box('linksynceparcel_address', 'linksync eParcel Address Validation', array($this, 'address_order_meta_box'), 'shop_order', 'normal', 'high' );
+										}
+									}
+								}
+							} else {
+								// International
+								if($this->is_greater_than_21)
+								{
+                                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+									if(!($order_status == 'wc-failed' || $order_status == 'wc-cancelled'))
 									{
 										add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
 									}
-									else
-									{
-										add_meta_box('linksynceparcel_address', 'linksync eParcel Address Validation', array($this, 'address_order_meta_box'), 'shop_order', 'normal', 'high' );
-									}
 								}
-							}
-							else
-							{
-								if( !($order->status == 'failed' || $order->status == 'cancelled') )
+								else
 								{
-									$valid = LinksynceparcelHelper::getAddressValid($order_id);
-									if(isset($valid->is_address_valid) && $valid->is_address_valid)
+									if( !($order->status == 'failed' || $order->status == 'cancelled') )
 									{
 										add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
 									}
-									else
-									{
-										add_meta_box('linksynceparcel_address', 'linksync eParcel Address Validation', array($this, 'address_order_meta_box'), 'shop_order', 'normal', 'high' );
-									}
-								}
-							}
-						} else {
-							// International
-							if($this->is_greater_than_21)
-							{
-								if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
-								{
-									add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
-								}
-							}
-							else
-							{
-								if( !($order->status == 'failed' || $order->status == 'cancelled') )
-								{
-									add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
 								}
 							}
 						}
@@ -436,17 +439,18 @@ class linksynceparcel
 		if(LinksynceparcelHelper::isSoapInstalled())
 		{
 			$order_id = (int)($_GET['post']);
-			
-			if(LinksynceparcelHelper::getOrderChargeCode($order_id))
-			{
-				$valid = LinksynceparcelHelper::isOrderAddressValid($order_id);
-				if($valid != 1)
+			if(get_post_type($order_id) == 'shop_order') {
+				if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 				{
-					echo $valid;
-				}
-				else
-				{
-					add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
+					$valid = LinksynceparcelHelper::isOrderAddressValid($order_id);
+					if($valid != 1)
+					{
+						echo $valid;
+					}
+					else
+					{
+						add_meta_box( 'linksynceparcel', 'linksync eParcel Shipments', array( $this, 'consignments_order_view'), 'shop_order', 'normal', 'high' );
+					}
 				}
 			}
 		}
@@ -659,32 +663,36 @@ class linksynceparcel
 	}
 	public function on_neworder($order_id)
 	{
-		if(LinksynceparcelHelper::isSoapInstalled())
-		{
-			if($order_id > 0)
+		if(get_post_type($order_id) == 'shop_order') {
+			if(LinksynceparcelHelper::isSoapInstalled())
 			{
-				$address = get_post_meta($order_id);
-				if($address['_shipping_country'][0] == 'AU')
+				if($order_id > 0)
 				{
-					$order = new WC_Order( $order_id );
-					
-					if($this->is_greater_than_21)
+					$address = get_post_meta($order_id);
+					if($address['_shipping_country'][0] == 'AU')
 					{
-						if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
+						$order = new WC_Order( $order_id );
+						
+						if($this->is_greater_than_21)
 						{
-							if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+                            $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+							if(!($order_status == 'wc-failed' || $order_status == 'wc-cancelled'))
 							{
-								LinksynceparcelHelper::isOrderAddressValid($order_id);
+								if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+								{
+									LinksynceparcelHelper::isOrderAddressValid($order_id);
+								}
 							}
 						}
-					}
-					else
-					{
-						if( !($order->status == 'failed' || $order->status == 'cancelled') )
+						else
 						{
-							if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+                            $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+							if( !($order_status == 'failed' || $order_status == 'cancelled') )
 							{
-								LinksynceparcelHelper::isOrderAddressValid($order_id);
+								if(LinksynceparcelHelper::getOrderChargeCode($order_id))
+								{
+									LinksynceparcelHelper::isOrderAddressValid($order_id);
+								}
 							}
 						}
 					}
@@ -702,7 +710,8 @@ class linksynceparcel
 				
 				if($this->is_greater_than_21)
 				{
-					if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if(!($order_status == 'wc-failed' || $order_status == 'wc-cancelled'))
 					{
 						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 						{
@@ -737,14 +746,16 @@ class linksynceparcel
 						}
 					}
 					
-					if($order->post_status == 'wc-cancelled')
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if($order_status == 'wc-cancelled')
 					{
 						$this->cancelledOrderConsignments($order_id);
 					}
 				}
 				else
 				{
-					if( !($order->status == 'failed' || $order->status == 'cancelled') )
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if( !($order_status == 'failed' || $order_status == 'cancelled') )
 					{
 						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 						{
@@ -778,7 +789,7 @@ class linksynceparcel
 						}
 					}
 					
-					if($order->status == 'cancelled')
+					if($order->get_status() == 'cancelled')
 					{
 						$this->cancelledOrderConsignments($order_id);
 					}
@@ -1033,7 +1044,8 @@ class linksynceparcel
 
 				if($this->is_greater_than_21)
 				{
-					if(!($order->post_status == 'wc-failed' || $order->post_status == 'wc-cancelled'))
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if(!($order_status == 'wc-failed' || $order_status == 'wc-cancelled'))
 					{
 						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 						{
@@ -1054,15 +1066,16 @@ class linksynceparcel
 							}
 						}
 					}
-
-					if($order->post_status == 'wc-cancelled')
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if($order_status == 'wc-cancelled')
 					{
 						$this->cancelledOrderConsignments($order_id);
 					}
 				}
 				else
 				{
-					if( !($order->status == 'failed' || $order->status == 'cancelled') )
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+					if( !($order_status == 'failed' || $order_status == 'cancelled') )
 					{
 						if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 						{
@@ -1086,8 +1099,8 @@ class linksynceparcel
 							}
 						}
 					}
-
-					if($order->status == 'cancelled')
+                    $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->status;
+					if($order_status == 'cancelled')
 					{
 						$this->cancelledOrderConsignments($order_id);
 					}
@@ -1129,7 +1142,8 @@ class linksynceparcel
 					{
 						foreach($statuses as $term_id => $status)
 						{
-							if($term_id == $order->post_status)
+                            $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+							if($term_id == $order_status)
 							{
 								$current_status = $term_id;
 							}
@@ -1193,7 +1207,8 @@ class linksynceparcel
                 {
                     foreach($statuses as $term_id => $status)
                     {
-                        if($term_id == $order->post_status)
+                        $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+                        if($term_id == $order_status)
                         {
                             $current_status = $term_id;
                         }

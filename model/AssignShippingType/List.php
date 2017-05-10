@@ -71,9 +71,11 @@ class AssignShippingTypeList extends WP_List_Table
 		$pass = LinksynceparcelHelper::requiredWooVersion();
 		if(is_object($item) && $pass) {
 			$method = explode(':', $item->method);
-			$name = LinksynceparcelHelper::getShippingMethodName($method[1], $method[0]);
-			if($name != false) {
-				$methodname = $name;
+			if(isset($method[1])) {
+				$name = LinksynceparcelHelper::getShippingMethodName($method[1], $method[0]);
+				if($name != false) {
+					$methodname = $name;
+				}
 			}
 		}
 		 

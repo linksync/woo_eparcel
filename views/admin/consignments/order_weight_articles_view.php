@@ -1,4 +1,5 @@
 <?php 
+$order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 $weight = LinksynceparcelHelper::getOrderWeight($order);
 if($weight == 0)
 {
@@ -43,7 +44,7 @@ if($weight <= $weightPerArticle)
 	}
 }
 $exceed = 0;
-$totalweightused = LinksynceparcelHelper::getOrderWeightTotal($order->id);
+$totalweightused = LinksynceparcelHelper::getOrderWeightTotal($order_id);
 if($weight > $totalweightused) {
 	$exceed = 1;
 }
@@ -100,7 +101,7 @@ div#img-loader img {
             foreach($presets as $preset)
             {
                 ?>
-                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->width.'<=>'.$preset->length?>"
+                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->length.'<=>'.$preset->width?>"
                 			<?php 
 							if($preset->weight == $selectedWeight && !$selected)
 							{
@@ -109,7 +110,7 @@ div#img-loader img {
 							}
 							?>
                 >
-                    <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->width.'x'.$preset->length.')'?>
+                    <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->length.'x'.$preset->width.')'?>
                 </option>
                 <?php
             }
@@ -201,7 +202,7 @@ div#img-loader img {
 	  <tr>
         <td width="30%">Partial Delivery allowed?</td>
         <td>
-        <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
+        <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order_id)): ?>
         <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">
             <option value="0">No</option>
         </select>
@@ -214,7 +215,7 @@ div#img-loader img {
         </td>
       </tr>
       
-      <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+      <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
       <tr>
         <td>Cash to collect</td>
         <td><input id="cash_to_collect" name="cash_to_collect" type="text" /></td>
@@ -452,11 +453,11 @@ div#img-loader img {
 
 </div>
 
-<?php $consignments = LinksynceparcelHelper::getConsignments($order->id, true);?>
+<?php $consignments = LinksynceparcelHelper::getConsignments($order_id, true);?>
 <?php foreach($consignments as $consignment):?>
-<?php $articles = LinksynceparcelHelper::getArticles($order->id, $consignment->consignment_number);?>
+<?php $articles = LinksynceparcelHelper::getArticles($order_id, $consignment->consignment_number);?>
 <?php 
-	$int_fields = LinksynceparcelHelper::getInternationFields($order->id, $consignment->consignment_number);
+	$int_fields = LinksynceparcelHelper::getInternationFields($order_id, $consignment->consignment_number);
 	$shipCountry = $consignment->delivery_country;
 	if(empty($shipCountry)) {
 		$shipCountry = $shipping_country;
@@ -486,11 +487,11 @@ div#img-loader img {
 		<?php if(!$consignment->despatched):?>
 			<?php if($shipCountry == 'AU') : ?>
 				<?php if(count($articles) < 20):?>
-				<button class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&subpage=add-article&order_id='.$order->id.'&consignment_number='.$consignment->consignment_number); ?>')" type="button">Add Articles</button>
+				<button class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&subpage=add-article&order_id='.$order_id.'&consignment_number='.$consignment->consignment_number); ?>')" type="button">Add Articles</button>
 				<?php endif;?>
-				<button class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order->id.'&subpage=edit-consignment&consignment_number='.$consignment->consignment_number); ?>')" type="button">Edit Consignment</button>
+				<button class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order_id.'&subpage=edit-consignment&consignment_number='.$consignment->consignment_number); ?>')" type="button">Edit Consignment</button>
 			<?php endif;?>
-			<button class="button" onclick="setLocationConfirmDialog('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order->id.'&action=delete_consignment&consignment_number='.$consignment->consignment_number); ?>')" type="button">Delete Consignment</button>
+			<button class="button" onclick="setLocationConfirmDialog('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order_id.'&action=delete_consignment&consignment_number='.$consignment->consignment_number); ?>')" type="button">Delete Consignment</button>
 		<?php endif;?>
         </span>
 		<div style="clear:both;"></div>
@@ -508,7 +509,7 @@ div#img-loader img {
 			<td><?php echo ($consignment->partial_delivery_allowed==1?'Yes':'No')?></td>
 		  </tr>
 		  
-		  <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+		  <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
 		  <tr>
 			<td>Cash to collect</td>
 			<td><?php echo $consignment->cash_to_collect?></td>
@@ -619,8 +620,8 @@ div#img-loader img {
 			  <td bgcolor="#FBFBFB" class="a-right" style="text-align:center"><?php echo (is_numeric($article->transit_cover_amount) ? number_format($article->transit_cover_amount,2) : 'NA') ?></td>
 				<td bgcolor="#FBFBFB"  style="text-align:center">
 				<?php if(!$consignment->despatched):?>
-			    <button style="font-size: 11px;" class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order->id.'&subpage=edit-article&consignment_number='.$consignment->consignment_number.'&article_number='.$article->article_number); ?>')" type="button">Edit</button>
-					<button class="button" onclick="setLocationConfirmDialog('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order->id.'&action=delete_article&consignment_number='.$consignment->consignment_number.'&article_number='.$article->article_number); ?>')" type="button" style="font-size: 11px;">Delete</button>
+			    <button style="font-size: 11px;" class="button" onclick="setLocation('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order_id.'&subpage=edit-article&consignment_number='.$consignment->consignment_number.'&article_number='.$article->article_number); ?>')" type="button">Edit</button>
+					<button class="button" onclick="setLocationConfirmDialog('<?php echo admin_url('admin.php?page=linksynceparcel&order_id='.$order_id.'&action=delete_article&consignment_number='.$consignment->consignment_number.'&article_number='.$article->article_number); ?>')" type="button" style="font-size: 11px;">Delete</button>
 				<?php else:?>
 					N/A
 				<?php endif;?>

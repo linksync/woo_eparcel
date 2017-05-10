@@ -156,7 +156,7 @@ class ConsignmentOrdersList extends WP_List_Table
 	{
 		$order_id = $item->ID;
 		$order = new WC_Order( $order_id );
-		$notes = $order->customer_message;
+		$notes = method_exists($order, 'get_id') ? $order->get_customer_note() : $order->customer_message;
 		if(!empty($notes)) {
 			return '<span class="notes_head tips tooltip" title="'. $notes .'">Customer Message</span>';
 		} else {

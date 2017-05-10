@@ -14,11 +14,12 @@ class LinksynceparcelAdminConsignmentsOrderView
 		
 		if($is_greater_than_21)
 		{
-			$order_status = substr($order->post_status,3);
+            $or_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+			$order_status = substr($or_status,3);
 		}
 		else
 		{
-			$order_status = $order->status;
+			$order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->status;
 		}
 		
 		$countries = WC()->countries->countries;
@@ -26,7 +27,7 @@ class LinksynceparcelAdminConsignmentsOrderView
 		$ordernotes = '';
 		if(get_option('linksynceparcel_copy_order_notes') == 1)
 		{
-			$ordernotes = $order->customer_message;
+			$ordernotes = method_exists($order, 'get_customer_note') ? $order->get_customer_note() : $order->customer_message;
 		}
 		
 		$use_order_weight = (int)get_option('linksynceparcel_use_order_weight');

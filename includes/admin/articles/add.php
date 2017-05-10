@@ -54,11 +54,12 @@ class LinksynceparcelAdminArticlesAdd
 		$order = new WC_Order( $order_id );
 		if($is_greater_than_21)
 		{
-			$order_status = substr($order->post_status,3);
+            $or_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
+			$order_status = substr($or_status,3);
 		}
 		else
 		{
-			$order_status = $order->status;
+			$order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->status;;
 		}
 		$consignmentNumber = trim($_GET['consignment_number']);
 		$consignment = LinksynceparcelHelper::getConsignment($consignmentNumber);

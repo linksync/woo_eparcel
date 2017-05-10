@@ -1,4 +1,5 @@
 <?php
+$order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 $use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
 $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 $weight = LinksynceparcelHelper::getOrderWeight($order);
@@ -19,11 +20,11 @@ if($reminderWeight > 0)
 	$totalArticles++;
 }
 ?>
-<form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=edit-consignment&action=save&order_id='.$order->id.'&consignment_number='.$consignment->consignment_number); ?>">
+<form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=edit-consignment&action=save&order_id='.$order_id.'&consignment_number='.$consignment->consignment_number); ?>">
 
 <div class="entry-edit wp-core-ui">
     <h3>Edit Consignment #<?php echo $consignment->consignment_number?></h3>
-    <?php $articles = LinksynceparcelHelper::getArticles($order->id, $consignment->consignment_number);?>
+    <?php $articles = LinksynceparcelHelper::getArticles($order_id, $consignment->consignment_number);?>
     <?php $i=0;?>
     <input id="number_of_articles2" type="hidden" name="number_of_articles" value="<?php echo count($articles)?>" />
     <input id="articles_type" type="hidden" name="articles_type" value="Custom" />
@@ -81,14 +82,17 @@ if($reminderWeight > 0)
 		  <tr>
 			<td width="30%">Delivery instructions</td>
 			<td>
-				<textarea name="delivery_instruction" maxlength="256" cols="40" rows="4"><?php echo !empty($consignment->delivery_instruction)?$consignment->delivery_instruction:$order->customer_message; ?></textarea>
+            <?php 
+                $customer_note = method_exists($order, 'get_customer_note') ? $order->get_customer_note() : $order->customer_message;
+            ?>
+				<textarea name="delivery_instruction" maxlength="256" cols="40" rows="4"><?php echo !empty($consignment->delivery_instruction)?$consignment->delivery_instruction:$customer_note; ?></textarea>
 			</td>
 		  </tr>
 		  <?php if($shipCountry == 'AU') : ?>
           <tr>
             <td height="35">Partial Delivery allowed?</td>
             <td>
-            <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order->id)): ?>
+            <?php if(LinksynceparcelHelper::isDisablePartialDeliveryMethod($order_id)): ?>
             <select id="partial_delivery_allowed" name="partial_delivery_allowed" disabled="disabled" style="width:140px">>
                 <option value="0">No</option>
             </select>
@@ -101,7 +105,7 @@ if($reminderWeight > 0)
             </td>
           </tr>
           
-          <?php if(LinksynceparcelHelper::isCashToCollect($order->id)): ?>
+          <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
           <tr>
             <td height="35">Cash to collect</td>
             <td><input id="cash_to_collect" name="cash_to_collect" type="text" value="<?php echo $consignment->cash_to_collect?>" /></td>
@@ -337,7 +341,7 @@ if($reminderWeight > 0)
 	<div style="margin-top:15px">
         <input type="submit" name="updateConsignment"  value="Update Consignment" onclick="return submitForm()" class="button-primary button scalable save submit-button"/>
             &nbsp;&nbsp;
-        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order->id.'&action=edit')?>')" class="scalable back button" type="button" >
+        <button onclick="setLocation('<?php echo admin_url('post.php?post='.$order_id.'&action=edit')?>')" class="scalable back button" type="button" >
             <span><span><span>Cancel</span></span></span>
         </button>
     </div>

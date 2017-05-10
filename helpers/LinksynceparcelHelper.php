@@ -3767,7 +3767,8 @@ class LinksynceparcelHelper
 	
 	public static function getChargeCode($order, $consignmentNumber='')
 	{
-		$chargeCode = self::getOrderChargeCode($order->id, $consignmentNumber);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$chargeCode = self::getOrderChargeCode($order_id, $consignmentNumber);
 		return $chargeCode;
 	}
 	
@@ -3919,7 +3920,8 @@ class LinksynceparcelHelper
 	{		
 		$isInternational = ($shipCountry != 'AU')?true:false;
 		
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 		
 		$returnAddress = self::prepareReturnAddress();
@@ -4008,14 +4010,15 @@ class LinksynceparcelHelper
 		}
 		
 		$articleData = str_replace($search, $replace, $template);
-		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
+		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight'], 'articles' => $articlesInfo['articles']);
 	}
 	
 	public static function prepareOrderWeightArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{
 		$isInternational = ($shipCountry != 'AU')?true:false;
 		
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 		
 		$returnAddress = self::prepareReturnAddress();
@@ -4109,7 +4112,8 @@ class LinksynceparcelHelper
 	public static function prepareArticleDataBulk($data,$order,$shipCountry=false)
 	{
 		$isInternational = ($shipCountry != 'AU')?true:false;
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order);
 		
 		$returnAddress = self::prepareReturnAddress();
@@ -4468,7 +4472,7 @@ class LinksynceparcelHelper
 			
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
-		return array('info' => $articlesInfo, 'total_weight' => $total_weight);
+		return array('info' => $articlesInfo, 'total_weight' => $total_weight, 'articles' => $article);
 	}
 	
 	public static function prepareOrderWeightArticles($data, $order,$consignment_number='',$isInternational=false)
@@ -4550,7 +4554,7 @@ class LinksynceparcelHelper
 			}
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
-		return array('info' => $articlesInfo, 'total_weight' => $totalWeight);
+		return array('info' => $articlesInfo, 'total_weight' => $totalWeight, 'articles' => $article);
 	}
 	
 	public static function prepareArticlesBulk($data, $order, $isInternational=false)
@@ -4975,6 +4979,7 @@ class LinksynceparcelHelper
 			$query = '';
 			$articleNumbers = $articles->article;
 			LinksynceparcelHelper::log('articles : '.print_r($articles, true));
+			LinksynceparcelHelper::log('articles content : '.print_r($content, true));
 			$xml = simplexml_load_string($content);
 			if($xml)
 			{
@@ -5213,7 +5218,8 @@ class LinksynceparcelHelper
 	
 	public static function prepareModifiedArticleData($order,$consignment_number)
 	{
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order);
 		$articlesInfo = self::prepareModifiedArticles($order,$consignment_number);
@@ -5265,7 +5271,8 @@ class LinksynceparcelHelper
 	{
 		$articlesInfo = '';
 		$total_weight = 0;
-		$articles = LinksynceparcelHelper::getArticles($order->id, $consignment_number);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$articles = LinksynceparcelHelper::getArticles($order_id, $consignment_number);
 		foreach($articles as $article)
 		{
 			$search = array(
@@ -5317,7 +5324,8 @@ class LinksynceparcelHelper
 	
 	public static function prepareAddArticleData($data, $order,$consignment_number)
 	{
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareAddArticles($order,$data, $consignment_number);
@@ -5369,7 +5377,8 @@ class LinksynceparcelHelper
 		$articlesInfo = '';
 		$total_weight = 0;
 		
-		$articles = LinksynceparcelHelper::getArticles($order->id, $consignment_number);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$articles = LinksynceparcelHelper::getArticles($order_id, $consignment_number);
 		foreach($articles as $article)
 		{
 			$search = array(
@@ -5489,7 +5498,8 @@ class LinksynceparcelHelper
 	
 	public static function prepareUpdateArticleData($data, $order,$consignment_number='')
 	{
-		$address = get_post_meta($order->id);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareUpdatedArticles($order,$data);
@@ -5540,7 +5550,8 @@ class LinksynceparcelHelper
 	{
 		$articlesInfo = '';
 		$total_weight = 0;
-		$articles = LinksynceparcelHelper::getArticles($order->id, $data['consignment_number']);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$articles = LinksynceparcelHelper::getArticles($order_id, $data['consignment_number']);
 		foreach($articles as $article)
 		{
 			$search = array(
@@ -5774,7 +5785,7 @@ class LinksynceparcelHelper
                 $content = static::formatToHtml(get_option('linksynceparcel_email_body'));
 				$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
 				
-				$order = new WC_Order($consignment->order_id);
+				$order = new WC_Order( $consignment->order_id );
 				
 				$search = array(
 					'[TrackingNumber]',
@@ -6094,7 +6105,8 @@ class LinksynceparcelHelper
 	}
 	
 	public static function articleContents($order,$data, $total_weight) {
-		$order_item = self::getOrderProdItems($order->id, $data, false, $total_weight);
+        $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
+		$order_item = self::getOrderProdItems($order_id, $data, false, $total_weight);
 		return $order_item;
 	}
 	
