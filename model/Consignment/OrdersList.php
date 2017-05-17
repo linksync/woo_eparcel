@@ -96,7 +96,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			
 			// Check if product has variation.
 			if ($variation_id) { 
-				$product = new WC_Product($variation_id);
+				$product = new WC_Product_Variation($variation_id);
 			} else {
 				$product = new WC_Product($productid);
 			}
