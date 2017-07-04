@@ -58,7 +58,7 @@ div#img-loader img {
             foreach($presets as $preset)
             {
                 ?>
-                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->width.'<=>'.$preset->length?>">
+                <option value="<?php echo $preset->id ?>">
                     <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->width.'x'.$preset->length.')'?>
                 </option>
                 <?php

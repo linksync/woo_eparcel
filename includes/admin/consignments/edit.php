@@ -20,6 +20,7 @@ class LinksynceparcelAdminConsignmentsEdit
 		} else {
 			try
 			{
+				$old_consignmentNumber = $consignmentNumber;	
 				$articleData = LinksynceparcelHelper::prepareArticleData($data, $order, $consignmentNumber, $shipping_country);
 				$content = $articleData['content'];
 				$chargeCode = $articleData['charge_code'];
@@ -27,14 +28,14 @@ class LinksynceparcelAdminConsignmentsEdit
 				$consignmentData = LinksynceparcelApi::modifyConsignment($content, $consignmentNumber, $chargeCode);
 				if($consignmentData)
 				{
-					$consignmentNumber = $consignmentData->consignmentNumber;
+					$new_consignmentNumber = $consignmentData->consignmentNumber;
 					$manifestNumber = $consignmentData->manifestNumber;
-					LinksynceparcelHelper::updateConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
-					LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
+					LinksynceparcelHelper::updateConsignment($order_id,$new_consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$old_consignmentNumber);
+					LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
 					LinksynceparcelHelper::insertManifest($manifestNumber);
 					
 					$labelContent = $consignmentData->lpsLabels->labels->label;
-					LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+					LinksynceparcelHelper::generateDocument($new_consignmentNumber,$labelContent,'label');
 					
 					update_option('linksynceparcel_order_view_success',$data['consignment_number'].': consignment has been updated successfully.');
 					wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));

@@ -67,6 +67,35 @@
           </table>
 </fieldset>
         <br />
-        <input type="submit" name="save" value="<?php _e('Save','linksynceparcel'); ?>" class="button-primary" />
+        <input type="submit" id="save_preset" name="save" value="<?php _e('Save','linksynceparcel'); ?>" class="button-primary" />
     </form>
 </div>
+<script type="text/javascript">
+    $jEparcel = jQuery.noConflict();
+
+    function validateDimensions(dimensions)
+    {
+        var shouldBe2 = 0;
+
+        dimensions.forEach(function(number){
+          shouldBe2 += (number >= 5) ? 1 : 0;
+        });
+
+        return shouldBe2;
+    }
+
+    $jEparcel('#save_preset').click(function(e) {
+        var dimensions = [
+            $jEparcel("input[name='linksynceparcel[height]']").val(),
+            $jEparcel("input[name='linksynceparcel[width]']").val(),
+            $jEparcel("input[name='linksynceparcel[length]']").val()
+        ];
+        if(validateDimensions(dimensions) < 2)
+        {
+            alert('At least 2 dimensions must be 5 cm.');
+            return false;
+        }
+
+        $jEparcel('#mainform').submit();
+    });
+</script>

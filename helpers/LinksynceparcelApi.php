@@ -4,7 +4,7 @@ set_time_limit(0);
 if(!defined('LINKSYNC_EPARCEL_URL1'))
 	define('LINKSYNC_EPARCEL_URL1','api.linksync.com');
 if(!defined('LINKSYNC_EPARCEL_URL2'))
-	define('LINKSYNC_EPARCEL_URL2','api.linksync.com');
+	define('LINKSYNC_EPARCEL_URL2','stg-api.linksync.com');
 if(!defined('LINKSYNC_WSDL'))
 	define('LINKSYNC_WSDL','/linksync/linksyncService');
 if(!defined('LINKSYNC_DEBUG'))
@@ -37,9 +37,13 @@ class LinksynceparcelApi
 			$merchant_location_id = get_option('linksynceparcel_merchant_location_id');
 			$post_charge_to_account = get_option('linksynceparcel_post_charge_to_account');
 			$sftp_username = get_option('linksynceparcel_sftp_username');
+			$sftp_username = (!empty($sftp_username)?$sftp_username:'');
 			$sftp_password = get_option('linksynceparcel_sftp_password');
+			$sftp_password = (!empty($sftp_password)?$sftp_password:'');
 			$lps_username = get_option('linksynceparcel_lps_username');
+			$lps_username = (!empty($lps_username)?$lps_username:'');
 			$lps_password = get_option('linksynceparcel_lps_password');
+			$lps_password = (!empty($lps_password)?$lps_password:'');
 			$operation_mode = get_option('linksynceparcel_operation_mode');
 			$merchant_id = get_option('linksynceparcel_merchant_id');
 			$lodgement_facility = get_option('linksynceparcel_lodgement_facility');
@@ -58,8 +62,10 @@ class LinksynceparcelApi
 			{
 				$label_logo = @file_get_contents(linksynceparcel_DIR.'assets/images/'.get_option('linksynceparcel_label_logo'));
 			}
+			$st_apikey = get_option('linksynceparcel_st_apikey');
+			$st_password = get_option('linksynceparcel_st_password');
 			
-			$stdClass = $client->seteParcelMerchantDetails($laid,$merchant_location_id, $post_charge_to_account,$sftp_username,$sftp_password, $operation_mode, '', $merchant_id, $lodgement_facility, $label_logo, $lps_username, $lps_password, linksynceparcel_SITE_URL ); 
+			$stdClass = $client->seteParcelMerchantDetails($laid,$merchant_location_id, $post_charge_to_account,$sftp_username,$sftp_password, $operation_mode, '', $merchant_id, $lodgement_facility, $label_logo, $lps_username, $lps_password, linksynceparcel_SITE_URL, $st_apikey, $st_password ); 
 
 			if($stdClass)
 			{

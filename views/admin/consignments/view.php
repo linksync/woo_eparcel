@@ -46,7 +46,7 @@ div#img-loader img {
             foreach($presets as $preset)
             {
                 ?>
-                <option value="<?php echo $preset->name.'<=>'.$preset->weight.'<=>'.$preset->height.'<=>'.$preset->length.'<=>'.$preset->width?>">
+                <option value="<?php echo $preset->id ?>">
                     <?php echo $preset->name. ' ('.$preset->weight.'kg - '.$preset->height.'x'.$preset->length.'x'.$preset->width.')'?>
                 </option>
                 <?php
@@ -829,11 +829,51 @@ function backToPreset()
 	$jEparcel('#articles_type').val($jEparcel('#articles_type > option:first').attr('value'));
 }
 
+function validateDimensions(dimensions)
+{
+    var shouldBe2 = 0;
+
+    dimensions.forEach(function(number){
+      shouldBe2 += (number >= 5) ? 1 : 0;
+    });
+
+    return shouldBe2;
+}
+
 function setLocationConfirmDialog(url)
 {
 	if(!confirm('Are you sure?'))
 		return false;
 	setLocation(url);
+}
+
+function isDimensionValidForMultipleArticles()
+{
+    var heights = $jEparcel("[name$='[height]']").filter(function(){ return this.name.match(/article([0-9]+\[)height(\])/)});
+    var widths = $jEparcel("[name$='[width]']").filter(function(){ return this.name.match(/article([0-9]+\[)width(\])/)});
+    var lengths = $jEparcel("[name$='[length]']").filter(function(){ return this.name.match(/article([0-9]+\[)length(\])/)});
+
+    var articles =  $jEparcel("#number_of_articles").val();
+
+    var dimensions;
+
+    var result = { isNotValid: false, articleNum: null };
+
+    for(var i = 0; i < articles; i++) {
+        dimensions = [
+            heights[i].value,
+            widths[i].value,
+            lengths[i].value
+        ]
+
+        if(validateDimensions(dimensions) < 2) {
+            result.isNotValid = true;
+            result.articleNum = i + 1;
+            return result;
+        }
+    }
+
+    return result;
 }
 
 function setLocation(url)
@@ -867,6 +907,17 @@ function submitForm()
 		alert('Please enter/select all the mandatory fields');
 		return false;
 	}
+
+    if(isDimensionValidForMultipleArticles().isNotValid == true)
+    {
+        var articleNumber = isDimensionValidForMultipleArticles().articleNum;
+        if(articleNumber != null) {
+            alert('Article ' + articleNumber + ' must have at least 2 dimensions must be 5 cm.');
+        } else {
+            alert('At least 2 dimensions must be 5 cm.');
+        }
+        return false;
+    }
 	
 	$jEparcel('.positive-number').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());

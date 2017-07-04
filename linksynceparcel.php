@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.1.11
+ * Version: 1.1.12
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -125,7 +125,7 @@ if (!empty($laid_info)) {
    LinksyncApiController::update_current_laid_info($laid_info);
 }
 
-include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
+// include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 
 function linksynceparcel_init()
 {
@@ -1196,6 +1196,12 @@ class linksynceparcel
         $changeState = get_option('linksynceparcel_change_order_status');
         
         if($manifest_number) {
+        	$timestamp = time();
+			$date = date('Y-m-d H:i:s', $timestamp);
+			LinksynceparcelHelper::updateManifestTable($manifest_number,'despatch_date',$date);
+			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'despatched',1);
+			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'is_next_manifest',0);
+
             $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
             
             foreach($results as $k => $result) {
@@ -1241,6 +1247,11 @@ class linksynceparcel
                     }
                 }
             }
+
+            $notifyCustomerOption = get_option('linksynceparcel_notify_customers');
+			if($notifyCustomerOption == 1) {
+				LinksynceparcelHelper::notifyCustomers($current_manifest['manifestnumber']);
+			}
         }
     }
 	

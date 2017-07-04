@@ -63,35 +63,18 @@
                        <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Issued by Australia Post. The Lodgement Facility associated with your Merchant Location ID, for inclusion on the Manifest Summary Report."/>
                 </td>
               </tr>
-               <tr>
-                    <td width="20%" valign="top"><?php _e('SFTP username','linksynceparcel'); ?></td>
+			         <tr>
+                    <td width="20%" valign="top"><?php _e('Shipping & Tracking API Key','linksynceparcel'); ?></td>
                     <td align="left" colspan="2">
-                       <input type="text" size="40" name="linksynceparcel[sftp_username]" value="<?php echo LinksynceparcelHelper::getFormValue('sftp_username',get_option('linksynceparcel_sftp_username'))?>">
-                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Issued by Australia Post. Your username for uploading manifests to Australia Post SFTP service."/>
+                       <input type="text" size="40" name="linksynceparcel[st_apikey]" value="<?php echo LinksynceparcelHelper::getFormValue('st_apikey',get_option('linksynceparcel_st_apikey'))?>">
+                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Shipping & Tracking API key - Issued by Australia Post for logistics needs; lodge orders, print labels, dispatch your parcels and track their progress from source to destination."/>
                  </td>
               </tr>
                <tr>
-                    <td width="20%" valign="top"><?php _e('SFTP password','linksynceparcel'); ?></td>
+                    <td width="20%" valign="top"><?php _e('Shipping & Tracking password','linksynceparcel'); ?></td>
                     <td align="left" colspan="2">
-                       <input type="text" size="40" name="linksynceparcel[sftp_password]" value="<?php echo LinksynceparcelHelper::getFormValue('sftp_password',get_option('linksynceparcel_sftp_password'))?>">
-                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Issued by Australia Post. The password associated with your username for uploading manifests to Australia Post SFTP service."/>
-                 </td>
-              </tr>
-			  
-			  <tr>
-                    <td width="20%" valign="top"><?php _e('LPS username','linksynceparcel'); ?></td>
-                    <td align="left" colspan="2">
-                       <input type="text" size="40" name="linksynceparcel[lps_username]" value="<?php echo LinksynceparcelHelper::getFormValue('lps_username',get_option('linksynceparcel_lps_username'))?>">
-                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="The LPS username relate to the Australia Post Label Printing Service - please contact linksync for further information."/>
-					   <br />
-                        <span class="comment">The format of the LPS username should look similar to '6f4d9019-cxx4-4e5c-x786-0753b97d903e@auspost.com.au' - please refer to <a href="https://www.linksync.com/help/lps" target="_blank">Registering for Australia Post Label Print Service (LPS)</a> for more information.</span>
-                 </td>
-              </tr>
-               <tr>
-                    <td width="20%" valign="top"><?php _e('LPS password','linksynceparcel'); ?></td>
-                    <td align="left" colspan="2">
-                       <input type="text" size="40" name="linksynceparcel[lps_password]" value="<?php echo LinksynceparcelHelper::getFormValue('lps_password',get_option('linksynceparcel_lps_password'))?>">
-                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="The LPS password relate to the Australia Post Label Printing Service - please contact linksync for further information."/>
+                       <input type="text" size="40" name="linksynceparcel[st_password]" value="<?php echo LinksynceparcelHelper::getFormValue('st_password',get_option('linksynceparcel_st_password'))?>">
+                       <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Shipping & Tracking Password - Issued by Australia Post for logistics needs; lodge orders, print labels, dispatch your parcels and track their progress from source to destination."/>
                  </td>
               </tr>
              
@@ -468,8 +451,10 @@
 						?>
                             <option value="A4-4pp_1" <?php if($parcel_post_label=='A4-4pp_1'){ echo "selected='selected'"; }?>> A4 plain </option>
                             <option value="A4-4pp_0" <?php if($parcel_post_label=='A4-4pp_0'){ echo "selected='selected'"; }?>> A4 pre-printed </option>
-                            <option value="THERMAL LABEL-1PP_1" <?php if($parcel_post_label=='THERMAL LABEL-1PP_1'){ echo "selected='selected'"; }?>> Single plain </option>
-                            <option value="THERMAL LABEL-1PP_0" <?php if($parcel_post_label=='THERMAL LABEL-1PP_0'){ echo "selected='selected'"; }?>> Single pre-printed </option>
+                            <option value="A4-1pp_1" <?php if($parcel_post_label=='A4-1pp_1'){ echo "selected='selected'"; }?>> A4 1pp plain </option>
+                            <option value="A4-1pp_0" <?php if($parcel_post_label=='A4-1pp_0'){ echo "selected='selected'"; }?>> A4 1pp pre-printed </option>
+                            <option value="A6-1pp_1" <?php if($parcel_post_label=='A6-1pp_1'){ echo "selected='selected'"; }?>> A6 plain </option>
+                            <option value="A6-1pp_0" <?php if($parcel_post_label=='A6-1pp_0'){ echo "selected='selected'"; }?>> A6 pre-printed </option>
                     	</select>
 					</td>
 					<td width="25%" align="left" >
@@ -496,8 +481,9 @@
 						?>
                             <option value="A4-3pp_1" <?php if($express_post_label=='A4-3pp_1'){ echo "selected='selected'"; }?>> A4 plain </option>
                             <option value="A4-3pp_0" <?php if($express_post_label=='A4-3pp_0'){ echo "selected='selected'"; }?>> A4 pre-printed </option>
-							<option value="THERMAL LABEL-1PP_1" <?php if($express_post_label=='THERMAL LABEL-1PP_1'){ echo "selected='selected'"; }?>> Single plain </option>
-                            <option value="THERMAL LABEL-1PP_0" <?php if($express_post_label=='THERMAL LABEL-1PP_0'){ echo "selected='selected'"; }?>> Single pre-printed </option>
+                            <option value="A4-1pp_1" <?php if($express_post_label=='A4-1pp_1'){ echo "selected='selected'"; }?>> A4 1pp plain </option>
+                            <option value="A4-1pp_0" <?php if($express_post_label=='A4-1pp_0'){ echo "selected='selected'"; }?>> A4 1pp pre-printed </option>
+                            <option value="A6-1pp_0" <?php if($express_post_label=='A6-1pp_0'){ echo "selected='selected'"; }?>> A6 pre-printed </option>
                     	</select>
 					</td>
 					<td width="25%" align="left" >

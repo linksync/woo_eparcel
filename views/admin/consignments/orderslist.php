@@ -45,7 +45,7 @@
 		if($config_checker) {
 		?>
 		<div class="error">
-			<p>Account settings for linksync eParcel configuration are not complete. <a href="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=configuration'); ?>">Click here for linksync eParcel configuration settings.</a></p>
+			<p>Shipping and Tracking for linksync eParcel configuration are not complete. <a href="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=configuration'); ?>">Click here for linksync eParcel configuration settings.</a></p>
 		</div>
 		<?php
 		} else {

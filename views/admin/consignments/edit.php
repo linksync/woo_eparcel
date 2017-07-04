@@ -68,9 +68,9 @@ if($reminderWeight > 0)
             <input size="10" type="text" style="text-align:center" id="article_length<?php echo $i+1?>" class="positive-number" label="Length" name="article<?php echo $i+1?>[length]" value="<?php echo $article->length?>"/>
         </span>
         <?php else: ?>
-            <input type="hidden" name="article<?php echo $i+1?>[height]" value="0"/>
-            <input type="hidden" name="article<?php echo $i+1?>[width]" value="0"/>
-            <input type="hidden" name="article<?php echo $i+1?>[length]" value="0"/>
+            <input type="hidden" name="article<?php echo $i+1?>[height]" value="5"/>
+            <input type="hidden" name="article<?php echo $i+1?>[width]" value="5"/>
+            <input type="hidden" name="article<?php echo $i+1?>[length]" value="5"/>
             <input type="hidden" name="article<?php echo $i+1?>[article_number]" value="<?php echo $article->article_number?>"/>
         <?php endif; ?>
     </div>
@@ -423,6 +423,22 @@ $jEparcel(document).ready(function(){
 	});
 });
 
+function validateDimensions()
+{
+    var dimensions = [
+        $jEparcel('#article_height1').val(),
+        $jEparcel('#article_width1').val(),
+        $jEparcel('#article_length1').val()
+    ];
+    var shouldBe2 = 0;
+
+    dimensions.forEach(function(number){
+      shouldBe2 += (number >= 5) ? 1 : 0;
+    });
+
+    return shouldBe2;
+}
+
 function setLocation(url)
 {
 	window.location.href = url;
@@ -430,6 +446,7 @@ function setLocation(url)
 
 function submitForm()
 {
+    var use_dimension = <?php echo $use_dimension ?>;
 	var valid = true;
 	
 	$jEparcel('.required-entry').each(function(){
@@ -439,6 +456,12 @@ function submitForm()
 			valid = false;
 		}
 	});
+    if(use_dimension == 1 && validateDimensions() < 2)
+    {
+        alert('At least 2 dimensions must be 5 cm.');
+        return false;
+    }
+
 	if(!valid)
 	{
 		alert('Please enter all the mandatory fields');
