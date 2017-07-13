@@ -29,28 +29,35 @@ class LinksynceparcelAdminConfiguration
 				
 				$result = __( 'Configuration updated successfully.', 'linksynceparcel' );
 				
-				try
-				{
-					LinksynceparcelApi::seteParcelMerchantDetails();
-					$result .= '<br/>'.__( 'eParcel Merchant Details updated successfully.', 'linksynceparcel' );
-				}
-				catch(Exception $e)
-				{
-					$message = 'Updating Merchant Details, Error:'.$e->getMessage();
-					$error = $message;
-					LinksynceparcelHelper::log($message);
-				}
-				
-				try
-				{
-					LinksynceparcelApi::setReturnAddress();
-					$result .= '<br/>'. __( 'Return Address updated successfully.', 'linksynceparcel' );
-				}
-				catch(Exception $e)
-				{
-					$message = 'Set Return Address, Error:'.$e->getMessage();
-					$error = ($error ? '<br>':'').$message;
-					LinksynceparcelHelper::log($message);
+				$openManifest = LinksynceparcelHelper::checkOpenManifest();
+				if(!empty($openManifest)) {
+					$manifests = implode(', ',$openManifest);
+					$error = 'You have current open manifest <strong>'. $manifests .'</strong>';
+				} else {
+					
+					try
+					{
+						LinksynceparcelApi::seteParcelMerchantDetails();
+						$result .= '<br/>'.__( 'eParcel Merchant Details updated successfully.', 'linksynceparcel' );
+					}
+					catch(Exception $e)
+					{
+						$message = 'Updating Merchant Details, Error:'.$e->getMessage();
+						$error = $message;
+						LinksynceparcelHelper::log($message);
+					}
+					
+					try
+					{
+						LinksynceparcelApi::setReturnAddress();
+						$result .= '<br/>'. __( 'Return Address updated successfully.', 'linksynceparcel' );
+					}
+					catch(Exception $e)
+					{
+						$message = 'Set Return Address, Error:'.$e->getMessage();
+						$error = ($error ? '<br>':'').$message;
+						LinksynceparcelHelper::log($message);
+					}
 				}
 			}
 		}

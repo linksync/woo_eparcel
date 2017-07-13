@@ -231,5 +231,73 @@ class LinksynceparcelValidator
 		}
 		return true;
 	}
+
+	public static function validateArticlePresetDimensions($data)
+	{
+		$start_index = $data['start_index'];
+		$end_index = $data['end_index'];
+		$error_message = '';
+		for ($i=$start_index; $i <= $end_index; $i++) { 
+			if($data['articles_type'] == 'Custom') {
+        		$article = $data['article'.$i];
+			} else {
+				$articles_type = $data['articles_type'];
+                $articles = self::get_article_preset($articles_type);
+
+                $article['description'] = $articles[0];
+				$article['weight'] = $articles[1];
+                $article['height'] = trim($articles[2]);
+                $article['length'] = trim($articles[3]);
+                $article['width'] = trim($articles[4]);
+            }
+
+            $description = $article['description'];	
+            $height = $article['height'];
+            $length = $article['length'];
+            $width = $article['width'];
+
+       		 $notpass = array();
+            if($height < 5) {
+            	$notpass[] = $height;
+            } elseif($height > 105) {
+            	$error_message .= $description .' height must not exceed the limit of 105cm.<br>';
+            }
+            if($length < 5) {
+            	$notpass[] = $length;
+            }
+            if($width < 5) {
+            	$notpass[] = $width;
+            }
+
+	        if($notpass < 2) {
+	        	$error_message .= $description .' must have atleast 2 dimensions of 5cm and above<br>';
+	        }
+		}
+
+		if(!empty($error_message)) {
+			return array('error_msg' => $error_message);
+		}
+		return true;
+	}
+
+	public static function get_article_preset($id)
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . "linksynceparcel_article_preset";
+
+        $query = "SELECT * FROM {$table_name} WHERE id = {$id}";
+
+        $result = $wpdb->get_row($query);
+
+        $data = array();
+        $data[] = $result->name;
+        $data[] = $result->weight;
+        $data[] = $result->height;
+        $data[] = $result->width;
+        $data[] = $result->length;
+
+        return $data;
+    }
 }
 ?>

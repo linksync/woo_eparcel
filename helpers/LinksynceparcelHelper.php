@@ -405,6 +405,21 @@ class LinksynceparcelHelper
 			}
 		}
 	}
+
+	public static function checkOpenManifest()
+	{
+		global $wpdb;
+		$table = $wpdb->prefix ."linksynceparcel_manifest";
+		$sql = "SELECT * FROM ". $table ." WHERE despatch_date=''";
+		$results = $wpdb->get_results($sql);
+		$manifests = array();
+		if($results) {
+			foreach($results as $result) {
+				$manifests[] = $result->manifest_number;
+			}
+		}
+		return $manifests;
+	}
 	
 	public static function saveConfiguration($values)
 	{
@@ -3922,6 +3937,14 @@ class LinksynceparcelHelper
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 		
+		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+		if($use_dimension == 1) {	
+			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
+			if(is_array($validateDimensions)) {
+				return $validateDimensions;
+			}
+		}
+		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareArticles($data, $order);
@@ -3946,6 +3969,7 @@ class LinksynceparcelHelper
 		if(is_array($validateIntVal)) {
 			return $validateIntVal;
 		}
+
 		
 		if($isInternational) {
 			$search = array(
@@ -4018,6 +4042,14 @@ class LinksynceparcelHelper
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
+
+		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+		if($use_dimension == 1) {	
+			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
+			if(is_array($validateDimensions)) {
+				return $validateDimensions;
+			}
+		}
 		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
@@ -4113,6 +4145,14 @@ class LinksynceparcelHelper
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order);
+
+		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
+		if($use_dimension == 1) {	
+			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
+			if(is_array($validateDimensions)) {
+				return $validateDimensions;
+			}
+		}
 		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
@@ -4372,7 +4412,7 @@ class LinksynceparcelHelper
 			else
 			{
 				$articles_type = $data['articles_type'];
-                $articles = self::get_article_preset($articles_type);
+                $articles = LinksynceparcelValidator::get_article_preset($articles_type);
 				
 				$article = array();
 				$article['description'] = $articles[0];
@@ -4500,7 +4540,7 @@ class LinksynceparcelHelper
 			else
 			{
 				$articles_type = $data['articles_type'];
-				$articles = explode('<=>',$articles_type);
+                $articles = LinksynceparcelValidator::get_article_preset($articles_type);
 				
 				$article = array();
 				$article['description'] = $articles[0];
@@ -4673,7 +4713,7 @@ class LinksynceparcelHelper
 		}
 		else
 		{
-            $articles = self::get_article_preset($articles_type);
+            $articles = LinksynceparcelValidator::get_article_preset($articles_type);
 			
 			$use_order_total_weight = (int)get_option('linksynceparcel_use_order_weight');
 			if($use_order_total_weight == 1)
@@ -6237,6 +6277,7 @@ class LinksynceparcelHelper
 			if(isset($user_order_details) && $user_order_details == 0) {
 				$item_description = get_option('linksynceparcel_default_good_description');
 			}
+			$item_description = substr($item_description, 0, 40);
 			
 			$item_qty = wc_get_order_item_meta( $row->order_item_id, '_qty', true );
 			$sale_price = get_post_meta( $prodid, '_sale_price', true );
@@ -6847,26 +6888,6 @@ class LinksynceparcelHelper
 
 		return str_replace($search, $replace, $value);
 	}
-
-    public static function get_article_preset($id)
-    {
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . "linksynceparcel_article_preset";
-
-        $query = "SELECT * FROM {$table_name} WHERE id = {$id}";
-
-        $result = $wpdb->get_row($query);
-
-        $data = array();
-        $data[] = $result->name;
-        $data[] = $result->weight;
-        $data[] = $result->height;
-        $data[] = $result->width;
-        $data[] = $result->length;
-
-        return $data;
-    }
 }
 
 function linksyneparcel_set_html_content_type()

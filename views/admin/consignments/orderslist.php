@@ -25,7 +25,7 @@
 	}
 	$config_checker = LinksynceparcelHelper::checkAssignConfigurationSettings();
 	?>
-<form method="get" id="mainform" action="<?php echo admin_url('admin.php'); ?>" enctype="multipart/form-data" onsubmit="return submitConsignmentForm()">
+<form class="linksynceparcel-table-form" method="get" id="mainform" action="<?php echo admin_url('admin.php'); ?>" enctype="multipart/form-data" onsubmit="return submitConsignmentForm()">
     	<input type="hidden" name="page" value="linksynceparcel" />
         <?php 
         if ( ! empty( $_REQUEST['orderby'] ) )
@@ -148,6 +148,10 @@ div#img-loader img {
 }
 small.meta.email {
 	width: 100%;
+}
+.linksynceparcel-table-form .tablenav a.button, .linksynceparcel-table-form .tablenav a.button-secondary {
+	display: inline-block;
+	margin: 0;
 }
 </style>
 <script>
