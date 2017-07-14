@@ -410,15 +410,9 @@ class LinksynceparcelHelper
 	{
 		global $wpdb;
 		$table = $wpdb->prefix ."linksynceparcel_manifest";
-		$sql = "SELECT * FROM ". $table ." WHERE despatch_date=''";
-		$results = $wpdb->get_results($sql);
-		$manifests = array();
-		if($results) {
-			foreach($results as $result) {
-				$manifests[] = $result->manifest_number;
-			}
-		}
-		return $manifests;
+		$sql = "SELECT * FROM ". $table ." ORDER BY manifest_id DESC LIMIT 1";
+		$result = $wpdb->get_row($sql);
+		return (empty($result->despatch_date))?$result->manifest_number:0;
 	}
 	
 	public static function saveConfiguration($values)

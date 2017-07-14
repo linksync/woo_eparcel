@@ -31,8 +31,7 @@ class LinksynceparcelAdminConfiguration
 				
 				$openManifest = LinksynceparcelHelper::checkOpenManifest();
 				if(!empty($openManifest)) {
-					$manifests = implode(', ',$openManifest);
-					$error = 'You have current open manifest <strong>'. $manifests .'</strong>';
+					$error = 'You have current open manifest <strong>'. $openManifest .'</strong>';
 				} else {
 					
 					try
