@@ -256,21 +256,32 @@ class LinksynceparcelValidator
             $length = $article['length'];
             $width = $article['width'];
 
-       		 $notpass = array();
+       		$notpass = array();
+       		$limitdimension = array();
             if($height < 5) {
             	$notpass[] = $height;
-            } elseif($height > 105) {
-            	$error_message .= $description .' height must not exceed the limit of 105cm.<br>';
+            }
+            if($height > 105) {
+            	$limitdimension[] = $height;
             }
             if($length < 5) {
             	$notpass[] = $length;
             }
+            if($length > 105) {
+            	$limitdimension[] = $length;
+            }
             if($width < 5) {
             	$notpass[] = $width;
             }
+            if($width > 105) {
+            	$limitdimension[] = $width;
+            }
 
-	        if($notpass < 2) {
+	        if(count($notpass) < 2) {
 	        	$error_message .= $description .' must have atleast 2 dimensions of 5cm and above<br>';
+	        }
+	        if(count($limitdimension) > 0) {
+        		$error_message .= $description .' height, length and width must not exceed the limit of 105cm.<br>';	
 	        }
 		}
 

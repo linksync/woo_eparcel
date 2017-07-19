@@ -68,6 +68,7 @@
                     <td align="left" colspan="2">
                        <input type="text" size="40" name="linksynceparcel[st_apikey]" value="<?php echo LinksynceparcelHelper::getFormValue('st_apikey',get_option('linksynceparcel_st_apikey'))?>">
                        <img src="<?php echo linksynceparcel_URL?>assets/images/icon-tooltip.png" class="tooltip" title="Shipping & Tracking API key - Issued by Australia Post for logistics needs; lodge orders, print labels, dispatch your parcels and track their progress from source to destination."/>
+                       <span class="comment">please refer to <a href="https://help.linksync.com/hc/en-us/articles/115000764764-How-do-I-get-my-Account-Number-API-Key-and-API-Secret-from-Australia-Post-" target="_blank">Registering for Australia Post Shipping and Tracking</a> for more information.</span>
                  </td>
               </tr>
                <tr>
