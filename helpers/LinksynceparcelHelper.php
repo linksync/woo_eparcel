@@ -4015,7 +4015,7 @@ class LinksynceparcelHelper
 				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
-				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 				($data['email_notification'] ? 'Y' : 'N'),
@@ -4120,7 +4120,7 @@ class LinksynceparcelHelper
 				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
-				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 				($data['email_notification'] ? 'Y' : 'N'),
@@ -4223,7 +4223,7 @@ class LinksynceparcelHelper
 				self::getIncrementId($order),
 				($data['contains_dangerous_goods'] ? 'true' : 'false'),
 				($data['print_return_labels'] ? 'true' : 'false'),
-				($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
 				'<cashToCollect>N</cashToCollect>',
 				'<cashToCollectAmount/>',
 				($data['email_notification'] ? 'Y' : 'N'),
@@ -4891,7 +4891,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".isset($data['partial_delivery_allowed'])."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4939,7 +4939,7 @@ class LinksynceparcelHelper
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$oldconsignmentNumber}'";
 		$wpdb->query($query);
 
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".isset($data['partial_delivery_allowed'])."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
 		
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
@@ -5440,7 +5440,7 @@ class LinksynceparcelHelper
 			self::getIncrementId($order),
 			($data['contains_dangerous_goods'] ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
-			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+			(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 			($data['email_notification'] ? 'Y' : 'N'),
@@ -5621,7 +5621,7 @@ class LinksynceparcelHelper
 			self::getIncrementId($order),
 			($data['contains_dangerous_goods'] ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
-			($data['partial_delivery_allowed'] ? 'Y' : 'N'),
+			(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 			($data['email_notification'] ? 'Y' : 'N'),

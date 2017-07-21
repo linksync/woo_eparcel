@@ -277,7 +277,7 @@ class LinksynceparcelValidator
             	$limitdimension[] = $width;
             }
 
-	        if(count($notpass) < 2) {
+	        if(count($notpass) > 1) {
 	        	$error_message .= $description .' must have atleast 2 dimensions of 5cm and above<br>';
 	        }
 	        if(count($limitdimension) > 0) {
