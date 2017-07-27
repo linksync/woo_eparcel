@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -120,11 +120,6 @@ include_once(linksynceparcel_DIR.'helpers/LinksynceparcelScreenOption.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApi.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApiController.php');
 
-$laid_info = LinksyncApiController::get_key_info();
-if (!empty($laid_info)) {
-   LinksyncApiController::update_current_laid_info($laid_info);
-}
-
 // include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 
 function linksynceparcel_init()
@@ -157,6 +152,7 @@ add_action( 'wp_ajax_create_consignment_ajax', array(new linksynceparcel, 'creat
 add_action( 'wp_ajax_create_mass_consignment_ajax', array(new linksynceparcel, 'create_mass_consignment_ajax') );
 add_action( 'admin_init', array( new linksynceparcel, 'change_order_status') );
 add_action( 'init', array( new linksynceparcel, 'process_download_pdf'), 10);
+add_action('linksyncgetlaidinfo', array( new linksynceparcel,'getlaidinfo' ));
 
 function my_plugin_help($contextual_help, $screen_id, $screen) 
 {
@@ -313,20 +309,40 @@ class linksynceparcel
 		{
 			wp_schedule_event( time(), 'daily', 'linksynceparceltruncatelog' );
 		}
-		
-		add_action( 'linksynceparceltruncatelog', array($this,'shrink_log'));
+        
+        add_action( 'linksynceparceltruncatelog', array($this,'shrink_log'));
+
+        if ( ! wp_next_scheduled( 'linksyncgetlaidinfo' ) )
+        {
+            wp_schedule_event( time(), 'daily', 'linksyncgetlaidinfo' );
+        }
 		
 		LinksynceparcelHelper::saveDefaultConfiguration();
 		LinksynceparcelHelper::createTables();
 		LinksynceparcelHelper::createNewTables();
 		
 	}
+
+    public function getlaidinfo()
+    {
+        $laid_info = LinksyncApiController::get_key_info();
+        if (!empty($laid_info)) {
+           LinksyncApiController::update_current_laid_info($laid_info);
+           LinksynceparcelHelper::log("Get Laid info: " . json_encode($laid_info));
+        }
+    }
+
 	public function on_deactivation($networkwide=false)
 	{
 		if ( ! wp_next_scheduled( 'linksynceparceltruncatelog' ) )
 		{
 			wp_clear_scheduled_hook( 'linksynceparceltruncatelog' );
 		}
+
+        if ( ! wp_next_scheduled( 'linksyncgetlaidinfo' ) )
+        {
+            wp_clear_scheduled_hook( 'linksyncgetlaidinfo' );
+        }
 	}
 	
 	public function activate_eparcel($networkwide) {
@@ -474,7 +490,6 @@ class linksynceparcel
 	
 	public function consignments()
 	{
-		
 		if(!isset($_GET['subpage']))
 		{
 			if(isset($_GET['action']) && $_GET['action'] == 'delete_consignment')
