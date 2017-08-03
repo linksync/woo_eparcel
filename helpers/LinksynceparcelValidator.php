@@ -232,24 +232,30 @@ class LinksynceparcelValidator
 		return true;
 	}
 
-	public static function validateArticlePresetDimensions($data)
+	public static function validateArticlePresetDimensions($data, $bulk=false)
 	{
 		$start_index = $data['start_index'];
 		$end_index = $data['end_index'];
 		$error_message = '';
 		for ($i=$start_index; $i <= $end_index; $i++) { 
-			if($data['articles_type'] == 'Custom') {
-        		$article = $data['article'.$i];
+			if($data['articles_type'] == 'order_weight' && $bulk == true) {
+				$article['description'] = "Order weight";
+                $article['height'] = 5;
+                $article['length'] = 5;
+                $article['width'] = 5;
 			} else {
-				$articles_type = $data['articles_type'];
-                $articles = self::get_article_preset($articles_type);
+				if($data['articles_type'] == 'Custom') {
+	        		$article = $data['article'.$i];
+				} else {
+					$articles_type = $data['articles_type'];
+	                $articles = self::get_article_preset($articles_type);
 
-                $article['description'] = $articles[0];
-				$article['weight'] = $articles[1];
-                $article['height'] = trim($articles[2]);
-                $article['length'] = trim($articles[3]);
-                $article['width'] = trim($articles[4]);
-            }
+	                $article['description'] = $articles[0];
+	                $article['height'] = trim($articles[2]);
+	                $article['length'] = trim($articles[3]);
+	                $article['width'] = trim($articles[4]);
+	            }
+			}
 
             $description = $article['description'];	
             $height = $article['height'];

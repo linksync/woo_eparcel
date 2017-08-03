@@ -106,7 +106,7 @@ div#img-loader img {
         <span><span><span>Back to Preset</span></span></span>
     </button>
     &nbsp;&nbsp;
-    <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" onclick="return submitForm()" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
+    <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
     
 </div>
 

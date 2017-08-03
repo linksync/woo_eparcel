@@ -3930,6 +3930,7 @@ class LinksynceparcelHelper
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
+		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 		
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
 		if($use_dimension == 1) {	
@@ -3981,7 +3982,7 @@ class LinksynceparcelHelper
 				$returnInternationalAddress,
 				self::getIncrementId($order),
 				$chargeCode,
-				($data['contains_dangerous_goods'] ? 'true' : 'false')
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
 			);
 			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
@@ -4009,17 +4010,17 @@ class LinksynceparcelHelper
 				$returnAddress,
 				$deliveryInfo,
 				$address['_billing_email'][0],
-				($data['delivery_signature_allowed'] ? 'true' : 'false'),
+				(($data['delivery_signature_allowed']==1) ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
 				self::getIncrementId($order),
-				($data['contains_dangerous_goods'] ? 'true' : 'false'),
-				($data['print_return_labels'] ? 'true' : 'false'),
-				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
+				'false',
+				(($data['partial_delivery_allowed']==1) ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-				($data['email_notification'] ? 'Y' : 'N'),
-				($data['safe_drop']==1 ? 'yes' : 'no')
+				(($notifyCustomerOption==1) ? 'Y' : 'N'),
+				(($data['safe_drop']==1) ? 'yes' : 'no')
 			);
 			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
@@ -4036,6 +4037,7 @@ class LinksynceparcelHelper
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
+		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
 		if($use_dimension == 1) {	
@@ -4086,7 +4088,7 @@ class LinksynceparcelHelper
 				$returnInternationalAddress,
 				self::getIncrementId($order),
 				$chargeCode,
-				($data['contains_dangerous_goods'] ? 'true' : 'false')
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false')
 			);
 			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
@@ -4114,17 +4116,17 @@ class LinksynceparcelHelper
 				$returnAddress,
 				$deliveryInfo,
 				$address['_billing_email'][0],
-				($data['delivery_signature_allowed'] ? 'true' : 'false'),
+				(($data['delivery_signature_allowed']==1) ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
 				self::getIncrementId($order),
-				($data['contains_dangerous_goods'] ? 'true' : 'false'),
-				($data['print_return_labels'] ? 'true' : 'false'),
-				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
+				'false',
+				(($data['partial_delivery_allowed']==1) ? 'Y' : 'N'),
 				(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 				(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
-				($data['email_notification'] ? 'Y' : 'N'),
-				($data['safe_drop']==1 ? 'yes' : 'no')
+				(($notifyCustomerOption==1) ? 'Y' : 'N'),
+				(($data['safe_drop']==1) ? 'yes' : 'no')
 			);
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		}
@@ -4139,10 +4141,11 @@ class LinksynceparcelHelper
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order);
+		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
 		if($use_dimension == 1) {	
-			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
+			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data, true);
 			if(is_array($validateDimensions)) {
 				return $validateDimensions;
 			}
@@ -4189,7 +4192,7 @@ class LinksynceparcelHelper
 				$returnInternationalAddress,
 				self::getIncrementId($order),
 				$chargeCode,
-				($data['contains_dangerous_goods'] ? 'true' : 'false')
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false')
 			);
 			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
@@ -4217,17 +4220,17 @@ class LinksynceparcelHelper
 				$returnAddress,
 				$deliveryInfo,
 				$address['_billing_email'][0],
-				($data['delivery_signature_allowed'] ? 'true' : 'false'),
+				(($data['delivery_signature_allowed']==1) ? 'true' : 'false'),
 				self::getIncrementId($order),
 				$chargeCode,
 				self::getIncrementId($order),
-				($data['contains_dangerous_goods'] ? 'true' : 'false'),
-				($data['print_return_labels'] ? 'true' : 'false'),
-				(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
+				(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
+				'false',
+				(($data['partial_delivery_allowed']==1) ? 'Y' : 'N'),
 				'<cashToCollect>N</cashToCollect>',
 				'<cashToCollectAmount/>',
-				($data['email_notification'] ? 'Y' : 'N'),
-				($data['safe_drop']==1 ? 'yes' : 'no')
+				(($notifyCustomerOption==1) ? 'Y' : 'N'),
+				(($data['safe_drop']==1) ? 'yes' : 'no')
 			);
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		}
@@ -4891,7 +4894,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".isset($data['partial_delivery_allowed'])."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4939,7 +4942,7 @@ class LinksynceparcelHelper
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$oldconsignmentNumber}'";
 		$wpdb->query($query);
 
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".isset($data['partial_delivery_allowed'])."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
 		
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
@@ -5434,13 +5437,13 @@ class LinksynceparcelHelper
 			$returnAddress,
 			$deliveryInfo,
 			$address['_billing_email'][0],
-			($data['delivery_signature_allowed'] ? 'true' : 'false'),
+			(($data['delivery_signature_allowed']==1) ? 'true' : 'false'),
 			self::getIncrementId($order),
 			$chargeCode,
 			self::getIncrementId($order),
-			($data['contains_dangerous_goods'] ? 'true' : 'false'),
+			(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
-			(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
+			(($data['partial_delivery_allowed']==1) ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 			($data['email_notification'] ? 'Y' : 'N'),
@@ -5615,13 +5618,13 @@ class LinksynceparcelHelper
 			$returnAddress,
 			$deliveryInfo,
 			$address['_billing_email'][0],
-			($data['delivery_signature_allowed'] ? 'true' : 'false'),
+			(($data['delivery_signature_allowed']==1) ? 'true' : 'false'),
 			self::getIncrementId($order),
 			$chargeCode,
 			self::getIncrementId($order),
-			($data['contains_dangerous_goods'] ? 'true' : 'false'),
+			(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
 			($data['print_return_labels'] ? 'true' : 'false'),
-			(isset($data['partial_delivery_allowed']) ? 'Y' : 'N'),
+			(($data['partial_delivery_allowed']==1) ? 'Y' : 'N'),
 			(isset($data['cash_to_collect']) ? '<cashToCollect>Y</cashToCollect>' : '<cashToCollect>N</cashToCollect>'),
 			(isset($data['cash_to_collect']) ? '<cashToCollectAmount>'.number_format($data['cash_to_collect'],2).'</cashToCollectAmount>' : ''),
 			($data['email_notification'] ? 'Y' : 'N'),
