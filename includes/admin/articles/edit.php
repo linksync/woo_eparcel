@@ -6,6 +6,7 @@ class LinksynceparcelAdminArticlesEdit
 		$order_id = (int)($_REQUEST['order_id']);
 		$data = $_REQUEST;
 		$order = new WC_Order( $order_id );
+		$shipping_country = get_post_meta($order_id,'_shipping_country',true);
 		$consignmentNumber = trim($_GET['consignment_number']);
 		$articleNumber = trim($_GET['article_number']);
 		try

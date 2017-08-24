@@ -3,17 +3,17 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.5
+ * Version: 1.2.6
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
  */
- 
+
 /*
 Copyright 2014  linksync  (email : info@linksync.com)
 
 This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as 
+it under the terms of the GNU General Public License, version 2, as
 published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  **/
 if ( !defined('ABSPATH') )
 {
-	exit; 
+	exit;
 }
 
 /**
@@ -79,7 +79,7 @@ if ( $exist_plugin )
 {
 	if(isset($_POST['wp_screen_options']))
 	{
-		$wp_screen_options = $_POST['wp_screen_options']; 
+		$wp_screen_options = $_POST['wp_screen_options'];
 		if(isset($wp_screen_options['option']) && ($wp_screen_options['option'] == 'consignment_per_page'))
 		{
 			$consignment_per_page = $wp_screen_options['value'];
@@ -89,7 +89,7 @@ if ( $exist_plugin )
     add_action('plugins_loaded', 'linksynceparcel_init', 0);
 	add_action( 'admin_enqueue_scripts', 'linksynceparcel_enqueue' );
 }
-//do_action('admin_enqueue_scripts');	
+//do_action('admin_enqueue_scripts');
 function linksynceparcel_enqueue()
 {
 	if(isset($_GET['page']) && $_GET['page'] == 'linksynceparcel')
@@ -124,7 +124,7 @@ include_once(linksynceparcel_DIR.'includes/api/LinksyncApiController.php');
 
 function linksynceparcel_init()
 {
-	$linksynceparcel = new linksynceparcel(true);	
+	$linksynceparcel = new linksynceparcel(true);
 	LinksynceparcelHelper::createUploadDirectory();
 	LinksynceparcelHelper::upgradeTables();
 	LinksynceparcelHelper::createNewTables();
@@ -135,7 +135,7 @@ function linksynceparcel_init()
             __FILE__,
             'linksync-eparcel'
         );
-		
+
 		LinksynceparcelHelper::saveScreenOptions();
 		LinksynceparcelHelper::saveOrderStatuses();
 	}
@@ -154,11 +154,11 @@ add_action( 'admin_init', array( new linksynceparcel, 'change_order_status') );
 add_action( 'init', array( new linksynceparcel, 'process_download_pdf'), 10);
 add_action('linksyncgetlaidinfo', array( new linksynceparcel,'getlaidinfo' ));
 
-function my_plugin_help($contextual_help, $screen_id, $screen) 
+function my_plugin_help($contextual_help, $screen_id, $screen)
 {
 
 	global $my_plugin_hook,$linksynceparcel_consignment_menu;
-					
+
 	if ($screen_id == 'toplevel_page_linksynceparcel')
 	{
 		$contextual_help = '<p>Thank you for using linksync eParcel. Should you need help using linksync eParcel for WooCommerce please read the documentation.<br><br>
@@ -188,7 +188,7 @@ else if(isset($_GET['page']) && $_GET['page'] == 'linksynceparcel' && isset($_GE
 class linksynceparcel
 {
 	public $is_greater_than_21 = false;
-	public function __construct($menu=false) 
+	public function __construct($menu=false)
 	{
 		global $is_greater_than_21;
 		$this->is_greater_than_21 = $is_greater_than_21;
@@ -197,14 +197,14 @@ class linksynceparcel
 			LinksynceparcelHelper::upgradeTables();
 			add_action('admin_menu',array(&$this,'admin_menu'));
 			add_action('init', array(&$this,'eParcel_startsession'), 1);
-			
+
 			add_screen_options_panel(
 				'eParcel-default-settings',       //Panel ID
-				'eParcel Settings',              //Panel title. 
+				'eParcel Settings',              //Panel title.
 				'eparcel_default_settings_panel', //The function that generates panel contents.
-				array('toplevel_page_linksynceparcel'),            //Pages/screens where the panel is displayed. 
+				array('toplevel_page_linksynceparcel'),            //Pages/screens where the panel is displayed.
 				'eparcel_save_new_defaults',      //The function that gets triggered when settings are submitted/saved.
-				true                              //Auto-submit settings (via AJAX) when they change. 
+				true                              //Auto-submit settings (via AJAX) when they change.
 			);
 		}
 	}
@@ -219,7 +219,7 @@ class linksynceparcel
 		}
 		include_once(linksynceparcel_DIR.'includes/admin/menu2.php');
 		LinksynceparcelAdminMenu2::output($this);
-		
+
 		if(LinksynceparcelHelper::isSoapInstalled())
 		{
 			if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == 'shop_order' && isset($_REQUEST['trashed']) && $_REQUEST['trashed'] > 0  && isset($_REQUEST['ids']) && !empty($_REQUEST['ids']) )
@@ -229,7 +229,7 @@ class linksynceparcel
 		}
 		add_action( 'wcaba_custom_main_items', array($this, 'linksync_admin_bar_render') );
 	}
-	
+
 	public function show_plugin_action_links( $actions, $plugin_file ) {
 	   static $plugin;
 
@@ -242,7 +242,7 @@ class linksynceparcel
 
 		return $actions;
 	}
-	
+
 	function eparcel_plugin_meta_links( $links, $file ) {
 		$plugin = plugin_basename(__FILE__);
 		// create link
@@ -254,7 +254,7 @@ class linksynceparcel
 		}
 		return $links;
 	}
-	
+
 	public function in_plugin_update_message()
 	{
 		if(!LinksynceparcelHelper::isSoapInstalled())
@@ -281,12 +281,12 @@ class linksynceparcel
 			}
 		}
 	}
-	
+
 	public function network_propagate($pfunction, $networkwide) {
 		global $wpdb;
-	 
+
 		if (function_exists('is_multisite') && is_multisite()) {
-			// check if it is a network activation - if so, run the activation function 
+			// check if it is a network activation - if so, run the activation function
 			// for each blog id
 			if ($networkwide) {
 				$old_blog = $wpdb->blogid;
@@ -298,29 +298,29 @@ class linksynceparcel
 				}
 				switch_to_blog($old_blog);
 				return;
-			}   
-		} 
+			}
+		}
 		call_user_func(array($this, $pfunction), $networkwide);
 	}
-	
+
 	public function on_activation($networkwide=false)
 	{
 		if ( ! wp_next_scheduled( 'linksynceparceltruncatelog' ) )
 		{
 			wp_schedule_event( time(), 'daily', 'linksynceparceltruncatelog' );
 		}
-        
+
         add_action( 'linksynceparceltruncatelog', array($this,'shrink_log'));
 
         if ( ! wp_next_scheduled( 'linksyncgetlaidinfo' ) )
         {
             wp_schedule_event( time(), 'daily', 'linksyncgetlaidinfo' );
         }
-		
+
 		LinksynceparcelHelper::saveDefaultConfiguration();
 		LinksynceparcelHelper::createTables();
 		LinksynceparcelHelper::createNewTables();
-		
+
 	}
 
     public function getlaidinfo()
@@ -344,15 +344,15 @@ class linksynceparcel
             wp_clear_scheduled_hook( 'linksyncgetlaidinfo' );
         }
 	}
-	
+
 	public function activate_eparcel($networkwide) {
 		$this->network_propagate('on_activation', $networkwide);
 	}
-	
+
 	public function deactivate_eparcel($networkwide) {
 		$this->network_propagate('on_deactivation', $networkwide);
 	}
-	
+
 	public function add_to_admin_footer()
 	{
 		include_once(linksynceparcel_DIR.'views/admin/menu2.php');
@@ -369,13 +369,13 @@ class linksynceparcel
 				if(get_post_type($order_id) == 'shop_order') {
 					if(LinksynceparcelHelper::getOrderChargeCode($order_id))
 					{
-						$post = get_post($order_id); 
-		
+						$post = get_post($order_id);
+
 						if($post->post_type == 'shop_order')
 						{
 							$order = new WC_Order( $order_id );
 							$address = get_post_meta($order_id);
-							
+
 							if($address['_shipping_country'][0] == 'AU')
 							{
 								if($this->is_greater_than_21)
@@ -471,7 +471,7 @@ class linksynceparcel
 			}
 		}
 	}
-	
+
 	public function add_consignment_option()
 	{
 		$per_page = (int)get_option('consignment_per_page');
@@ -479,7 +479,7 @@ class linksynceparcel
 		{
 			$per_page = 20;
 		}
-		
+
 		$args = array(
 			'label' => __('Number of items per page'),
 			'default' => $per_page,
@@ -487,7 +487,7 @@ class linksynceparcel
 		);
 		add_screen_option( 'per_page', $args );
 	}
-	
+
 	public function consignments()
 	{
 		if(!isset($_GET['subpage']))
@@ -544,7 +544,7 @@ class linksynceparcel
 			}
 			else
 			{
-						
+				$this->getlaidinfo();
 				include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
 				LinksynceparcelAdminConsignmentsOrdersList::output();
 			}
@@ -660,7 +660,7 @@ class linksynceparcel
 		$consignmentNumber = preg_replace('/[^0-9a-zA-Z]/', '', $consignmentNumber);
 		$shipCountry = LinksynceparcelHelper::getCountryDeliveryConsignment($consignmentNumber);
 		$pos = strpos($consignmentNumber, 'int');
-		if ($pos === false) {			
+		if ($pos === false) {
 			$column = 'is_label_printed';
 			LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,$column,1);
 		} else {
@@ -687,7 +687,7 @@ class linksynceparcel
 					if($address['_shipping_country'][0] == 'AU')
 					{
 						$order = new WC_Order( $order_id );
-						
+
 						if($this->is_greater_than_21)
 						{
                             $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
@@ -722,7 +722,7 @@ class linksynceparcel
 			if($order_id > 0)
 			{
 				$order = new WC_Order( $order_id );
-				
+
 				if($this->is_greater_than_21)
 				{
                     $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
@@ -747,7 +747,7 @@ class linksynceparcel
 								{
 									LinksynceparcelAdminConsignmentsCreate::save();
 								}
-								
+
 							}
 							else
 							{
@@ -760,7 +760,7 @@ class linksynceparcel
 							}
 						}
 					}
-					
+
                     $order_status = method_exists($order, 'get_status') ? $order->get_status() : $order->post_status;
 					if($order_status == 'wc-cancelled')
 					{
@@ -803,7 +803,7 @@ class linksynceparcel
 							}
 						}
 					}
-					
+
 					if($order->get_status() == 'cancelled')
 					{
 						$this->cancelledOrderConsignments($order_id);
@@ -812,18 +812,18 @@ class linksynceparcel
 			}
 		}
 	}
-	
+
 	public function cancelledOrderConsignments($order_id)
 	{
-		try 
+		try
 		{
 			$consignments = LinksynceparcelHelper::getOpenConsignments($order_id);
 			if($consignments && count($consignments) > 0)
 			{
-				foreach ($consignments as $consignment) 
+				foreach ($consignments as $consignment)
 				{
 					$consignmentNumber = $consignment->consignment_number;
-					
+
 					try
 					{
 						$status = LinksynceparcelApi::deleteConsignment($consignmentNumber);
@@ -836,48 +836,48 @@ class linksynceparcel
 							{
 								unlink($filepath);
 							}
-							
+
 							$filepath2 = linksynceparcel_DIR.'assets/label/returnlabels/'.$filename;
 							if(file_exists($filepath2))
 							{
 								unlink($filepath2);
 							}
-							
+
 							LinksynceparcelHelper::deleteConsignment($consignmentNumber);
 						}
 					}
-					catch (Exception $e) 
+					catch (Exception $e)
 					{
 
 					}
 				}
-				
+
 				LinksynceparcelHelper::getManifestNumber();
 				LinksynceparcelHelper::deleteManifest();
 			}
 		}
-		catch (Exception $e) 
+		catch (Exception $e)
 		{
 			LinksynceparcelHelper::deleteManifest();
 		}
 	}
-	
+
 	public function deleteTrashedOrderConsignments($ids)
 	{
 		$ids = explode(',',$ids);
 		if(is_array($ids))
 		{
-			try 
+			try
 			{
-				foreach ($ids as $order_id) 
+				foreach ($ids as $order_id)
 				{
 					$consignments = LinksynceparcelHelper::getConsignments($order_id);
 					if($consignments && count($consignments) > 0)
 					{
-						foreach ($consignments as $consignment) 
+						foreach ($consignments as $consignment)
 						{
 							$consignmentNumber = $consignment->consignment_number;
-							
+
 							try
 							{
 								$status = LinksynceparcelApi::deleteConsignment($consignmentNumber);
@@ -890,45 +890,45 @@ class linksynceparcel
 									{
 										unlink($filepath);
 									}
-									
+
 									$filepath2 = linksynceparcel_DIR.'assets/label/returnlabels/'.$filename;
 									if(file_exists($filepath2))
 									{
 										unlink($filepath2);
 									}
-									
+
 									LinksynceparcelHelper::deleteConsignment($consignmentNumber);
 								}
 							}
-							catch (Exception $e) 
+							catch (Exception $e)
 							{
 
 							}
 						}
-						
+
 						LinksynceparcelHelper::getManifestNumber();
 						LinksynceparcelHelper::deleteManifest();
 					}
 				}
 
 			}
-			catch (Exception $e) 
+			catch (Exception $e)
 			{
 				LinksynceparcelHelper::deleteManifest();
 			}
 		}
 	}
-	
+
 	public function shrink_log()
 	{
 		LinksynceparcelHelper::log('shrink log started');
 		$lines = 10000;
 		$buffer = 4096;
 		$file = linksynceparcel_LOG_DIR .'linksynceparcel.log';
-		
+
 		$output = '';
 		$chunk = '';
-		
+
 		$f = @fopen($file, "rb");
 		if ($f === false)
 			return false;
@@ -937,7 +937,7 @@ class linksynceparcel
 		if (fread($f, 1) != "\n")
 			$lines -= 1;
 
-		while (ftell($f) > 0 && $lines >= 0) 
+		while (ftell($f) > 0 && $lines >= 0)
 		{
 			$seek = min(ftell($f), $buffer);
 			fseek($f, -$seek, SEEK_CUR);
@@ -945,7 +945,7 @@ class linksynceparcel
 			fseek($f, -mb_strlen($chunk, '8bit'), SEEK_CUR);
 			$lines -= substr_count($chunk, "\n");
 		}
-		 
+
 		while ($lines++ < 0)
 		{
 			$output = substr($output, strpos($output, "\n") + 1);
@@ -960,7 +960,7 @@ class linksynceparcel
 		LinksynceparcelHelper::log('shrink log ended');
 		exit;
 	}
-	
+
 	public function linksync_admin_bar_render() {
 		global $wp_admin_bar;
 		$wp_admin_bar->add_menu( array(
@@ -1013,13 +1013,13 @@ class linksynceparcel
 			'meta' => array('title' => __( 'linksync eParcel Configuration')),
 		));
 	}
-	
+
 	public function eParcel_startsession() {
 		if(!session_id()) {
 			session_start();
 		}
 	}
-	
+
 	/* Process AJAX */
 	public function despatched_Manifest()
 	{
@@ -1032,7 +1032,7 @@ class linksynceparcel
 		}
 		if($error == 1) {
 			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$message);
-		} 
+		}
 		if($error == 2 && is_array($message)) {
 			foreach($message as $msg)
 			{
@@ -1041,7 +1041,7 @@ class linksynceparcel
 				}
 				if($msg['error'] == 1) {
 					LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$msg['msg']);
-				} 
+				}
 			}
 		}
 		echo 2;
@@ -1120,39 +1120,39 @@ class linksynceparcel
 						$this->cancelledOrderConsignments($order_id);
 					}
 				}
-			}		
+			}
 		}
 		exit;
-	}	
+	}
 
 	public function create_mass_consignment_ajax() {
 		$this->create_mass_consignment();
 		exit;
  	}
-	
+
 	public function change_order_status()
 	{
 		if(!session_id()) {
 			session_start();
 		}
-		
+
 		global $is_greater_than_21;
 
         // manual
         // self::manual_change_status_manifest_orders('M000000057');
-		
+
 		$statuses = LinksynceparcelHelper::getListOrderStatuses();
 		$changeState = get_option('linksynceparcel_change_order_status');
-		
+
 		$current_manifest = LinksynceparcelHelper::get_session_manifest(session_id());
 		if(!empty($current_manifest)) {
-			
+
 			if(!empty($current_manifest['orders'])) {
 				foreach($current_manifest['orders'] as $k => $orderid) {
 					$order = new WC_Order($orderid);
-					
+
 					$current_status = '';
-													
+
 					if($is_greater_than_21)
 					{
 						foreach($statuses as $term_id => $status)
@@ -1163,7 +1163,7 @@ class linksynceparcel
 								$current_status = $term_id;
 							}
 						}
-							
+
 						if ($changeState && ($changeState !== $current_status))
 						{
 							$order->update_status($changeState);
@@ -1178,7 +1178,7 @@ class linksynceparcel
 								$current_status = $status->term_id;
 							}
 						}
-							
+
 						if ($changeState && ($changeState !== $current_status))
 						{
 							foreach($statuses as $status)
@@ -1192,7 +1192,7 @@ class linksynceparcel
 					}
 				}
 			}
-			
+
 			if(!empty($current_manifest['manifestnumber'])) {
 				$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 				if($notifyCustomerOption == 1) {
@@ -1206,10 +1206,10 @@ class linksynceparcel
     public function manual_change_status_manifest_orders($manifest_number=false)
     {
         global $is_greater_than_21;
-        
+
         $statuses = LinksynceparcelHelper::getListOrderStatuses();
         $changeState = get_option('linksynceparcel_change_order_status');
-        
+
         if($manifest_number) {
         	$timestamp = time();
 			$date = date('Y-m-d H:i:s', $timestamp);
@@ -1218,12 +1218,12 @@ class linksynceparcel
 			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'is_next_manifest',0);
 
             $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
-            
+
             foreach($results as $k => $result) {
                 $order = new WC_Order($result);
-                
+
                 $current_status = '';
-                                                
+
                 if($is_greater_than_21)
                 {
                     foreach($statuses as $term_id => $status)
@@ -1234,7 +1234,7 @@ class linksynceparcel
                             $current_status = $term_id;
                         }
                     }
-                        
+
                     if ($changeState && ($changeState !== $current_status))
                     {
                         $order->update_status($changeState);
@@ -1249,7 +1249,7 @@ class linksynceparcel
                             $current_status = $status->term_id;
                         }
                     }
-                        
+
                     if ($changeState && ($changeState !== $current_status))
                     {
                         foreach($statuses as $status)
@@ -1269,7 +1269,7 @@ class linksynceparcel
 			}
         }
     }
-	
+
 	public function process_download_pdf()
 	{
 		if( isset($_GET['f_key']) && !empty($_GET['f_key'])) {
@@ -1284,7 +1284,7 @@ class linksynceparcel
 						$filename = linksynceparcel_URL .'assets/label/consignment/'. $_GET['f_key'] .'.pdf';
 					}
 					break;
-					
+
 				case 'manifest':
 					$filename = linksynceparcel_UPLOAD_DIR .'manifest/'. $_GET['f_key'] .'.pdf';
 					if(!file_exists($filename)) {
@@ -1305,11 +1305,11 @@ class linksynceparcel
 					}
 					break;
 			}
-			
+
 			if ( is_file($filename) ) {
 				// required for IE & Safari
 				if(ini_get('zlib.output_compression')) { ini_set('zlib.output_compression', 'Off');	}
-				
+
 				header('Pragma: public'); 	// required
 				header('Expires: 0');		// no cache
 				header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -1325,7 +1325,7 @@ class linksynceparcel
 			}
 		}
 	}
-	
+
 	public function readfileChunked($filename, $retbytes=true){
 		$chunksize = 1*(1024*1024);
 		$buffer = '';
@@ -1349,7 +1349,7 @@ class linksynceparcel
 		}
 		return $status;
 	}
-	
+
 	public function formatSizeUnits($bytes){
 		if ($bytes >= 1073741824){
 			 $bytes = number_format($bytes / 1073741824, 2) . ' GB';
