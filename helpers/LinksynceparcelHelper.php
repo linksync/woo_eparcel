@@ -6,17 +6,17 @@ class LinksynceparcelHelper
 	public static function createTables()
 	{
 		global $wpdb;
-
+		
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-   		$table_name = $wpdb->prefix . "linksynceparcel_address_valid";
+		
+   		$table_name = $wpdb->prefix . "linksynceparcel_address_valid"; 
 		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 			  order_id int(10) PRIMARY KEY,
 			  is_address_valid TINYINT(1) DEFAULT '0'
 		  );";
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$sql = "CREATE TABLE $table_name (
 			 	`order_id` int(11) NOT NULL default '0',
 				`consignment_number` varchar(128) CHARACTER SET utf8 NOT NULL,
@@ -31,7 +31,7 @@ class LinksynceparcelHelper
 				`label` varchar(255) CHARACTER SET utf8,
 				`manifest_number` varchar(255) CHARACTER SET utf8,
 				`is_next_manifest` tinyint(1) NOT NULL DEFAULT '0',
-				`is_label_printed` tinyint(1) NOT NULL DEFAULT '0',
+				`is_label_printed` tinyint(1) NOT NULL DEFAULT '0', 
 				`is_label_created` tinyint(1) NOT NULL DEFAULT '0',
 				`email_notification` tinyint(1) DEFAULT '0',
 				`notify_customers` tinyint(1) DEFAULT '0',
@@ -39,8 +39,8 @@ class LinksynceparcelHelper
 				`chargecode` varchar(255) CHARACTER SET utf8
 		  );";
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_article";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_article"; 
 		$sql = "CREATE TABLE $table_name (
 			 	`order_id` int(11) NOT NULL default '0',
 				`consignment_number` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -55,10 +55,10 @@ class LinksynceparcelHelper
 				`width` varchar(255) CHARACTER SET utf8
 		  );";
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_manifest";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_manifest"; 
 		$sql = "CREATE TABLE $table_name (
-			 	`manifest_id` int(11) NOT NULL auto_increment primary key,
+			 	`manifest_id` int(11) NOT NULL auto_increment primary key,																		   
 				`manifest_number` varchar(255) CHARACTER SET utf8 NOT NULL,
 				`despatch_date` varchar(40) CHARACTER SET utf8 NOT NULL,
 				`label` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -66,8 +66,8 @@ class LinksynceparcelHelper
 				`number_of_consignments` int(11) NOT NULL
 		  );";
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_article_preset";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_article_preset"; 
 		$sql = "CREATE TABLE $table_name (
 			 	`id` int(11) NOT NULL auto_increment,
 				`name` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -79,8 +79,8 @@ class LinksynceparcelHelper
 				PRIMARY KEY  (`id`)
 		  );";
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
 		$sql = "CREATE TABLE $table_name (
 			 	`id` int(11) NOT NULL auto_increment,
 				`method` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -89,17 +89,17 @@ class LinksynceparcelHelper
 		  );";
 
 		dbDelta( $sql );
-
+		
 		self::upgradeTables();
 	}
-
+	
 	public static function upgradeTables()
 	{
 		global $wpdb;
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
-
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
+		
 		$sql = "SHOW INDEX FROM $table_name WHERE Key_name = 'con_order_id_despatched'";
 		$indexes = $wpdb->query( $sql );
 		if(!$indexes)
@@ -107,8 +107,8 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD INDEX `con_order_id_despatched` ( `order_id` , `despatched` ),  ADD INDEX `con_consignment_number` ( `consignment_number`), ADD INDEX `con_manifest_number` ( `manifest_number`)";
 			$wpdb->query( $sql );
 		}
-
-		$table_name = $wpdb->prefix . "linksynceparcel_article";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_article"; 
 		$sql = "SHOW INDEX FROM $table_name WHERE Key_name = 'art_consignment_number'";
 		$indexes = $wpdb->query( $sql );
 		if(!$indexes)
@@ -116,8 +116,8 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD INDEX `art_consignment_number` ( `consignment_number`)";
 			$wpdb->query( $sql );
 		}
-
-		$table_name = $wpdb->prefix . "linksynceparcel_manifest";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_manifest"; 
 		$sql = "SHOW INDEX FROM $table_name WHERE Key_name = 'con_manifest_number'";
 		$indexes = $wpdb->query( $sql );
 		if(!$indexes)
@@ -125,9 +125,9 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD INDEX `con_manifest_number` ( `manifest_number`)";
 			$wpdb->query( $sql );
 		}
-
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
-
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'weight'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -135,7 +135,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD weight varchar(20)";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'delivery_country'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -143,7 +143,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD delivery_country varchar(10)";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'customdocs'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -151,7 +151,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD `customdocs` varchar(255) CHARACTER SET utf8 AFTER `label`";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'is_customdocs_printed'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -159,7 +159,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD `is_customdocs_printed` tinyint(1) NOT NULL DEFAULT '0' AFTER `is_label_printed`";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'delivery_instruction'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -167,7 +167,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD `delivery_instruction` varchar(300)";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'safe_drop'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -175,7 +175,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD `safe_drop` tinyint(1)";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'date_process'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -183,8 +183,8 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD `date_process` varchar(250)";
 			$wpdb->query( $sql );
 		}
-
-		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'shipping_type'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -192,7 +192,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD shipping_type varchar(20)";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'service_type'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -200,8 +200,8 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD service_type varchar(100)";
 			$wpdb->query( $sql );
 		}
-
-		$table_name = $wpdb->prefix . "linksynceparcel_international_fields";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_international_fields"; 		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'insurance_value'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -209,7 +209,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD insurance_value varchar(255) CHARACTER SET utf8 NOT NULL AFTER `modify_date`";
 			$wpdb->query( $sql );
 		}
-
+		
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'insurance'";
 		$records = $wpdb->query( $sql );
 		if(!$records)
@@ -217,7 +217,7 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD insurance tinyint(1) NOT NULL DEFAULT '0' AFTER `modify_date`";
 			$wpdb->query( $sql );
 		}
-
+		
 		$table_name = $wpdb->prefix . "linksynceparcel_manifest";
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'despatch_complete'";
 		$records = $wpdb->query( $sql );
@@ -227,13 +227,13 @@ class LinksynceparcelHelper
 			$wpdb->query( $sql );
 		}
 	}
-
+	
 	public static function createNewTables() {
 		global $wpdb;
-
+		
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-   		$table_name = $wpdb->prefix . "linksynceparcel_international_fields";
+		
+   		$table_name = $wpdb->prefix . "linksynceparcel_international_fields"; 
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
 			`order_id` int(11) NOT NULL DEFAULT '0',
 			`consignment_number` varchar(128) NOT NULL,
@@ -242,7 +242,7 @@ class LinksynceparcelHelper
 			`export_declaration_number` varchar(255) NOT NULL,
 			`declared_value` tinyint(1) NOT NULL DEFAULT '0',
 			`declared_value_text` varchar(255) NOT NULL,
-			`has_commercial_value` tinyint(1) NOT NULL DEFAULT '0',
+			`has_commercial_value` tinyint(1) NOT NULL DEFAULT '0', 
 			`product_classification` int(11) NOT NULL DEFAULT '991',
 			`product_classification_text` varchar(255) NOT NULL,
 			`country_origin` varchar(255) DEFAULT NULL,
@@ -250,17 +250,17 @@ class LinksynceparcelHelper
 			`default_contents` varchar(255) DEFAULT NULL,
 			`ship_country` varchar(255) DEFAULT NULL
 		  );";
-
+		  
 		dbDelta( $sql );
-
-		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
+		
+		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses"; 
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
 			`id` int(11) NOT NULL auto_increment,
 			`status` varchar(255) NOT NULL,
 			`status_name` varchar(255) NOT NULL,
 			PRIMARY KEY  (`id`)
 		  );";
-
+		  
 		dbDelta( $sql );
 	}
 
@@ -274,11 +274,11 @@ class LinksynceparcelHelper
 		$wpdb->query( "DROP TABLE IF EXISTS " . $wpdb->prefix . "linksynceparcel_article_preset" );
 		$wpdb->query( "DROP TABLE IF EXISTS " . $wpdb->prefix . "linksynceparcel_nonlinksync" );
 	}
-
+	
 	public static function getAddressValid($order_id)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_address_valid";
+		$table_name = $wpdb->prefix . "linksynceparcel_address_valid"; 
 		$sql = "SELECT * FROM $table_name WHERE order_id = $order_id";
 		$results = $wpdb->get_results($sql);
 		foreach($results as $result)
@@ -287,11 +287,11 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function updateAddressValid($order_id, $is_address_valid)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_address_valid";
+		$table_name = $wpdb->prefix . "linksynceparcel_address_valid"; 
 		if(self::getAddressValid($order_id))
 		{
 			$wpdb->update(
@@ -313,13 +313,13 @@ class LinksynceparcelHelper
 			);
 		}
 	}
-
+	
 	public static function isOrderAddressValid($order_id, $force=false,$address=false)
 	{
 		$valid = LinksynceparcelHelper::getAddressValid($order_id);
 		if(!$force && isset($valid->is_address_valid) && $valid->is_address_valid)
 			return 1;
-
+			
 		$data = array();
 		if($address)
 		{
@@ -334,7 +334,7 @@ class LinksynceparcelHelper
 			$data['state'] = $address['_shipping_state'][0];
 			$data['postcode'] = $address['_shipping_postcode'][0];
 		}
-
+			
 		$status = LinksynceparcelApi::isAddressValid($data);
 		if($status == 1)
 		{
@@ -346,13 +346,13 @@ class LinksynceparcelHelper
 		}
 		return $status;
 	}
-
+	
 	public static function saveDefaultConfiguration()
 	{
 		global $is_greater_than_21;
-
+		
 		$defaults = array();
-
+		
 		$laid = get_option( 'linksynceparcel_laid');
 		if(empty($laid))
 		{
@@ -376,7 +376,7 @@ class LinksynceparcelHelper
 			$defaults['product_unit'] = 'kgs';
 			$defaults['copy_order_notes'] = 0;
 		}
-
+		
 		$international_checker = get_option( 'linksynceparcel_international_checker');
 		if(empty($international_checker)) {
 			$defaults['int_insurance'] = 0;
@@ -388,7 +388,7 @@ class LinksynceparcelHelper
 			$defaults['default_contents'] = 'Merchandise';
 			$defaults['international_checker'] = 1;
 		}
-
+		
 		if(!empty($defaults)) {
 			if($is_greater_than_21)
 			{
@@ -398,7 +398,7 @@ class LinksynceparcelHelper
 			{
 				$defaults['chosen_statuses'] = array('pending','processing','on-hold');
 			}
-
+			
 			foreach($defaults as $key => $val)
 			{
 				update_option( 'linksynceparcel_'.$key, $val);
@@ -414,7 +414,7 @@ class LinksynceparcelHelper
 		$result = $wpdb->get_row($sql);
 		return (empty($result->despatch_date))?$result->manifest_number:0;
 	}
-
+	
 	public static function saveConfiguration($values)
 	{
 		foreach($values as $key => $val)
@@ -422,23 +422,23 @@ class LinksynceparcelHelper
 			update_option( 'linksynceparcel_'.$key, $val);
 		}
 	}
-
+	
 	public static function updateShippingChargecode($data)
 	{
 		global $wpdb;
 		$table = $wpdb->prefix ."linksynceparcel_nonlinksync";
-
+		
 		$services = self::eParcelServices();
-
+		
 		foreach($services as $k => $service) {
 			$v = self::getSingleChargeCode($k);
 			$data = array('charge_code' => $v);
 			$where = array('service_type' => $k);
-
+			
 			$wpdb->update( $table, $data, $where);
 		}
 	}
-
+	
 	public static function getStates()
 	{
 		$states = array();
@@ -452,11 +452,11 @@ class LinksynceparcelHelper
 		$states['WA'] = 'WA';
 		return $states;
 	}
-
+	
 	public static function getWooCountries() {
 		return WC()->countries->countries;
 	}
-
+	
 	public static function getCountries() {
 		$countries_url = 'http://data.okfn.org/data/core/country-list/r/data.json';
 		$json_data = self::fetchDataTags($countries_url);
@@ -470,29 +470,29 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function fetchDataTags($url) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		$result = curl_exec($ch);
-		curl_close($ch);
+		curl_close($ch); 
 		return $result;
 	}
-
+	
 	public static function decodeString($string) {
 		return json_decode($string);
 	}
-
+	
 	public static function wpbo_get_woo_version_number()
 	{
 		if (!function_exists( 'get_plugins' ) )
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-
+		
 		$plugin_folder = get_plugins( '/' . 'woocommerce' );
 		$plugin_file = 'woocommerce.php';
-
+		
 		if ( isset( $plugin_folder[$plugin_file]['Version'] ) )
 		{
 			return $plugin_folder[$plugin_file]['Version'];
@@ -502,7 +502,7 @@ class LinksynceparcelHelper
 			return NULL;
 		}
 	}
-
+	
 	public static function woocommerce_version_check($current_version,$version = '2.2' )
 	{
 		if( version_compare($current_version, $version, ">=" ) )
@@ -511,7 +511,7 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function getOrderStatuses()
 	{
 		$current_version = self::wpbo_get_woo_version_number();
@@ -524,7 +524,7 @@ class LinksynceparcelHelper
 			return (array)get_terms('shop_order_status', array('hide_empty' => 0, 'orderby' => 'id'));
 		}
 	}
-
+	
 	public static function saveLabelLogo()
 	{
 		if(is_uploaded_file($_FILES['label_logo']['tmp_name']))
@@ -539,7 +539,7 @@ class LinksynceparcelHelper
 			}
 		}
 	}
-
+	
 	public static function log($content, $date = true)
 	{
 		$filename = linksynceparcel_LOG_DIR .'linksynceparcel.log';
@@ -552,7 +552,7 @@ class LinksynceparcelHelper
 		fwrite($fp, "\n");
 		fclose($fp);
 	}
-
+	
 	public static function isZipArchiveInstalled()
 	{
 		if(class_exists('ZipArchive'))
@@ -564,8 +564,8 @@ class LinksynceparcelHelper
 			return 0;
 		}
 	}
-
-	public static function createZip($file,$archiveFile)
+	
+	public static function createZip($file,$archiveFile) 
 	{
 		$ziph = new ZipArchive();
 		if(file_exists($archiveFile))
@@ -582,7 +582,7 @@ class LinksynceparcelHelper
 				throw new Exception("Could not Create $archiveFile");
 		  	}
 		}
-
+		
 		if(file_exists($file))
 		{
 			if(is_readable($file))
@@ -600,11 +600,11 @@ class LinksynceparcelHelper
 		else
 		{
 			throw new Exception("Error archiving $file is not exist");
-		}
+		}		
 		$ziph->close();
 		return true;
 	}
-
+	
 	public static function getFormValue($index, $default='', $main='linksynceparcel')
 	{
 		$value = '';
@@ -617,13 +617,13 @@ class LinksynceparcelHelper
 		{
 			$value = isset($_REQUEST[$index]) ? trim($_REQUEST[$index]) : '';
 		}
-
+		
 		if($value === 0)
 			return $value;
 		else
 			return stripslashes(empty($value) ? $default : $value);
 	}
-
+	
 	public static function getEParcelChargeCodes() {
 		$chargeCode = array(
 			'B1' 	=> array(
@@ -635,7 +635,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B2' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -645,7 +645,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B3' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -655,8 +655,8 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-
-			),
+				
+			), 
 			'B4' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -666,7 +666,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B5' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -676,7 +676,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B96' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -686,7 +686,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B97' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -696,7 +696,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'B98' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -706,7 +706,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'D1' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -716,7 +716,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'DE1' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -726,7 +726,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'DE2' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -736,7 +736,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'DE4' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -746,7 +746,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'DE5' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -756,7 +756,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'DE6' 	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -766,7 +766,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'MED1'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -776,7 +776,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'MED2'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -786,7 +786,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S1'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -796,7 +796,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S10'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -806,7 +806,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S2'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -816,7 +816,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S3'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -836,7 +836,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S5'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -846,7 +846,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S6'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -856,7 +856,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S7'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -866,7 +866,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S8'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -876,7 +876,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'S9'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -886,7 +886,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'SV1'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -916,7 +916,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'W6'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'eParcel Standard',
@@ -936,7 +936,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'X2'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -946,7 +946,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'X5'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -956,7 +956,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'X6'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -976,7 +976,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'XB2'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -996,7 +996,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'XB4'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -1006,7 +1006,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'XB5'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -1016,7 +1016,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL EXPRESS',
 				'serviceType'	=> 'express',
 				'service'		=> 'Exp.'
-			),
+			), 
 			'XDE5'	=> array(
 				'key'			=> 'express_post',
 				'name'			=> 'Express Post eParcel',
@@ -1066,7 +1066,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E03'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1076,7 +1076,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			),  
 			'3E05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1086,7 +1086,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			),  
 			'7E05'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1096,7 +1096,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'3E33'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1106,7 +1106,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E33'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1116,7 +1116,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			),  
 			'3E35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1126,7 +1126,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E35'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1136,7 +1136,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'3E53'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1146,7 +1146,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E53'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1156,7 +1156,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'3E55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1166,7 +1166,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			),  
 			'7E55'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1176,7 +1176,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'3E83'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1186,7 +1186,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E83'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post',
@@ -1196,7 +1196,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'3E85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1206,7 +1206,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'7E85'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> 'Parcel Post + Signature',
@@ -1216,7 +1216,7 @@ class LinksynceparcelHelper
 				'template' 		=> 'EPARCEL',
 				'serviceType'	=> 'standard',
 				'service'		=> 'Std.'
-			),
+			), 
 			'2A33'	=> array(
 				'key'			=> 'parcel_post',
 				'name'			=> '500g Parcel Post Satchel',
@@ -3600,7 +3600,7 @@ class LinksynceparcelHelper
 		);
 		return $chargeCode;
 	}
-
+	
 	public static function getCombination($chargecode)
 	{
 		$chargeCodes = self::getEParcelChargeCodes();
@@ -3611,8 +3611,8 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
-	public static function combinationData($sc_pc)
+	
+	public static function combinationData($sc_pc) 
 	{
 		$combinations = array(
 			'2_93' => array(
@@ -3632,12 +3632,12 @@ class LinksynceparcelHelper
 				'partial_delivery_allowed' => 1
 			)
 		);
-		if(isset($combinations[$sc_pc])) {
+		if(isset($combinations[$sc_pc])) {	
 			return $combinations[$sc_pc];
 		}
 		return false;
 	}
-
+	
 	public static function getChargeCodeValues($none=false)
 	{
 		$chargeCodes = self::getEParcelChargeCodes();
@@ -3652,54 +3652,54 @@ class LinksynceparcelHelper
 				'template' 		=> ''
 			);
 		}
-
+		
 		foreach($chargeCodes as $chargeCode => $codeLabels)
 		{
 			$options[$chargeCode] = $codeLabels;
 		}
 		return $options;
 	}
-
+	
 	public static function getExpressPostCodes()
 	{
 		$codes1 = array('X1','X2','X5','X6','XB1','XB2','XB3','XB4','XB5','XDE5','XW5','XW6','XS','7J55');
 		$codes2 = array('2G33','2G35','2H33','2H35','2I33','2I35','2J33','2J35','3H03','3H05','3I03','3I05','3I33','3I35','3I53','3I55','3I83','3I85','3J03','3J05','3J33','3J35','3J53','3J55','3J83','3J85','3K03','3K05','3K33','3K35','3K53','3K55','3K83','3K85','4I33','4I35','4J33','4J35','7H03','7H05','7H33','7H35','7H53','7H55','7H83','7H85','7I03','7I05','7I33','7I35','7I53','7I55','7I83','7I85','7J03','7J05','7J33','7J35','7J53','7J55','7J83','7J85','7K03','7K05','7K33','7K35','7K53','7K55','7K83','7K85','7T33','7T35','7T83','7T85','7U33','7U35','7U83','7U85','7V33','7V35','7V83','7V85','8G33','8G35','8H33','8H35','8I33','8I35','8J33','8J35','9G33','9G35','9H33','9H35','9I33','9I35','9J33','9J35');
 		return array_merge($codes1,$codes2);
 	}
-
+	
 	public static function getLinksynceparcelStandardCodes()
 	{
 		$codes1 = array('B1','B2','B3','B4','B5','B96','B97','B98','D1','DE1','DE2','DE4','DE5','DE6','MED1','MED2','S1','S10','S2','S3','S4','S5','S6','S7','S8','S9','SV1','SV2','W5','W6','7D55');
 		$codes2 = array('3E03','7E03','3E05','7E05','3E33','7E33','3E35','7E35','3E53','7E53','3E55','7E55','3E83','7E83','3E85','7E85','2A33','2A35','2B33','2B35','2C33','2C35','2D33','2D35','3B03','3B05','3C03','3C05','3C33','3C35','3C53','3C55','3C83','3C85','3D03','3D05','3D33','3D35','3D53','3D55','3D83','3D85','4A33','4A35','4B33','4B35','4C33','4C35','4D33','4D35','7B03','7B05','7B33','7B35','7B53','7B55','7B83','7B85','7C03','7C05','7C33','7C35','7C53','7C55','7C83','7C85','7D03','7D05','7D33','7D35','7D53','7D55','7D83','7D85','7N33','7N35','7N83','7N85','7O33','7O35','7O83','7O85','7P33','7P35','7P83','7P85','8A33','8A35','8B33','8B35','8C33','8C35','8D33','8D35','9A33','9A35','9B33','9B35','9C33','9C35','9D33','9D35');
 		return array_merge($codes1,$codes2);
 	}
-
+	
 	public static function isExpressPostCode($code)
 	{
 		$codes = self::getExpressPostCodes();
 		return in_array($code,$codes);
 	}
-
+	
 	public static function isLinksynceparcelStandardCode($code)
 	{
 		$codes = self::getLinksynceparcelStandardCodes();
 		return in_array($code,$codes);
 	}
-
+	
 	public static function getShippingMethod($id_order)
 	{
 		$order = new WC_Order( $id_order );
-		$methods = $order->get_shipping_methods();
+		$methods = $order->get_shipping_methods(); 
 		foreach($methods as $method)
 		{
 			return $method['method_id'];
 		}
 	}
-
+	
 	public static function getOrderChargeCode($id_order,$consignment_number='')
 	{
 		$method = self::getShippingMethod($id_order);
-
+		
 		$pass = self::requiredWooVersion();
 		if(!$pass) {
 			if(preg_match('/table_rate/i',$method))
@@ -3707,7 +3707,7 @@ class LinksynceparcelHelper
 				$method = 'table_rate';
 			}
 		}
-
+		
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 
 		if(!empty($consignment_number))
@@ -3718,13 +3718,13 @@ class LinksynceparcelHelper
 				return $charge_code;
 			}
 		}
-
+	
 		$charge_code = self::getNonlinksyncShippingTypeChargecode($method);
 		if($charge_code && array_key_exists($charge_code,$allowedChargeCodes))
 		{
 			return $charge_code;
 		}
-
+		
 		$order = new WC_Order( $id_order );
 		$method = $order->get_shipping_method();
 		$charge_code = self::getNonlinksyncShippingTypeChargecode($method);
@@ -3732,19 +3732,19 @@ class LinksynceparcelHelper
 		{
 			return $charge_code;
 		}
-
+		
 		return false;
 	}
-
+	
 	public static function getShippingZone()
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "woocommerce_shipping_zone_methods";
+		$table_name = $wpdb->prefix . "woocommerce_shipping_zone_methods"; 
 		$sql = "SELECT * FROM $table_name";
 		$results = $wpdb->get_results($sql);
 		return $results;
 	}
-
+	
 	public static function availableShippingMethods()
 	{
 		$arr = array();
@@ -3763,28 +3763,28 @@ class LinksynceparcelHelper
 		}
 		return $arr;
 	}
-
+	
 	public static function getShippingMethodName($instanceid, $option_name)
 	{
 		$option = 'woocommerce_'. $option_name .'_'. $instanceid .'_settings';
 		$optionval = get_option($option, true);
 		if($optionval) {
-			return $optionval['title'];
+			return $optionval['title'];	
 		}
 		return false;
 	}
-
+	
 	public static function getChargeCode($order, $consignmentNumber='')
 	{
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$chargeCode = self::getOrderChargeCode($order_id, $consignmentNumber);
 		return $chargeCode;
 	}
-
+	
 	public static function getNonlinksyncShippingTypeChargecode($method)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync";
+		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync"; 
 		$sql = "SELECT * FROM $table_name WHERE method = '". self::mres($method) ."'";
 		$results = $wpdb->get_results($sql);
 		foreach($results as $result)
@@ -3793,8 +3793,8 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
-	public static function serviceChargeCodeFilter($service)
+	
+	public static function serviceChargeCodeFilter($service) 
 	{
 		$allowedChargeCodes = self::getEParcelChargeCodes();
 		$chargeCodes = array();
@@ -3805,30 +3805,30 @@ class LinksynceparcelHelper
 		}
 		return $chargeCodes;
 	}
-
+	
 	public static function getConsignments($id_order, $orderdate=false)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$query = "SELECT * FROM {$table_name} WHERE order_id = ". $id_order ."";
 		if($orderdate) {
 			$query .= ' ORDER BY `add_date` DESC';
 		}
 		return $wpdb->get_results($query);
 	}
-
+	
 	public static function getOpenConsignments($id_order)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$query = "SELECT * FROM {$table_name} WHERE order_id = '{$id_order}' AND despatched != 1";
 		return $wpdb->get_results($query);
 	}
-
+	
 	public static function getConsignment($consignmentNumber)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$sql = "SELECT * FROM $table_name WHERE consignment_number = '$consignmentNumber'";
 		$results = $wpdb->get_results($sql);
 		foreach($results as $result)
@@ -3837,11 +3837,11 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function getConsignmentSpecific($consignmentNumber,$field)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$sql = "SELECT `". $field ."` FROM ". $table_name ." WHERE `consignment_number` = '$consignmentNumber'";
 		$results = $wpdb->get_results($sql);
 		foreach($results as $result)
@@ -3850,31 +3850,31 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function isCashToCollect($id_order)
 	{
 		$allowedChargeCodes = array('CS1', 'CS2', 'CS3', 'CS4', 'CS5', 'CS6', 'CS7', 'CS8', 'CX1', 'CX2');
-
+		
 		$chargeCode = self::getOrderChargeCode($id_order);
 		if(in_array($chargeCode,$allowedChargeCodes))
 		{
 			return true;
 		}
-		return false;
+		return false; 
 	}
-
+	
 	public static function isDisablePartialDeliveryMethod($id_order)
 	{
 		$allowedChargeCodes = array('PR', 'XPR');
-
+		
 		$chargeCode = self::getOrderChargeCode($id_order);
 		if(in_array($chargeCode,$allowedChargeCodes))
 		{
 			return true;
 		}
-		return false;
+		return false; 
 	}
-
+	
 	public static function getLabelFormats()
 	{
 		$formats = array();
@@ -3884,7 +3884,7 @@ class LinksynceparcelHelper
 		$formats['mpp'] = 'mpp';
 		return $formats;
     }
-
+	
 	public static function isSoapInstalled()
 	{
 		if(class_exists('SoapClient'))
@@ -3896,17 +3896,17 @@ class LinksynceparcelHelper
 			return 0;
 		}
 	}
-
+	
 	public static function addSuccess($message)
 	{
 		echo success_notice($message, '');
 	}
-
+	
 	public static function addError($message)
 	{
 		error_notice('',$message);
 	}
-
+	
 	public static function prepareArticle($data,$order,$consignment_number='')
 	{
 		$articleData = self::prepareArticleData($data,$order,$consignment_number);
@@ -3914,7 +3914,7 @@ class LinksynceparcelHelper
 		$chargeCode = $articleData['charge_code'];
 		return array('content' => $content, 'charge_code' => $chargeCode);
 	}
-
+	
 	public static function prepareArticleBulk($data,$order)
 	{
 		$articleData = self::prepareArticleDataBulk($data,$order);
@@ -3924,22 +3924,22 @@ class LinksynceparcelHelper
 	}
 
 	public static function prepareArticleData($data,$order,$consignment_number='',$shipCountry=false)
-	{
+	{		
 		$isInternational = ($shipCountry != 'AU')?true:false;
-
+		
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
-
+		
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
-		if($use_dimension == 1) {
+		if($use_dimension == 1) {	
 			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
 			if(is_array($validateDimensions)) {
 				return $validateDimensions;
 			}
 		}
-
+		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareArticles($data, $order);
@@ -3947,13 +3947,25 @@ class LinksynceparcelHelper
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order,$data);
 		$articlesInternationalInfo = self::prepareInternationalArticles($data, $order);
-
+		
+		// Validate order weight and insurance value
+		$allowedChargeCodes = self::getEParcelChargeCodes();
+		$chargeCodeData = $allowedChargeCodes[$chargeCode];
+		
+		$combinations = self::getCombination($chargeCode);
+		if($combinations) {
+			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
+			if(is_array($validateCombination)) {
+				return $validateCombination;
+			}
+		}
+		
 		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
 		if(is_array($validateIntVal)) {
 			return $validateIntVal;
 		}
 
-
+		
 		if($isInternational) {
 			$search = array(
 				'[[articles]]',
@@ -3963,7 +3975,7 @@ class LinksynceparcelHelper
 				'[[CHARGE-CODE]]',
 				'[[DANGER-GOODS]]'
 			);
-
+			
 			$replace = array(
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
@@ -3972,7 +3984,7 @@ class LinksynceparcelHelper
 				$chargeCode,
 				(($data['contains_dangerous_goods']==1) ? 'true' : 'false'),
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
 		} else {
 			$search = array(
@@ -3992,7 +4004,7 @@ class LinksynceparcelHelper
 				'[[emailNotification]]',
 				'[[safeDrop]]'
 			);
-
+			
 			$replace = array(
 				$articlesInfo['info'],
 				$returnAddress,
@@ -4010,44 +4022,56 @@ class LinksynceparcelHelper
 				(($notifyCustomerOption==1) ? 'Y' : 'N'),
 				(($data['safe_drop']==1) ? 'yes' : 'no')
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		}
-
+		
 		$articleData = str_replace($search, $replace, $template);
 		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight'], 'articles' => $articlesInfo['articles']);
 	}
-
+	
 	public static function prepareOrderWeightArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{
 		$isInternational = ($shipCountry != 'AU')?true:false;
-
+		
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$address = get_post_meta($order_id);
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
-		if($use_dimension == 1) {
+		if($use_dimension == 1) {	
 			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data);
 			if(is_array($validateDimensions)) {
 				return $validateDimensions;
 			}
 		}
-
+		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareOrderWeightArticles($data, $order);
-
+		
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order);
 		$articlesInternationalInfo = self::prepareInternationalOrderWeightArticles($data, $order);
-
+		
+		// Validate order weight and insurance value
+		$allowedChargeCodes = self::getEParcelChargeCodes();
+		$chargeCodeData = $allowedChargeCodes[$chargeCode];
+		
+		$combinations = self::getCombination($chargeCode);
+		if($combinations) {
+			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
+			if(is_array($validateCombination)) {
+				return $validateCombination;
+			}
+		}
+		
 		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
 		if(is_array($validateIntVal)) {
 			return $validateIntVal;
 		}
-
+		
 		if($isInternational) {
 			$search = array(
 				'[[articles]]',
@@ -4057,7 +4081,7 @@ class LinksynceparcelHelper
 				'[[CHARGE-CODE]]',
 				'[[DANGER-GOODS]]'
 			);
-
+			
 			$replace = array(
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
@@ -4066,7 +4090,7 @@ class LinksynceparcelHelper
 				$chargeCode,
 				(($data['contains_dangerous_goods']==1) ? 'true' : 'false')
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
 		} else {
 			$search = array(
@@ -4106,11 +4130,11 @@ class LinksynceparcelHelper
 			);
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/articles-template.xml');
 		}
-
+		
 		$articleData = str_replace($search, $replace, $template);
 		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
-
+	
 	public static function prepareArticleDataBulk($data,$order,$shipCountry=false)
 	{
 		$isInternational = ($shipCountry != 'AU')?true:false;
@@ -4120,26 +4144,38 @@ class LinksynceparcelHelper
 		$notifyCustomerOption = get_option('linksynceparcel_notify_customers');
 
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
-		if($use_dimension == 1) {
+		if($use_dimension == 1) {	
 			$validateDimensions = LinksynceparcelValidator::validateArticlePresetDimensions($data, true);
 			if(is_array($validateDimensions)) {
 				return $validateDimensions;
 			}
 		}
-
+		
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareArticlesBulk($data, $order);
-
+		
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order,$data);
 		$articlesInternationalInfo = self::prepareInternationalArticles($data, $order, true);
-
+		
+		// Validate order weight and insurance value
+		$allowedChargeCodes = self::getEParcelChargeCodes();
+		$chargeCodeData = $allowedChargeCodes[$chargeCode];
+		
+		$combinations = self::getCombination($chargeCode);
+		if($combinations) {
+			$validateCombination = LinksynceparcelValidator::validateCombination($data, $combinations, $chargeCode);
+			if(is_array($validateCombination)) {
+				return $validateCombination;
+			}
+		}
+		
 		$validateIntVal = LinksynceparcelValidator::validateInternationalCosignmentsValue($data, $chargeCodeData, $shipCountry, $articlesInfo['total_weight'], $articlesInternationalInfo['totalcost']);
 		if(is_array($validateIntVal)) {
 			return $validateIntVal;
 		}
-
+		
 		if($isInternational) {
 			$search = array(
 				'[[articles]]',
@@ -4149,7 +4185,7 @@ class LinksynceparcelHelper
 				'[[CHARGE-CODE]]',
 				'[[DANGER-GOODS]]'
 			);
-
+			
 			$replace = array(
 				$articlesInternationalInfo['content'],
 				$deliveryInternationalInfo,
@@ -4158,7 +4194,7 @@ class LinksynceparcelHelper
 				$chargeCode,
 				(($data['contains_dangerous_goods']==1) ? 'true' : 'false')
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articles-template.xml');
 		} else {
 			$search = array(
@@ -4201,7 +4237,7 @@ class LinksynceparcelHelper
 		$articleData = str_replace($search, $replace, $template);
 		return array('content' => $articleData, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
-
+	
 	public static function prepareReturnAddress()
 	{
 		$returnAddressLine2 = trim(get_option('linksynceparcel_return_address_line2'));
@@ -4213,7 +4249,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine2 = '<returnAddressLine2 />';
 		}
-
+		
 		$returnAddressLine3 = trim(get_option('linksynceparcel_return_address_line3'));
 		if(!empty($returnAddressLine3))
 		{
@@ -4223,7 +4259,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine3 = '<returnAddressLine3 />';
 		}
-
+		
 		$returnAddressLine4 = trim(get_option('linksynceparcel_return_address_line4'));
 		if(!empty($returnAddressLine4))
 		{
@@ -4233,7 +4269,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine4 = '<returnAddressLine4 />';
 		}
-
+		
 		$search = array(
 			'[[returnAddressLine1]]',
 			'[[returnName]]',
@@ -4253,13 +4289,13 @@ class LinksynceparcelHelper
 			self::xmlData(trim(get_option('linksynceparcel_return_address_suburb'))),
 			trim($returnAddressLine2),
 			trim($returnAddressLine3),
-			trim($returnAddressLine4)
+			trim($returnAddressLine4)   
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-return-address-template.xml');
 		return str_replace($search, $replace, $template);
 	}
-
+	
 	public static function xmlData($text)
 	{
 		$text = trim($text);
@@ -4268,7 +4304,7 @@ class LinksynceparcelHelper
 		$replace = array("&lt;","&gt;","&quot;","&apos;");
 		return str_replace($search, $replace, $text);
 	}
-
+	
 	public static function getNotes($order_id)
 	{
 		$note = '';
@@ -4283,19 +4319,19 @@ class LinksynceparcelHelper
 		}
 		return $note;
 	}
-
+	
 	public static function prepareDeliveryAddress($address,$order,$data=false)
 	{
 		$street1 = '<deliveryAddressLine1>'.self::xmlData($address['_shipping_address_1'][0]).'</deliveryAddressLine1>';
 		$street2 = '<deliveryAddressLine2/>';
 		$street3 = '<deliveryAddressLine3/>';
 		$street4 = '<deliveryAddressLine4/>';
-
+		
 		if(isset($address['_shipping_address_2'][0]) && !empty($address['_shipping_address_2'][0]))
 		{
 			$street2 = '<deliveryAddressLine2>'.self::xmlData($address['_shipping_address_2'][0]).'</deliveryAddressLine2>';
 		}
-
+		
 		$city = $address['_shipping_city'][0];
 		$state = 'NA';
 		if($address['_shipping_state'][0])
@@ -4318,9 +4354,9 @@ class LinksynceparcelHelper
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
 			$phonestr = $withplus . $phone;
 		}
-
+		
 		$instructions = $data['delivery_instruction'];
-
+		
 		$search = array(
 			'[[deliveryCompanyName]]',
 			'[[deliveryName]]',
@@ -4350,11 +4386,11 @@ class LinksynceparcelHelper
 			trim($phonestr),
 			(!empty($instructions) ? '<deliveryInstructions>'.self::xmlData(($instructions)).'</deliveryInstructions>' : '<deliveryInstructions />')
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-delivery-address-template.xml');
 		return str_replace($search, $replace, $template);
 	}
-
+	
 	public static function prepareArticles($data, $order,$consignment_number='',$isInternational=false)
 	{
 		$articlesInfo = '';
@@ -4363,7 +4399,7 @@ class LinksynceparcelHelper
 		$start_index = $data['start_index'];
 		$end_index = $data['end_index'];
 		$articles = array();
-
+		
 		for($i=$start_index;$i<=$end_index;$i++)
 		{
 			if($data['articles_type'] == 'Custom')
@@ -4374,7 +4410,7 @@ class LinksynceparcelHelper
 			{
 				$articles_type = $data['articles_type'];
                 $articles = LinksynceparcelValidator::get_article_preset($articles_type);
-
+				
 				$article = array();
 				$article['description'] = $articles[0];
 				$article['weight'] = $articles[1];
@@ -4410,12 +4446,12 @@ class LinksynceparcelHelper
 					{
 						$totalArticles++;
 					}
-
+					
 					if($totalArticles == 0)
 					{
 						$totalArticles = 1;
 					}
-
+					
 					if($weight > $weightPerArticle)
 					{
 						$weight = $weightPerArticle;
@@ -4427,12 +4463,12 @@ class LinksynceparcelHelper
 					$article['weight'] = $weight;
 				}
 			}
-
+			
 			$article['weight'] = number_format($article['weight'],2,'.', '');
 			$total_weight += $article['weight'];
 
 			$article['weight'] = self::calculateWeightDefault($article['weight']);
-
+			
 			if($isInternational) {
 				$search = array(
 					'[[articleDescription]]',
@@ -4449,7 +4485,7 @@ class LinksynceparcelHelper
 					empty($article['height'])?5:$article['height'],
 					empty($article['length'])?5:$article['length']
 				);
-
+				
 				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
 			} else {
 				$search = array(
@@ -4473,15 +4509,15 @@ class LinksynceparcelHelper
 					($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
 					(isset($article['article_number']) ? '<articleNumber>'.trim($article['article_number']).'</articleNumber>' : '')
 				);
-
+				
 				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			}
-
+			
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
 		return array('info' => $articlesInfo, 'total_weight' => $total_weight, 'articles' => $article);
 	}
-
+	
 	public static function prepareOrderWeightArticles($data, $order,$consignment_number='',$isInternational=false)
 	{
 		$articlesInfo = '';
@@ -4489,9 +4525,9 @@ class LinksynceparcelHelper
 		$start_index = $data['start_index'];
 		$end_index = $data['end_index'];
 		$articles = array();
-
+		
 		$totalWeight = 0;
-
+		
 		for($i=$start_index;$i<=$end_index;$i++)
 		{
 			if($data['articles_type'] == 'Custom')
@@ -4502,7 +4538,7 @@ class LinksynceparcelHelper
 			{
 				$articles_type = $data['articles_type'];
                 $articles = LinksynceparcelValidator::get_article_preset($articles_type);
-
+				
 				$article = array();
 				$article['description'] = $articles[0];
 				$article['weight'] = $articles[1];
@@ -4516,14 +4552,14 @@ class LinksynceparcelHelper
                     $article['height'] = $articles[2];
                     $article['length'] = $articles[3];
                     $article['width'] = $articles[4];
-                }
+                }				
 			}
-
+			
 			$article['weight'] = number_format($article['weight'],2,'.', '');
 			$totalWeight += $article['weight'];
 
 			$article['weight'] = self::calculateWeightDefault($article['weight']);
-
+			
 			if($isInternational) {
 				$search = array(
 					'[[articleDescription]]',
@@ -4540,7 +4576,7 @@ class LinksynceparcelHelper
 					5,
 					5
 				);
-
+				
 				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
 			} else {
 				$search = array(
@@ -4564,14 +4600,14 @@ class LinksynceparcelHelper
 					($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
 					(isset($article['article_number']) ? '<articleNumber>'.trim($article['article_number']).'</articleNumber>' : '')
 				);
-
+				
 				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			}
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
 		return array('info' => $articlesInfo, 'total_weight' => $totalWeight, 'articles' => $article);
 	}
-
+	
 	public static function prepareArticlesBulk($data, $order, $isInternational=false)
 	{
 		$articlesInfo = '';
@@ -4597,17 +4633,17 @@ class LinksynceparcelHelper
 			{
 				$totalArticles++;
 			}
-
+			
 			if($totalArticles == 0)
 			{
 				$totalArticles = 1;
 			}
-
+			
 			for($i=1;$i<=$totalArticles;$i++)
 			{
 				$article = array();
 				$article['description'] = 'Article '.$i;
-
+				
 				if($reminderWeight > 0 && $i == $totalArticles)
 				{
 					$article['weight'] = $reminderWeight;
@@ -4619,11 +4655,11 @@ class LinksynceparcelHelper
 				$article['height'] = 5;
 				$article['length'] = 5;
 				$article['width'] = 5;
-
+			
 				$article['weight'] = number_format($article['weight'],2,'.', '');
-
+				
 				$total_weight += $article['weight'];
-
+				
 				$article['weight'] = self::calculateWeightDefault($article['weight']);
 
 				if($isInternational) {
@@ -4642,7 +4678,7 @@ class LinksynceparcelHelper
 						trim($article['height']),
 						trim($article['length'])
 					);
-
+					
 					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
 				} else {
 					$search = array(
@@ -4666,7 +4702,7 @@ class LinksynceparcelHelper
 						($data['transit_cover_required'] ? $data['transit_cover_amount'] : 0),
 						''
 					);
-
+					
 					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 				}
 				$articlesInfo .= str_replace($search, $replace, $template);
@@ -4675,7 +4711,7 @@ class LinksynceparcelHelper
 		else
 		{
             $articles = LinksynceparcelValidator::get_article_preset($articles_type);
-
+			
 			$use_order_total_weight = (int)get_option('linksynceparcel_use_order_weight');
 			if($use_order_total_weight == 1)
 			{
@@ -4696,12 +4732,12 @@ class LinksynceparcelHelper
 				{
 					$totalArticles++;
 				}
-
+				
 				if($totalArticles == 0)
 				{
 					$totalArticles = 1;
 				}
-
+				
 				for($i=1;$i<=$totalArticles;$i++)
 				{
 					$article = array();
@@ -4716,7 +4752,7 @@ class LinksynceparcelHelper
                         $article['length'] = $articles[3];
                         $article['width'] = $articles[4];
                     }
-
+					
 					if($reminderWeight > 0 && $i == $totalArticles)
 					{
 						$article['weight'] = $reminderWeight;
@@ -4730,7 +4766,7 @@ class LinksynceparcelHelper
 					$total_weight += $article['weight'];
 
 					$article['weight'] = self::calculateWeightDefault($article['weight']);
-
+					
 					if($isInternational) {
 						$search = array(
 							'[[articleDescription]]',
@@ -4747,7 +4783,7 @@ class LinksynceparcelHelper
 							trim($article['height']),
 							trim($article['length'])
 						);
-
+						
 						$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
 					} else {
 						$search = array(
@@ -4770,7 +4806,7 @@ class LinksynceparcelHelper
 							($data['transit_cover_required'] ? $data['transit_cover_amount'] : 0),
 							''
 						);
-
+						
 						$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 					}
 					$articlesInfo .= str_replace($search, $replace, $template);
@@ -4792,12 +4828,12 @@ class LinksynceparcelHelper
                     $article['length'] = $articles[3];
                     $article['width'] = $articles[4];
                 }
-
+				
 				$article['weight'] = number_format($article['weight'],2,'.', '');
 				$total_weight += $article['weight'];
 
 				$article['weight'] = self::calculateWeightDefault($article['weight']);
-
+					
 				if($isInternational) {
 					$search = array(
 						'[[articleDescription]]',
@@ -4814,7 +4850,7 @@ class LinksynceparcelHelper
 						trim($article['height']),
 						trim($article['length'])
 					);
-
+					
 					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
 				} else {
 					$search = array(
@@ -4827,7 +4863,7 @@ class LinksynceparcelHelper
 						'[[transitCoverAmount]]',
 						'[[articleNumber]]'
 					);
-
+					
 					$replace = array(
 						trim($article['weight']),
 						self::xmlData(trim($article['description'])),
@@ -4838,7 +4874,7 @@ class LinksynceparcelHelper
 						($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
 						''
 					);
-
+					
 					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 				}
 				$articlesInfo .= str_replace($search, $replace, $template);
@@ -4846,16 +4882,16 @@ class LinksynceparcelHelper
 		}
 		return array('info' => $articlesInfo, 'total_weight' => $total_weight);
 	}
-
+	
 	public static function getIncrementId($order)
 	{
 		return $order->get_order_number();
 	}
-
+	
 	public static function insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
 		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
@@ -4865,18 +4901,18 @@ class LinksynceparcelHelper
 			$query .= ", manifest_number = '".$manifestNumber."', is_next_manifest = 1";
 		}
 		$wpdb->query($query);
-
+		
 		if($shipCountry != "AU") {
 			self::insertInternationalConsignment($order_id,$consignmentNumber,$data,$shipCountry);
 		}
 	}
-
+	
 	public static function insertInternationalConsignment($order_id,$consignmentNumber,$data,$shipCountry) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_international_fields";
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-
+		
 		$product_classification = isset($data['product_classification'])?$data['product_classification']:get_option('linksynceparcel_product_classification');
 		$declared_value = isset($data['declared_value'])?1:0;
 		$has_commercial_value = isset($data['has_commercial_value'])?1:0;
@@ -4888,18 +4924,18 @@ class LinksynceparcelHelper
 		if(!isset($hs_tariff)) {
 			$hs_tariff = get_option('linksynceparcel_hs_tariff');
 		}
-
+		
 		$insuranceValue = (isset($data['order_value_insurance']))?self::getOrderProdItems($order_id, $data, true):$data['insurance_value'];
-
+		
 		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', insurance = '". $data['insurance'] ."', insurance_value = '". $insuranceValue ."', export_declaration_number='".$data['export_declaration_number']."', declared_value='". $declared_value ."', declared_value_text = '".$data['declared_value_text']."', has_commercial_value='". $has_commercial_value ."', product_classification = ". $product_classification .", product_classification_text = '".$data['product_classification_text']."', country_origin = '".$country_origin."', hs_tariff = '". $hs_tariff ."', default_contents = '". $data['default_contents'] ."', ship_country = '". $shipCountry ."'";
 
 		$wpdb->query($query);
 	}
-
+	
 	public static function updateConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry=false, $oldconsignmentNumber)
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment"; 
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
 
@@ -4907,7 +4943,7 @@ class LinksynceparcelHelper
 		$wpdb->query($query);
 
 		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
-
+		
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4918,11 +4954,11 @@ class LinksynceparcelHelper
 			$query .= ", manifest_number = '', is_next_manifest = 0";
 		}
 		$wpdb->query($query);
-
+		
 		if($shipCountry != false && $shipCountry != "AU") {
 			self::updateInternationalConsignment($consignmentNumber,$data,$shipCountry);
 		}
-
+		
 		$filename = $consignmentNumber.'.pdf';
 		$filepath = linksynceparcel_DIR.'assets/label/consignment/'.$filename;
 		if(file_exists($filepath))
@@ -4934,7 +4970,7 @@ class LinksynceparcelHelper
 		{
 			unlink($filepath_1);
 		}
-
+		
 		$filepath2 = linksynceparcel_DIR.'assets/label/returnlabels/'.$filename;
 		if(file_exists($filepath2))
 		{
@@ -4952,7 +4988,7 @@ class LinksynceparcelHelper
 		$table_name = $wpdb->prefix . "linksynceparcel_international_fields";
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-
+		
 		$product_classification = isset($data['product_classification'])?$data['product_classification']:get_option('linksynceparcel_product_classification');
 		$declared_value = isset($data['declared_value'])?1:0;
 		$has_commercial_value = isset($data['has_commercial_value'])?1:0;
@@ -4964,12 +5000,12 @@ class LinksynceparcelHelper
 		if(!isset($hs_tariff)) {
 			$hs_tariff = get_option('linksynceparcel_hs_tariff');
 		}
-
+		
 		$query = "UPDATE {$table_name} SET modify_date='". $date ."', safe_drop = '".$data['safe_drop']."', export_declaration_number='".$data['export_declaration_number']."', declared_value='". $declared_value ."', declared_value_text = '".$data['declared_value_text']."', has_commercial_value='". $has_commercial_value ."', product_classification = ". $product_classification .", product_classification_text = '".$data['product_classification_text']."', country_origin = '".$country_origin."', hs_tariff = '". $hs_tariff ."', default_contents = '". $data['default_contents'] ."'";
 		$query .= ' WHERE consignment_number ="'. $consignmentNumber .'"';
 		$wpdb->query($query);
 	}
-
+	
 	public static function getArticles($id_order, $consignment_number)
 	{
 		global $wpdb;
@@ -4977,7 +5013,7 @@ class LinksynceparcelHelper
 		$query = "SELECT * FROM {$table_name} WHERE order_id = ". $id_order ." AND consignment_number='". $consignment_number ."'";
 		return $wpdb->get_results($query);
 	}
-
+	
 	public static function getArticle($articleNumber)
 	{
 		global $wpdb;
@@ -4989,7 +5025,7 @@ class LinksynceparcelHelper
 			return $article;
 		}
 	}
-
+	
 	public static function deleteArticle($order_id,$consignmentNumber, $articleNumber)
 	{
 		global $wpdb;
@@ -4999,7 +5035,7 @@ class LinksynceparcelHelper
 		$wpdb->query($query);
 		return $deleteToBeArticle;
 	}
-
+	
 	public static function updateArticles($order_id, $consignmentNumber, $articles, $data,$content,$oldconsignmentNumber=false)
 	{
 		global $wpdb;
@@ -5011,7 +5047,7 @@ class LinksynceparcelHelper
 		}
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$rm_consignmentNumber}'";
 		$wpdb->query($query);
-
+		
 		try
 		{
 			$query = '';
@@ -5033,7 +5069,7 @@ class LinksynceparcelHelper
 					$length = $article->length;
 					$width = $article->width;
 					$transitCoverAmount = $article->transitCoverAmount;
-
+					
 					$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='". self::mres(self::xmlData($articleDescription)) ."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
 					$wpdb->query($query);
 				}
@@ -5044,7 +5080,7 @@ class LinksynceparcelHelper
 			throw new Exception($e->getMessage());
 		}
 	}
-
+	
 	public static function insertBulkArticles($order_id, $consignmentNumber, $articles, $data)
 	{
 		global $wpdb;
@@ -5053,16 +5089,16 @@ class LinksynceparcelHelper
 		{
 			$query = '';
 			$articleNumbers = $articles->article;
-
+	
 			$articles_type = $data['articles_type'];
 			$articleTemp = explode('<=>',$articles_type);
-
+			
 			$article = array();
 			$article['description'] = $articleTemp[0];
 			$article['weight'] = $articleTemp[1];
 
             $use_dimension = (int)get_option('linksynceparcel_use_dimension');
-
+                
             if($use_dimension != 1) {
                 $article['height'] = 5;
                 $article['length'] = 5;
@@ -5071,7 +5107,7 @@ class LinksynceparcelHelper
                 $article['height'] = $articleTemp[2];
                 $article['length'] = $articleTemp[3];
                 $article['width'] = $articleTemp[4];
-            }
+            }			
 			$actualWeight = $article['weight'];
 			$articleDescription = $article['description'];
 			$articleNumber = (is_array($articleNumbers) ? $articleNumbers[$j] : $articleNumbers);
@@ -5081,7 +5117,7 @@ class LinksynceparcelHelper
 			$width = $article['width'];
 			$isTransitCoverRequired = ($data['transit_cover_required'] ? 'Y' : 'N');
 			$transitCoverAmount = ($data['transit_cover_required'] ? $data['transit_cover_amount'] : 0);
-
+			
 			$query .= "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}',  actual_weight='{$actualWeight}', article_description='". self::mres($articleDescription) ."', article_number='{$articleNumber}', cubic_weight='{$cubicWeight}', height='{$height}', width='{$width}', is_transit_cover_required='{$isTransitCoverRequired}', length='{$length}', transit_cover_amount='{$transitCoverAmount}';";
 
 			$wpdb->query($query);
@@ -5091,9 +5127,9 @@ class LinksynceparcelHelper
 			throw new Exception($e->getMessage());
 		}
 	}
-
-
-
+	
+	
+	
 	public static function getManifest($manifest_number)
 	{
 		global $wpdb;
@@ -5106,7 +5142,7 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function deleteManifest()
 	{
 		global $wpdb;
@@ -5121,7 +5157,7 @@ class LinksynceparcelHelper
 		}
 		update_option('linksynceparcel_manifest_sync', 1);
 	}
-
+	
 	public static function deleteManifest2($manifestNumber)
 	{
 		global $wpdb;
@@ -5138,7 +5174,7 @@ class LinksynceparcelHelper
 			}
 		}
 	}
-
+	
 	public static function insertManifest($manifestNumber,$numberOfArticles=0,$numberOfConsignments=0)
 	{
 		global $wpdb;
@@ -5154,7 +5190,7 @@ class LinksynceparcelHelper
 		}
 		update_option('linksynceparcel_manifest_sync', 1);
 	}
-
+	
 	public static function updateManifest($manifestNumber,$numberOfArticles,$numberOfConsignments)
 	{
 		global $wpdb;
@@ -5170,7 +5206,7 @@ class LinksynceparcelHelper
 			$wpdb->query($query);
 		}
 	}
-
+	
 	public static function labelCreate($consignmentNumber)
     {
 		try
@@ -5192,7 +5228,7 @@ class LinksynceparcelHelper
 			;//log
 		}
 	}
-
+	
 	public static function returnLabelCreate($consignmentNumber)
     {
 		try
@@ -5217,7 +5253,7 @@ class LinksynceparcelHelper
 			;//log
 		}
 	}
-
+	
 	public static function updateConsignmentTable($consignmentNumber,$columnName, $value)
 	{
 		global $wpdb;
@@ -5225,7 +5261,7 @@ class LinksynceparcelHelper
 		$query = "UPDATE {$table_name} SET `{$columnName}` = '{$value}' WHERE `consignment_number`='{$consignmentNumber}'";
 		$wpdb->query($query);
 	}
-
+	
 	public static function updateConsignmentTableByManifest($manifestNumber,$columnName, $value)
 	{
 		global $wpdb;
@@ -5233,7 +5269,7 @@ class LinksynceparcelHelper
 		$query = "UPDATE {$table_name} SET {$columnName} = '{$value}' WHERE manifest_number='{$manifestNumber}'";
 		$wpdb->query($query);
 	}
-
+	
 	public static function getOrdersByManifest($manifestNumber)
 	{
 		global $wpdb;
@@ -5241,19 +5277,19 @@ class LinksynceparcelHelper
 		$query = "SELECT order_id FROM {$table_name} WHERE manifest_number = '{$manifestNumber}' group by order_id";
 		return $wpdb->get_results($query);
 	}
-
+	
 	public static function deleteConsignment($consignmentNumber)
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$consignmentNumber}'";
 		$wpdb->query($query);
-
+		
 		$table_name = $wpdb->prefix . "linksynceparcel_article";
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$consignmentNumber}'";
 		$wpdb->query($query);
 	}
-
+	
 	public static function prepareModifiedArticle($order,$consignment_number)
 	{
 		$articleData = self::prepareModifiedArticleData($order,$consignment_number);
@@ -5261,7 +5297,7 @@ class LinksynceparcelHelper
 		$chargeCode = $articleData['charge_code'];
 		return array('content' => $content, 'charge_code' => $chargeCode);
 	}
-
+	
 	public static function prepareModifiedArticleData($order,$consignment_number)
 	{
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
@@ -5270,7 +5306,7 @@ class LinksynceparcelHelper
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order);
 		$articlesInfo = self::prepareModifiedArticles($order,$consignment_number);
 		$consignment = self::getConsignment($consignment_number);
-
+		
 		$search = array(
 			'[[articles]]',
 			'[[RETURN-ADDRESS]]',
@@ -5290,7 +5326,7 @@ class LinksynceparcelHelper
 		);
 
 		$chargeCode = self::getChargeCode($order,$consignment_number);
-
+			
 		$replace = array(
 			$articlesInfo['info'],
 			$returnAddress,
@@ -5312,7 +5348,7 @@ class LinksynceparcelHelper
 		$content = str_replace($search, $replace, $template);
 		return array('content' => $content, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
-
+	
 	public static function prepareModifiedArticles($order,$consignment_number)
 	{
 		$articlesInfo = '';
@@ -5331,18 +5367,18 @@ class LinksynceparcelHelper
 				'[[transitCoverAmount]]',
 				'[[articleNumber]]'
 			);
-
+			
 			$default_width = 0;
 			$use_article_dimensions = (int)get_option('linksynceparcel_use_dimension');
 			if($use_article_dimensions == 1)
 			{
 				$default_width = get_option('linksynceparcel_default_article_width');
 			}
-
+			
 			$total_weight += $article->actual_weight;
 
 			$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
-
+		
 			$replace = array(
 				trim($article->actual_weight),
 				trim($article->article_description),
@@ -5353,13 +5389,13 @@ class LinksynceparcelHelper
 				(($article->is_transit_cover_required == 'Y') ? trim($article->transit_cover_amount) : 0),
 				'<articleNumber>'.trim($article->article_number).'</articleNumber>'
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
 		return array('info' => $articlesInfo, 'total_weight' => $total_weight);
 	}
-
+	
 	public static function prepareAddArticle($data,$order,$consignmentNumber)
 	{
 		$articleData = self::prepareAddArticleData($data,$order,$consignmentNumber);
@@ -5367,7 +5403,7 @@ class LinksynceparcelHelper
 		$chargeCode = $articleData['charge_code'];
 		return array('content' => $content, 'charge_code' => $chargeCode);
 	}
-
+	
 	public static function prepareAddArticleData($data, $order,$consignment_number)
 	{
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
@@ -5375,7 +5411,7 @@ class LinksynceparcelHelper
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareAddArticles($order,$data, $consignment_number);
-
+		
 		$search = array(
 			'[[articles]]',
 			'[[RETURN-ADDRESS]]',
@@ -5393,7 +5429,7 @@ class LinksynceparcelHelper
 			'[[emailNotification]]',
 			'[[safeDrop]]'
 		);
-
+		
 		$chargeCode = self::getChargeCode($order,$consignment_number);
 
 		$replace = array(
@@ -5417,12 +5453,12 @@ class LinksynceparcelHelper
 		$content = str_replace($search, $replace, $template);
 		return array('content' => $content, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
-
+	
 	public static function prepareAddArticles($order,$data, $consignment_number)
 	{
 		$articlesInfo = '';
 		$total_weight = 0;
-
+		
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$articles = LinksynceparcelHelper::getArticles($order_id, $consignment_number);
 		foreach($articles as $article)
@@ -5437,9 +5473,9 @@ class LinksynceparcelHelper
 				'[[transitCoverAmount]]',
 				'[[articleNumber]]'
 			);
-
+			
 			$total_weight += $article->actual_weight;
-
+			
 			$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
 
 			$default_width = 0;
@@ -5448,7 +5484,7 @@ class LinksynceparcelHelper
 			{
 				$default_width = get_option('linksynceparcel_default_article_width');
 			}
-
+		
 			$replace = array(
 				trim($article->actual_weight),
 				trim($article->article_description),
@@ -5459,11 +5495,11 @@ class LinksynceparcelHelper
 				( ($article->is_transit_cover_required == 'Y') ? trim($article->transit_cover_amount) : 0),
 				'<articleNumber>'.trim($article->article_number).'</articleNumber>'
 			);
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
-
+		
 		$search = array(
 				'[[actualWeight]]',
 				'[[articleDescription]]',
@@ -5483,7 +5519,7 @@ class LinksynceparcelHelper
 		{
 			$articles_type = $data['articles_type'];
 			$articles = explode('<=>',$articles_type);
-
+			
 			$article = array();
 			$article['description'] = $articles[0];
 			$article['weight'] = $articles[1];
@@ -5497,7 +5533,7 @@ class LinksynceparcelHelper
                 $article['length'] = $articles[3];
                 $article['width'] = $articles[4];
             }
-
+			
 			$use_order_total_weight = (int)get_option('linksynceparcel_use_order_weight');;
 			if($use_order_total_weight == 1)
 			{
@@ -5518,12 +5554,12 @@ class LinksynceparcelHelper
 				$article['weight'] = $weight;
 			}
 		}
-
+		
 		$article['weight'] = number_format($article['weight'],2,'.', '');
 		$total_weight += $article['weight'];
 
 		$article['weight'] = self::calculateWeightDefault($article['weight']);
-
+	
 		$replace = array(
 			trim($article['weight']),
 			self::xmlData(trim($article['description'])),
@@ -5534,13 +5570,13 @@ class LinksynceparcelHelper
 			($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
 			''
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 		$articlesInfo .= str_replace($search, $replace, $template);
-
+		
 		return array('info' => $articlesInfo, 'total_weight' => $total_weight);
 	}
-
+	
 	public static function prepareUpdateArticle($data,$order,$consignmentNumber)
 	{
 		$articleData = self::prepareUpdateArticleData($data,$order,$consignmentNumber);
@@ -5548,7 +5584,7 @@ class LinksynceparcelHelper
 		$chargeCode = $articleData['charge_code'];
 		return array('content' => $content, 'charge_code' => $chargeCode);
 	}
-
+	
 	public static function prepareUpdateArticleData($data, $order,$consignment_number='')
 	{
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
@@ -5556,7 +5592,7 @@ class LinksynceparcelHelper
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
 		$articlesInfo = self::prepareUpdatedArticles($order,$data);
-
+		
 		$search = array(
 			'[[articles]]',
 			'[[RETURN-ADDRESS]]',
@@ -5576,7 +5612,7 @@ class LinksynceparcelHelper
 		);
 
 		$chargeCode = self::getChargeCode($order,$consignment_number);
-
+		
 		$replace = array(
 			$articlesInfo['info'],
 			$returnAddress,
@@ -5598,7 +5634,7 @@ class LinksynceparcelHelper
 		$content = str_replace($search, $replace, $template);
 		return array('content' => $content, 'charge_code' => $chargeCode, 'total_weight' => $articlesInfo['total_weight']);
 	}
-
+	
 	public static function prepareUpdatedArticles($order,$data)
 	{
 		$articlesInfo = '';
@@ -5617,7 +5653,7 @@ class LinksynceparcelHelper
 				'[[transitCoverAmount]]',
 				'[[articleNumber]]'
 			);
-
+		
 			if($article->article_number == $data['article_number'])
 			{
 				$article = $data['article'];
@@ -5645,11 +5681,11 @@ class LinksynceparcelHelper
 				{
 					$default_width = get_option('linksynceparcel__default_article_width');
 				}
-
+				
 				$total_weight += $article->actual_weight;
 
 				$article->actual_weight = self::calculateWeightDefault($article->actual_weight);
-
+				
 				$replace = array(
 					trim($article->actual_weight),
 					trim($article->article_description),
@@ -5661,7 +5697,7 @@ class LinksynceparcelHelper
 					'<articleNumber>'.trim($article->article_number).'</articleNumber>'
 				);
 			}
-
+			
 			$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			$articlesInfo .= str_replace($search, $replace, $template);
 		}
@@ -5685,12 +5721,12 @@ class LinksynceparcelHelper
 					{
 						$currentManifest = $manifestNumber;
 					}
-
+					
 					$numberOfArticles = (int)$manifest->numberOfArticles;
 					$numberOfConsignments = (int)$manifest->numberOfConsignments;
 					LinksynceparcelHelper::updateManifest($manifestNumber,$numberOfArticles,$numberOfConsignments);
 				}
-
+				
 				update_option('linksynceparcel_manifest_sync',0);
 			}
 			return $currentManifest;
@@ -5701,7 +5737,7 @@ class LinksynceparcelHelper
 			return false;
 		}
 	}
-
+	
 	public static function updateManifestTable($manifestNumber,$columnName, $value)
 	{
 		global $wpdb;
@@ -5709,7 +5745,7 @@ class LinksynceparcelHelper
 		$query = "UPDATE {$table_name} SET {$columnName} = '{$value}' WHERE manifest_number='{$manifestNumber}'";
 		$wpdb->query($query);
 	}
-
+	
 	public static function isCurrentMainfestHasConsignmentsForDespatch()
 	{
 		global $wpdb;
@@ -5720,7 +5756,7 @@ class LinksynceparcelHelper
 			return true;
 		return false;
 	}
-
+	
 	public static function addMessage($key,$message)
 	{
 		$existingMessage = get_option($key);
@@ -5728,7 +5764,7 @@ class LinksynceparcelHelper
 			$existingMessage .= '<br/>';
 		update_option($key,$existingMessage.$message);
 	}
-
+	
 	public static function getNotDespatchedConsignmentNumbers()
 	{
 		$notDespatchedConsignmentsArray = array();
@@ -5746,7 +5782,7 @@ class LinksynceparcelHelper
 		}
 		return $notDespatchedConsignmentsArray;
 	}
-
+	
 	public static function getNotDespatchedAssignedConsignmentNumbers()
 	{
 		$notDespatchedConsignmentsArray = array();
@@ -5770,7 +5806,7 @@ class LinksynceparcelHelper
 		}
 		return $notDespatchedConsignmentsArray;
 	}
-
+	
 	public static function getNotDespatchedUnassignedConsignmentNumbers()
 	{
 		$notDespatchedConsignmentsArray = array();
@@ -5794,7 +5830,7 @@ class LinksynceparcelHelper
 		}
 		return $notDespatchedConsignmentsArray;
 	}
-
+	
 	public static function getNotDespatchedBothConsignmentNumbers()
 	{
 		$notDespatchedConsignmentsArray = array();
@@ -5820,11 +5856,11 @@ class LinksynceparcelHelper
         $content = str_replace(htmlspecialchars('\"'), "", $content);
         return html_entity_decode($content);
     }
-
+	
 	public static function notifyCustomers($manifestNumber)
 	{
 		$consignments = self::getConsignmentsByNumber($manifestNumber[0]);
-		if($consignments){
+		if($consignments){	
 			foreach($consignments as $consignment)
 			{
 				$address = get_post_meta($consignment->order_id);
@@ -5837,45 +5873,45 @@ class LinksynceparcelHelper
 
                 $content = static::formatToHtml(get_option('linksynceparcel_email_body'));
 				$content = str_replace('[TrackingNumber]',$consignment->consignment_number,$content);
-
+				
 				$order = new WC_Order( $consignment->order_id );
-
+				
 				$search = array(
 					'[TrackingNumber]',
 					'[OrderNumber]',
 					'[CustomerFirstname]'
 				);
-
+		
 				$replace = array(
 					$consignment->consignment_number,
 					self::getIncrementId($order),
 					$address['_billing_first_name'][0]
 				);
-
+				
 				$subject = str_replace($search, $replace, $subject);
 				$content = str_replace($search, $replace, $content);
-
+				
 				$headers = 'From: '.$fromName;
 				if(!empty($fromEmail))
 				{
 					$headers .= ' <'.$fromEmail.'>';
 				}
-
+			
 				add_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
 				wp_mail($toEmail, $subject, $content,$headers);
 				remove_filter( 'wp_mail_content_type', 'linksyneparcel_set_html_content_type' );
 			}
 		}
 	}
-
+	
 	public static function getOrderWeight($order)
 	{
 		$weight = 0;
 		if ( sizeof( $order->get_items() ) > 0 )
 		{
-			foreach( $order->get_items() as $item )
+			foreach( $order->get_items() as $item ) 
 			{
-				if ( $item['product_id'] > 0 )
+				if ( $item['product_id'] > 0 ) 
 				{
 					$_product = $order->get_product_from_item( $item );
 					if (!empty($_product))
@@ -5888,15 +5924,15 @@ class LinksynceparcelHelper
 				}
 			}
 		}
-
+		
 		$product_unit = trim(get_option('linksynceparcel_product_unit'));
-
+		
 		$packaging_allowance_type = trim(get_option('linksynceparcel_allowance_type'));
 		$packaging_allowance_value = trim(get_option('linksynceparcel_allowance_value'));
 		$product_unit = strtolower(trim(get_option('woocommerce_weight_unit')));
-
+		
 		if($weight > 0)
-		{
+		{   
 			if($product_unit == 'g')
 			{
 				$weight = $weight / 1000;
@@ -5913,7 +5949,7 @@ class LinksynceparcelHelper
 				$weight = number_format($weight,2,'.', '');
 			}
 		}
-
+		
 		if($packaging_allowance_value > 0)
 		{
 			if($packaging_allowance_type == 'F')
@@ -5927,12 +5963,12 @@ class LinksynceparcelHelper
 		}
 		return $weight;//number_format($weight,2);
 	}
-
+	
 	public static function getAllowedWeightPerArticle()
 	{
 		return 22;
 	}
-
+	
 	public static function getOrderWeightTotal($orderid)
 	{
 		global $wpdb;
@@ -5947,7 +5983,7 @@ class LinksynceparcelHelper
 		}
 		return $total;
 	}
-
+	
 	public static function presetMatch($presets,$weight)
 	{
 		$selected = false;
@@ -5957,10 +5993,10 @@ class LinksynceparcelHelper
 			{
 				$presetWeight = floatval($preset->weight);
 				$weight = floatval($weight);
-
+				
 				$presetWeight = ''.$presetWeight.'';
 				$weight = ''.$weight.'';
-
+			
 				if($presetWeight === $weight)
 				{
 					$selected = true;
@@ -5970,7 +6006,7 @@ class LinksynceparcelHelper
 		}
 		return $selected;
 	}
-
+	
 	public static function getOrderedShippingDescriptions()
 	{
 		global $wpdb;
@@ -5978,14 +6014,14 @@ class LinksynceparcelHelper
 		$query = "SELECT distinct(order_item_name) as code FROM {$table_name} WHERE order_item_type = 'shipping'";
 		return $wpdb->get_results($query);
 	}
-
+	
 	public static function listOfShippingMethods()
 	{
 		global $wpdb;
 	    $table_name = $wpdb->prefix . "woocommerce_order_items";
 		$query = "SELECT order_item_id, order_item_name FROM {$table_name} WHERE order_item_type = 'shipping'";
 		$usedMethods = $wpdb->get_results($query);
-
+		
 		$arr = array();
 		foreach($usedMethods as $key=>$val) {
 			$methodId = self::getMethodId($val->order_item_id);
@@ -5994,10 +6030,10 @@ class LinksynceparcelHelper
 				'title' => $val->order_item_name
 			);
 		}
-
+		
 		return $arr;
 	}
-
+	
 	public static function getMethodId($id)
 	{
 		global $wpdb;
@@ -6006,8 +6042,8 @@ class LinksynceparcelHelper
 		$result = $wpdb->get_row($query);
 		return $result->meta_value;
 	}
-
-	/*
+	
+	/* 
      *
      * International Functions
      *
@@ -6023,7 +6059,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine2 = '<returnAddressLine2/>';
 		}
-
+		
 		$returnAddressLine3 = trim(get_option('linksynceparcel_return_address_line3'));
 		if(!empty($returnAddressLine3))
 		{
@@ -6033,7 +6069,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine3 = '<returnAddressLine3 />';
 		}
-
+		
 		$returnAddressLine4 = trim(get_option('linksynceparcel_return_address_line4'));
 		if(!empty($returnAddressLine4))
 		{
@@ -6043,7 +6079,7 @@ class LinksynceparcelHelper
 		{
 			$returnAddressLine4 = '<returnAddressLine4 />';
 		}
-
+		
 		$search = array(
 			'[[returnAddressLine1]]',
 			'[[returnAddressLine2]]',
@@ -6062,7 +6098,7 @@ class LinksynceparcelHelper
 			self::xmlData(trim(get_option('linksynceparcel_return_address_line1'))),
 			trim($returnAddressLine2),
 			trim($returnAddressLine3),
-			trim($returnAddressLine4),
+			trim($returnAddressLine4),   
 			self::xmlData(trim(get_option('linksynceparcel_return_address_name'))),
 			trim(get_option('linksynceparcel_return_address_postcode')),
 			trim(get_option('linksynceparcel_return_address_statecode')),
@@ -6071,23 +6107,23 @@ class LinksynceparcelHelper
 			trim(get_option('linksynceparcel_return_email_address')),
 			trim(get_option('linksynceparcel_return_phone_number')),
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-return-address-template.xml');
 		return str_replace($search, $replace, $template);
 	}
-
+	
 	public static function prepareInternationalDeliveryAddress($address,$order,$data=false)
 	{
 		$street1 = '<deliveryAddressLine1>'.self::xmlData($address['_shipping_address_1'][0]).'</deliveryAddressLine1>';
 		$street2 = '<deliveryAddressLine2/>';
 		$street3 = '<deliveryAddressLine3/>';
 		$street4 = '<deliveryAddressLine4/>';
-
+		
 		if(isset($address['_shipping_address_2'][0]) && !empty($address['_shipping_address_2'][0]))
 		{
 			$street2 = '<deliveryAddressLine2>'.self::xmlData($address['_shipping_address_2'][0]).'</deliveryAddressLine2>';
 		}
-
+		
 		$city = $address['_shipping_city'][0];
 		$state = 'NA';
 		if($address['_shipping_state'][0])
@@ -6111,12 +6147,12 @@ class LinksynceparcelHelper
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
 			$phonestr = $withplus . $phone;
 		}
-
+		
 		$instructions = $data['delivery_instruction'];
-
+		
 		$importerCustomsReference = '';
 		$senderCustomsReference = '';
-
+		
 		$search = array(
 			'[[deliveryAddressLine1]]',
 			'[[deliveryAddressLine2]]',
@@ -6152,35 +6188,35 @@ class LinksynceparcelHelper
 			(!empty($importerCustomsReference) ? '<importerCustomsReference>'. $importerCustomsReference .'<importerCustomsReference>' : '<importerCustomsReference/>' ),
 			(!empty($senderCustomsReference) ? '<senderCustomsReference>'. $senderCustomsReference .'<senderCustomsReference>' : '<senderCustomsReference/>' )
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-delivery-address-template.xml');
 		return str_replace($search, $replace, $template);
 	}
-
+	
 	public static function articleContents($order,$data, $total_weight) {
         $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 		$order_item = self::getOrderProdItems($order_id, $data, false, $total_weight);
 		return $order_item;
 	}
-
+	
 	public static function getOrderProdItems($order_id, $data, $totalonly=false, $total_weight = false) {
 		global $wpdb;
 		$table = $wpdb->prefix .'woocommerce_order_items';
 		$sql = 'SELECT order_item_id FROM '. $table .' WHERE order_item_type="line_item" AND order_id='. $order_id;
 		$rows = $wpdb->get_results($sql);
-
+		
 		$countryOrigin = isset($data['country_origin'])?$data['country_origin']:get_option('linksynceparcel_country_origin');
 		$hsTariff = isset($data['hs_tariff'])?$data['hs_tariff']:get_option('linksynceparcel_hs_tariff');
 		$shipping_cost = self::getShippingMethodDetails($order_id);
-
+		
 		$singleWeight = 0;
 		if($total_weight > 0) {
 			$singleWeight = self::getSingleWeight($rows, $total_weight);
 		}
-
+		
 		$pass = false;
 		$declared_option_value = 0;
-
+		
 		if($data['order_value_declared_value'] != 0) {
 			$checktotal = 0;
 			$totalqty = 0;
@@ -6196,31 +6232,31 @@ class LinksynceparcelHelper
 				$unitvalue_1 = $sale_price_1;
 				if(empty($sale_price_1))
 					$unitvalue_1 = get_post_meta( $prodid_1, '_regular_price', true );
-
+				
 				$value_1 = $unitvalue_1 * $item_qty_1;
-
+				
 				if($cntr > 0) {
 					$totalqty += $item_qty_1;
 				}
-
+					
 				$checktotal += $value_1;
 				$cntr++;
 			}
-
-
+			
+			
 			if($data['order_value_declared_value'] == 1) {
 				if($checktotal >= $data['maximum_declared_value']) {
 					$pass = true;
 					$declared_option_value = $data['maximum_declared_value'] - $totalqty;
 				}
 			}
-
+			
 			if($data['order_value_declared_value'] == 2) {
 				$pass = true;
 				$declared_option_value = $data['fixed_declared_value'] - $totalqty;
 			}
 		}
-
+		
 		$alter = false;
 		$cnt = 0;
 		$contents = '';
@@ -6239,13 +6275,14 @@ class LinksynceparcelHelper
 				$item_description = get_option('linksynceparcel_default_good_description');
 			}
 			$item_description = substr($item_description, 0, 40);
-
+			$item_description = htmlentities($item_description);
+			
 			$item_qty = wc_get_order_item_meta( $row->order_item_id, '_qty', true );
 			$sale_price = get_post_meta( $prodid, '_sale_price', true );
 			$unitvalue = $sale_price;
 			if(empty($sale_price))
 				$unitvalue = get_post_meta( $prodid, '_regular_price', true );
-
+			
 			$value = wc_get_order_item_meta( $row->order_item_id, '_line_total', true );
 			if(empty($unitvalue)) {
 				$unitvalue = 0.01;
@@ -6268,9 +6305,9 @@ class LinksynceparcelHelper
 					}
 				}
 			}
-
+			
 			$totalCost += $value;
-
+			
 			if($pass) {
 				if($cnt == 0) {
 					$alter = true;
@@ -6279,13 +6316,13 @@ class LinksynceparcelHelper
 					$unitvalue = $unitval;
 					$value = $maxval;
 				}
-
+				
 				if($alter && $cnt > 0) {
 					$unitvalue = 1;
 					$value = $item_qty;
 				}
 			}
-
+			
 			$contents .= '<content>';
 			$contents .= '<goodsDescription>'. $item_description .'</goodsDescription>';
 			$contents .= '<quantity>'. $item_qty .'</quantity>';
@@ -6295,28 +6332,28 @@ class LinksynceparcelHelper
 			$contents .= '<countryOriginCode>'. $countryOrigin .'</countryOriginCode>';
 			$contents .= '<hSTariff>'. $hsTariff .'</hSTariff>';
 			$contents .= '</content>';
-
+			
 			$cnt++;
 		}
 		return ($totalonly)?$totalCost:array('totalcost' => $totalCost, 'contents' => $contents);
 	}
-
+	
 	public static function getShippingMethodDetails($order_id) {
 		global $wpdb;
 		$table = $wpdb->prefix .'woocommerce_order_items';
 		$sql = 'SELECT order_item_id FROM '. $table .' WHERE order_item_type="shipping" AND order_id='. $order_id;
 		$row = $wpdb->get_row($sql);
-
+		
 		$shipping_cost = wc_get_order_item_meta( $row->order_item_id, 'cost', true );
 		return $shipping_cost;
 	}
-
+	
 	public static function getSingleWeight($rows, $total_weight) {
 		$cntr = 0;
 		foreach($rows as $row) {
 			$cntr += wc_get_order_item_meta( $row->order_item_id, '_qty', true );
 		}
-
+		
 		$weight = $total_weight/$cntr;
 		$weight = number_format($weight, 2);
 		if($weight < 0.01 ) {
@@ -6324,7 +6361,7 @@ class LinksynceparcelHelper
 		}
 		return $weight;
 	}
-
+	
 	public static function prepareInternationalArticles($data,$order,$bulk=false) {
 		$articlesInfo = self::prepareArticles($data,$order,'',true);
 		if($bulk){
@@ -6339,7 +6376,7 @@ class LinksynceparcelHelper
 		$hasCommercialValue = isset($data['has_commercial_value'])?"true":"false";
 		$deliveryFailureDetails = self::deliveryFailureDetails();
 		$articleContents = self::articleContents($order, $data, $articlesInfo['total_weight']);
-
+		
 		if(empty($insuranceValue)) {
 			$insuranceValue = '<insuranceValue/>';
 		} else {
@@ -6347,9 +6384,9 @@ class LinksynceparcelHelper
 		}
 		if(isset($insuranceOrderValue))
 			$insuranceValue = '<insuranceValue>'. trim($articleContents['totalcost']) .'</insuranceValue>';
-
+		
 		$insuranceValue = ($isInsurance==0)? '<insuranceValue/>' : $insuranceValue;
-
+		
 		$search = array(
 			'[[preparedarticle]]',
 			'[[isInsuranceRequired]]',
@@ -6373,11 +6410,11 @@ class LinksynceparcelHelper
 			$deliveryFailureDetails,
 			$articleContents['contents']
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articleall-template.xml');
 		return array('content' => str_replace($search, $replace, $template), 'totalcost' => $articleContents['totalcost']);
 	}
-
+	
 	public static function prepareInternationalOrderWeightArticles($data,$order) {
 		$articlesInfo = self::prepareOrderWeightArticles($data,$order,'',true);
 		$isInsurance = $data['insurance'];
@@ -6389,7 +6426,7 @@ class LinksynceparcelHelper
 		$hasCommercialValue = isset($data['has_commercial_value'])?"true":"false";
 		$deliveryFailureDetails = self::deliveryFailureDetails();
 		$articleContents = self::articleContents($order, $data);
-
+		
 		if(empty($insuranceValue)) {
 			$insuranceValue = '<insuranceValue/>';
 		} else {
@@ -6397,9 +6434,9 @@ class LinksynceparcelHelper
 		}
 		if(isset($insuranceOrderValue))
 			$insuranceValue = '<insuranceValue>'. trim($articleContents['totalcost']) .'</insuranceValue>';
-
+		
 		$insuranceValue = ($isInsurance==0)? '<insuranceValue/>' : $insuranceValue;
-
+		
 		$search = array(
 			'[[preparedarticle]]',
 			'[[isInsuranceRequired]]',
@@ -6411,7 +6448,7 @@ class LinksynceparcelHelper
 			'[[deliveryFailureDetails]]',
 			'[[contents]]'
 		);
-
+		
 		$replace = array(
 			$articlesInfo['info'],
 			($isInsurance==0)? 'false' : 'true',
@@ -6423,11 +6460,11 @@ class LinksynceparcelHelper
 			$deliveryFailureDetails,
 			$articleContents['contents']
 		);
-
+		
 		$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-articleall-template.xml');
 		return array('content' => str_replace($search, $replace, $template), 'totalcost' => $articleContents['totalcost']);
 	}
-
+	
 	public static function deliveryFailureDetails() {
 		$addressName = self::xmlData(trim(get_option('linksynceparcel_return_address_name')));
 		$companyName = self::xmlData(trim(get_option('linksynceparcel_return_business_name')));
@@ -6436,7 +6473,7 @@ class LinksynceparcelHelper
 		$suburb = self::xmlData(trim(get_option('linksynceparcel_return_address_suburb')));
 		$stateCode = trim(get_option('linksynceparcel_return_address_statecode'));
 		$postCode = trim(get_option('linksynceparcel_return_address_postcode'));
-
+		
 		$deliveryFailureDetails = (!empty($addressName) ? '<deliveryFailureName>'. $addressName .'</deliveryFailureName>' : '<deliveryFailureName/>');
 		$deliveryFailureDetails .= (!empty($companyName) ? '<deliveryFailureCompanyName>'. $companyName .'</deliveryFailureCompanyName>' : '<deliveryFailureCompanyName/>');
 		$deliveryFailureDetails .= '<deliveryFailureAddressLine1>'. $addressOne .'</deliveryFailureAddressLine1>';
@@ -6447,7 +6484,7 @@ class LinksynceparcelHelper
 		$deliveryFailureDetails .= '<deliveryFailureCountryCode>AU</deliveryFailureCountryCode>';
 		return $deliveryFailureDetails;
 	}
-
+	
 	public static function isInternationalDelivery($shipCountry) {
 		if($shipCountry != 'AU') {
 			if(self::checkAssignShippingType()) {
@@ -6456,7 +6493,7 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function checkAssignShippingType() {
 		global $wpdb;
 		$table = $wpdb->prefix ."linksynceparcel_nonlinksync";
@@ -6464,14 +6501,14 @@ class LinksynceparcelHelper
 		$row = $wpdb->get_row($sql);
 		return !empty($row)?true:false;
 	}
-
+	
 	public static function checkAssignApiCode() {
 		if(get_option('linksynceparcel_laid')) {
 			self::addMessage('linksynceparcel_consignment_error','You have not configured linksync eParcel');
 			self::addMessage('linksynceparcel_manifest_view_error','You have not configured linksync eParcel');
 		}
 	}
-
+	
 	public static function getInternationFields($orderid, $consignmentnumber) {
 		global $wpdb;
 		$table = $wpdb->prefix ."linksynceparcel_international_fields";
@@ -6479,7 +6516,7 @@ class LinksynceparcelHelper
 		$row = $wpdb->get_row($sql);
 		return $row;
 	}
-
+	
 	public static function generateDocument($consignmentNumber,$labelContent,$field) {
 		try
 		{
@@ -6504,7 +6541,7 @@ class LinksynceparcelHelper
 			update_option('linksynceparcel_order_view_error',$error);
 		}
 	}
-
+	
 	public static function getCountryDeliveryConsignment($consignmentnumber) {
 		global $wpdb;
 		$table = $wpdb->prefix ."linksynceparcel_consignment";
@@ -6513,10 +6550,10 @@ class LinksynceparcelHelper
 		$shipping_country = get_post_meta($row->order_id,'_shipping_country',true);
 		return $shipping_country;
 	}
-
+	
 	public static function createUploadDirectory() {
 		$filepath = linksynceparcel_UPLOAD_URL.'/linksync_uploads/label/';
-
+		
 		if (!file_exists($filepath.'/consignment')) {
 			mkdir($filepath.'/consignment', 0740, true);
 		}
@@ -6526,17 +6563,17 @@ class LinksynceparcelHelper
 		if (!file_exists($filepath.'/returnlabels')) {
 			mkdir($filepath.'/returnlabels', 0740, true);
 		}
-
+		
 		$logpath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/';
 		if (!file_exists($logpath.'log')) {
 			mkdir($logpath.'log', 0740, true);
 		}
-
+		
 		$logpath = linksynceparcel_UPLOAD_URL .'/linksync_uploads/';
 		if (!file_exists($logpath.'session-logs')) {
 			mkdir($logpath.'session-logs', 0740, true);
 		}
-
+		
 		$filename = linksynceparcel_UPLOAD_URL .'/linksync_uploads/index.html';
 		if (!file_exists($filename)) {
 			// Create index.html file
@@ -6544,19 +6581,19 @@ class LinksynceparcelHelper
 			file_put_contents($filename, $filecontent);
 		}
 	}
-
+	
 	public static function checkAssignConfigurationSettings() {
 		$laid = get_option('linksynceparcel_laid');
 		$st_apikey = get_option('linksynceparcel_st_apikey');
 		$st_password = get_option('linksynceparcel_st_password');
-
+		
 		if(empty($laid) || empty($st_apikey) || empty($st_password)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-
+	
 	public static function getValidPhoneNumber($str) {
 		$strpos = strpos($str, ';');
 		if($strpos !== false) {
@@ -6570,21 +6607,21 @@ class LinksynceparcelHelper
 		}
 		return $str;
 	}
-
+	
 	public static function saveScreenOptions()
 	{
 		if(isset($_POST['_wpnonce-eParcel-default-settings'])) {
 			eparcel_save_new_defaults($_POST);
 		}
 	}
-
+	
 	public static function getAllOrderId()
 	{
 		global $wpdb;
-		$table_name = $wpdb->prefix . "posts";
-
+		$table_name = $wpdb->prefix . "posts"; 
+		
 		$status_condition = 'post_status="wc-pending" OR post_status="wc-processing" OR post_status="wc-on-hold" OR ';
-
+			
 		$display_choosen_status = (int)get_option('linksynceparcel_display_choosen_status');
 		if($display_choosen_status == 1)
 		{
@@ -6598,9 +6635,9 @@ class LinksynceparcelHelper
 				}
 			}
 		}
-
+		
 		$status_condition = substr($status_condition, 0, -4);
-
+		
 		$sql = 'SELECT ID FROM '. $table_name .' WHERE post_type = "shop_order" AND ('. $status_condition .')';
 		$results = $wpdb->get_results($sql);
 		if(count($results) > 0) {
@@ -6614,14 +6651,14 @@ class LinksynceparcelHelper
 		}
 		return false;
 	}
-
+	
 	public static function saveOrderStatuses()
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-
+		
 		$statuses = LinksynceparcelHelper::getOrderStatuses();
-
+		
 		$values = '';
 		$cnt = 0;
 		foreach($statuses as $slug => $status) {
@@ -6631,37 +6668,37 @@ class LinksynceparcelHelper
 				$cnt++;
 			}
 		}
-
+		
 		if($cnt > 0) {
 			$data_values = substr($values, 0, -1);
 			$wpdb->query('INSERT INTO '. $table_name .' (`status`, `status_name`) VALUES '. $data_values);
 		}
 	}
-
+	
 	public static function checkOrderStatus($status)
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-
+		
 		$result = $wpdb->get_row( "SELECT `status` FROM ". $table_name ." WHERE status='". $status ."'" );
 		if(!empty($result)) {
 			return true;
 		}
 		return false;
 	}
-
+	
 	public static function getListOrderStatuses()
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_order_statuses";
-
+		
 		$results = $wpdb->get_results( 'SELECT `status`, `status_name` FROM '. $table_name );
-
+		
 		$data = array();
 		foreach($results as $result) {
 			$data[$result->status] = $result->status_name;
 		}
-
+		
 		return $data;
 	}
 
@@ -6669,17 +6706,17 @@ class LinksynceparcelHelper
     {
         global $wpdb;
         $table_name = $wpdb->prefix . "linksynceparcel_consignment";
-
+        
         $results = $wpdb->get_results( "SELECT order_id FROM ". $table_name ." WHERE manifest_number='". $manifest_number ."'" );
-
+        
         $data = array();
         foreach($results as $result) {
             $data[] = $result->order_id;
         }
-
+        
         return $data;
     }
-
+	
 	public static function requiredWooVersion()
 	{
 		$pass = false;
@@ -6698,7 +6735,7 @@ class LinksynceparcelHelper
 		$plugin_version = $plugin_data['Version'];
 		return $plugin_version;
 	}
-
+	
 	public static function displayGroupedChargeCode($formValue, $service_key, $chargecodes = NULL)
 	{
 		if($chargecodes == NULL)
@@ -6714,14 +6751,14 @@ class LinksynceparcelHelper
 			}
 		}
 	}
-
+	
 	public static function getAllChargeCodesOptions()
 	{
 		$services = self::eParcelServices();
 		$data = array();
 		foreach($services as $key => $service) {
 			$chargecode = self::getSingleChargeCode($key);
-
+			
 			if(!empty($chargecode))
 			{
 				$data[$chargecode] = array(
@@ -6730,15 +6767,15 @@ class LinksynceparcelHelper
 				);
 			}
 		}
-
+		
 		return $data;
 	}
-
+	
 	public static function getSingleChargeCode($key)
 	{
 		return get_option('linksynceparcel_'. $key .'_charge_code');
 	}
-
+	
 	public static function eParcelServices()
 	{
 		$services = array(
@@ -6752,12 +6789,12 @@ class LinksynceparcelHelper
 		);
 		return $services;
 	}
-
+	
 	public static function checkConsignmentProcessExist($dateprocess)
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
-
+		
 		$result = $wpdb->get_row( 'SELECT `date_process` FROM '. $table_name .' WHERE date_process="'. $dateprocess .'"' );
 		if(!empty($result)) {
 			return $result;
@@ -6774,7 +6811,7 @@ class LinksynceparcelHelper
 
 		return $weight;
 	}
-
+	
 	public static function session_logs($session, $content)
 	{
 		$filename = $session.'.txt';
@@ -6785,7 +6822,7 @@ class LinksynceparcelHelper
 		$path = $filepath.$filename;
 		file_put_contents($path, $content);
 	}
-
+	
 	public static function session_maifest($session, $content)
 	{
 		$filename = 'manifest_'. $session .'.txt';
@@ -6796,7 +6833,7 @@ class LinksynceparcelHelper
 		$path = $filepath.$filename;
 		file_put_contents($path, $content);
 	}
-
+	
 	public static function get_session_manifest($session)
 	{
 		$file = str_replace(".", "", $session);
@@ -6808,16 +6845,16 @@ class LinksynceparcelHelper
 			return $obj;
 		}
 	}
-
+	
 	public static function remove_manifest_session($session)
 	{
 		$file = str_replace(".", "", $session);
 		$file = 'manifest_'. $session .'.txt';
 		$file = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/'. $file;
-		if(file_exists($file)) {
+		if(file_exists($file)) {			
 			unlink($file);
 		}
-
+		
 		$filename = $session .'.txt';
 		$filename = linksynceparcel_UPLOAD_URL .'/linksync_uploads/session-logs/'. $filename;
 		if(file_exists($filename)) {
@@ -6827,12 +6864,12 @@ class LinksynceparcelHelper
 
 	public static function checkNewChargeCodeConfig()
 	{
-		if ( (get_option('linksynceparcel_parcel_post_charge_code') !== "") ||
-			(get_option('linksynceparcel_express_post_charge_code') !== "") ||
-			(get_option('linksynceparcel_int_economy_charge_code') !== "") ||
-			(get_option('linksynceparcel_int_express_courier_charge_code') !== "") ||
-			(get_option('linksynceparcel_int_express_post_charge_code') !== "") ||
-			(get_option('linksynceparcel_int_pack_track_charge_code') !== "") ||
+		if ( (get_option('linksynceparcel_parcel_post_charge_code') !== "") || 
+			(get_option('linksynceparcel_express_post_charge_code') !== "") || 
+			(get_option('linksynceparcel_int_economy_charge_code') !== "") || 
+			(get_option('linksynceparcel_int_express_courier_charge_code') !== "") || 
+			(get_option('linksynceparcel_int_express_post_charge_code') !== "") || 
+			(get_option('linksynceparcel_int_pack_track_charge_code') !== "") || 
 			(get_option('linksynceparcel_int_registered_charge_code') !== "")
 			)
 		{
@@ -6841,7 +6878,7 @@ class LinksynceparcelHelper
 
 		return false;
 	}
-
+	
 	public static function mres($value)
 	{
 		$search = array("\\",  "\x00", "\n",  "\r",  "'",  '"', "\x1a");
