@@ -1,3 +1,5 @@
+<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 <?php
 $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 ?>
@@ -34,6 +36,7 @@ div#img-loader img {
 		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
 	</div>
 </div>
+<?php if(!LinksynceparcelValidator::validateConsignmentLimit()): ?>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
 	    <input type="hidden" id="createConsignmentHidden" name="createConsignmentHidden" value="0"/>
     	<div class="box_ls" id="presets">
@@ -129,6 +132,13 @@ div#img-loader img {
 			<td width="30%">Delivery instructions</td>
 			<td>
 				<textarea name="delivery_instruction" maxlength="256" cols="40" rows="4"><?php echo $ordernotes; ?></textarea>
+			<?php
+				if(strlen($ordernotes) > 128) {
+			?>
+				<p style="color: #ef0e0e;">Note: The instruction is reached the maximum limit of 128 characters and Austpost will reject the process. Please less the characters.</p>
+			<?php      
+				} 
+			?>
 			</td>
 		</tr>
 	  <?php if($shipping_country == 'AU') { ?>
@@ -387,6 +397,7 @@ div#img-loader img {
 </div>
 
 </div>
+<?php endif; ?>
 
 <?php $consignments = LinksynceparcelHelper::getConsignments($order_id, true);?>
 <?php foreach($consignments as $consignment):?>
@@ -588,9 +599,23 @@ div#img-loader img {
 	display: table-row;
 }
 </style>
+
+<div id="dialog" title="Consignment Limit Reached" style="display:none;">
+    <?php echo LinksyncUserHelper::generateCappingMessage(true); ?>
+</div>
+
 <script>
 $jEparcel = jQuery.noConflict();
 $jEparcel(document).ready(function(){
+    <?php if (LinksynceparcelValidator::validateConsignmentLimit()) : ?>
+    jQuery("#dialog").dialog({
+        autoOpen: true,
+        width:'400px',
+        draggable: false,
+        closeOnEscape: false,
+        position: { my: "center", at: "center", of: "#linksynceparcel" }
+    });
+    <?php endif; ?>
 	jQuery('#insurance').change(function() {
 		var insurance = jQuery(this).val();
 		if(insurance == 0) {

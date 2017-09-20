@@ -1,4 +1,8 @@
-<?php 
+    <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
+
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+
+<?php
 $order_id = method_exists($order, 'get_id') ? $order->get_id() : $order->id;
 $weight = LinksynceparcelHelper::getOrderWeight($order);
 if($weight == 0)
@@ -84,6 +88,9 @@ div#img-loader img {
 		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
 	</div>
 </div>
+
+<?php if(!LinksynceparcelValidator::validateConsignmentLimit()): ?>
+
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
         <?php if($weight > $weightPerArticle): ?>
 			<h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
@@ -92,20 +99,20 @@ div#img-loader img {
 	    <input type="hidden" id="createConsignmentHidden" name="createConsignmentHidden" value="0"/>
     	<div class="box_ls" id="presets">
 		<?php if($order_status != 'completed'){?>
-       			
-        Articles&nbsp;&nbsp; <input type="text" id="number_of_articles" name="number_of_articles" size="4" value="<?php echo $totalArticles?>" class="validate-number" style="text-align:center; padding:3px" <?php echo ($shipping_country != 'AU')?"disabled='disabled'":'';?>/>			
+
+        Articles&nbsp;&nbsp; <input type="text" id="number_of_articles" name="number_of_articles" size="4" value="<?php echo $totalArticles?>" class="validate-number" style="text-align:center; padding:3px" <?php echo ($shipping_country != 'AU')?"disabled='disabled'":'';?>/>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Article Type&nbsp;&nbsp; 
+        Article Type&nbsp;&nbsp;
         <select id="articles_type" name="articles_type" class="required-entry2" style="padding:3px" >
             <?php
             foreach($presets as $preset)
             {
                 ?>
                 <option value="<?php echo $preset->id ?>"
-                			<?php 
+                			<?php
 							if($preset->weight == $selectedWeight && !$selected)
 							{
-								echo 'selected="selected"'; 
+								echo 'selected="selected"';
 								$selected = true;
 							}
 							?>
@@ -122,7 +129,7 @@ div#img-loader img {
             }
          ?>
     	<input id="consignment_submit2" type="submit" name="createConsignment" value="Create Consignment" class="button-primary button create-consignment1 scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
-    
+
 </div>
 <div id="loading" style="display:none;">
 	<div id="img-loader">
@@ -137,7 +144,7 @@ div#img-loader img {
         </label>
         <input id="article_description" type="text" name="article[description]" class="required-entry" value="Article"/>
     </span><br /><br />
-    <span class="field-row1"> 
+    <span class="field-row1">
         <label class="normal" for="article_weight">
          Weight (Kgs):<span class="required">*</span>
         </label>
@@ -164,7 +171,7 @@ div#img-loader img {
 </div>
 
 <div id="custom_articles" style="display:none">
-    
+
     <div id="custom_articles_container">
     </div>
     <br />
@@ -174,7 +181,7 @@ div#img-loader img {
     </button>
     &nbsp;&nbsp;
     <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
-    
+
 </div>
 
 <?php if($order_status != 'completed'){?>
@@ -187,7 +194,7 @@ div#img-loader img {
 <?php
     }
  ?>
- 
+
 <div class="box_ls consignment-fields" style="display:none">
     <h3>Consignment Fields</h3>
 	<input type="hidden" name="date_process" value="<?php echo base64_encode(date("Y-m-d H:i:s")); ?>"/>
@@ -196,6 +203,13 @@ div#img-loader img {
 			<td width="30%">Delivery instructions</td>
 			<td>
 				<textarea name="delivery_instruction" maxlength="256" cols="40" rows="4"><?php echo $ordernotes; ?></textarea>
+			<?php
+				if(strlen($ordernotes) > 128) {
+			?>
+				<p style="color: #ef0e0e;">Note: The instruction is reached the maximum limit of 128 characters and Austpost will reject the process. Please less the characters.</p>
+			<?php
+				}
+			?>
 			</td>
 		</tr>
       <?php if($shipping_country == 'AU') { ?>
@@ -214,14 +228,14 @@ div#img-loader img {
          <?php endif; ?>
         </td>
       </tr>
-      
+
       <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
       <tr>
         <td>Cash to collect</td>
         <td><input id="cash_to_collect" name="cash_to_collect" type="text" /></td>
       </tr>
       <?php endif; ?>
-      
+
       <tr>
         <td>Delivery signature required?</td>
         <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">
@@ -258,9 +272,9 @@ div#img-loader img {
 			</select>
 		</td>
 	  </tr>
-	  <?php 
+	  <?php
 		$s_insurance = 'hide-tr';
-		if (get_option('linksynceparcel_int_insurance') == 1){ 
+		if (get_option('linksynceparcel_int_insurance') == 1){
 			$s_insurance = 'show-tr';
 		}
 		$order_value_insurance = '';
@@ -274,9 +288,9 @@ div#img-loader img {
 				<input type="checkbox" id="order_value_insurance" name="order_value_insurance" value="1" <?php echo $order_value_insurance; ?>>
 			</td>
 		</tr>
-	  <?php 
+	  <?php
 		$d_insurance = 'hide-tr';
-		if(empty($order_value_insurance) && get_option('linksynceparcel_int_insurance') == 1){ 
+		if(empty($order_value_insurance) && get_option('linksynceparcel_int_insurance') == 1){
 			$d_insurance = 'show-tr';
 		}
 	?>
@@ -295,19 +309,19 @@ div#img-loader img {
 	  <tr class="hide-tr">
         <td>Order value as Declared Value</td>
         <td>
-			<?php 
+			<?php
 				$declared_checked = '';
-				if (get_option('linksynceparcel_declared_value') == 1){ 
+				if (get_option('linksynceparcel_declared_value') == 1){
 					$declared_checked = 'checked="checked"';
 				}
 			?>
 			<input type="checkbox" id="declared_value" name="declared_value" value="1" <?php echo $declared_checked; ?>>
 		</td>
       </tr>
-	<?php 
+	<?php
 		$declared_text = '';
 		$declared_text_option = 'hide-tr';
-		if ($declared_checked == ''){ 
+		if ($declared_checked == ''){
 			$declared_text = get_option('linksynceparcel_declared_value_text');
 			$declared_text_option = 'show-tr';
 		}
@@ -331,7 +345,7 @@ div#img-loader img {
 			</select>
 		</td>
 	</tr>
-	<?php 
+	<?php
 		$maximum_declared_value = get_option('linksynceparcel_maximum_declared_value');
 		$maximum_declared_value_class = 'hide-tr';
 		if($order_value_declared_value == 1) {
@@ -344,7 +358,7 @@ div#img-loader img {
 			<input type="number" class="maximum_declared_value" name="maximum_declared_value" value="<?php echo $maximum_declared_value; ?>"><br />
 		</td>
 	</tr>
-	<?php 
+	<?php
 		$fixed_declared_value = get_option('linksynceparcel_fixed_declared_value');
 		$fixed_declared_value_class = 'hide-tr';
 		if($order_value_declared_value == 2) {
@@ -362,7 +376,7 @@ div#img-loader img {
         <td>
 		<?php
 			$commercial_checked = '';
-			if (get_option('linksynceparcel_has_commercial_value') == 1){ 
+			if (get_option('linksynceparcel_has_commercial_value') == 1){
 				$commercial_checked = 'checked="checked"';
 			}
 		?>
@@ -388,10 +402,10 @@ div#img-loader img {
 			</select>
 		</td>
 	  </tr>
-	  <?php 
+	  <?php
 		$product_classification_text = '';
 		$product_classification_option = 'hide-tr';
-		if ($product_classification_value == '991'){ 
+		if ($product_classification_value == '991'){
 			$product_classification_text = get_option('linksynceparcel_product_classification_text');
 			$product_classification_option = 'show-tr';
 		}
@@ -453,10 +467,13 @@ div#img-loader img {
 
 </div>
 
+<?php endif; ?>
+
+
 <?php $consignments = LinksynceparcelHelper::getConsignments($order_id, true);?>
 <?php foreach($consignments as $consignment):?>
 <?php $articles = LinksynceparcelHelper::getArticles($order_id, $consignment->consignment_number);?>
-<?php 
+<?php
 	$int_fields = LinksynceparcelHelper::getInternationFields($order_id, $consignment->consignment_number);
 	$shipCountry = $consignment->delivery_country;
 	if(empty($shipCountry)) {
@@ -478,8 +495,8 @@ div#img-loader img {
 		<?php
 			$consignmentpdf = admin_url() ."?f_key=". $consignment->consignment_number ."&f_type=consignment";
 		?>
-        <a class="button print_label" lang="<?php echo $consignment->consignment_number?>" target="_blank" 
-        	href="<?php echo $consignmentpdf ?>" 
+        <a class="button print_label" lang="<?php echo $consignment->consignment_number?>" target="_blank"
+        	href="<?php echo $consignmentpdf ?>"
          	type="button" title="Print Label">
              <?php echo ($consignment->is_label_printed ? 'Reprint' : 'Print');?> Label
         </a>
@@ -496,26 +513,26 @@ div#img-loader img {
         </span>
 		<div style="clear:both;"></div>
 	</div>
-	
+
 	<div class="box_ls">
 		<table width="100%" border="0" cellspacing="6" cellpadding="6" class="tablecustom">
 		  <tr>
 			<td>Delivery instructions</td>
 			<td><?php echo $consignment->delivery_instruction;?></td>
-		  </tr>	
+		  </tr>
 		  <?php if($shipCountry == 'AU') : ?>
 		  <tr>
 			<td width="40%">Partial Delivery allowed?</td>
 			<td><?php echo ($consignment->partial_delivery_allowed==1?'Yes':'No')?></td>
 		  </tr>
-		  
+
 		  <?php if(LinksynceparcelHelper::isCashToCollect($order_id)): ?>
 		  <tr>
 			<td>Cash to collect</td>
 			<td><?php echo $consignment->cash_to_collect?></td>
 		  </tr>
 		  <?php endif; ?>
-		  
+
 		  <tr>
 			<td>Delivery signature required?</td>
 			<td><?php echo ($consignment->delivery_signature_allowed==1?'Yes':'No')?></td>
@@ -629,7 +646,7 @@ div#img-loader img {
 			</tr>
 		<?php endforeach;?>
 		   </tbody>
-		</table>           
+		</table>
 
   </div>
 	<div class="clear"></div>
@@ -650,6 +667,11 @@ div#img-loader img {
 	display: table-row;
 }
 </style>
+
+<div id="dialog" title="Consignment Limit Reached" style="display:none;">
+    <?php echo LinksyncUserHelper::generateCappingMessage(true); ?>
+</div>
+
 <script>
 var weight = '<?php echo $weight?>';
 var weightPerArticle = '<?php echo $weightPerArticle?>';
@@ -658,7 +680,17 @@ var totalArticles = '<?php echo $totalArticles?>';
 var reminderWeight = '<?php echo $reminderWeight?>';
 
 $jEparcel = jQuery.noConflict();
+
 $jEparcel(document).ready(function(){
+
+    jQuery("#dialog").dialog({
+        autoOpen: true,
+        width:'400px',
+        draggable: false,
+        closeOnEscape: false,
+        position: { my: "center", at: "center", of: "#linksynceparcel" }
+    });
+
 	jQuery('#insurance').change(function() {
 		var insurance = jQuery(this).val();
 		if(insurance == 0) {
@@ -679,7 +711,7 @@ $jEparcel(document).ready(function(){
 		submitForm();
 		e.preventDefault();
 	});
-	
+
 	jQuery('#order_value_insurance').change(function() {
 		var $this_val = jQuery('#order_value_insurance:checked').length > 0;
 		if(!$this_val) {
@@ -711,7 +743,7 @@ $jEparcel(document).ready(function(){
 			$jEparcel('.declared_value_text_field').addClass('show-tr');
 		}
 	});
-	
+
 	jQuery('#order_value_declared_value').change(function() {
 		var $this_val = jQuery(this).val();
 		if($this_val == 1) {
@@ -731,7 +763,7 @@ $jEparcel(document).ready(function(){
 			jQuery('#fixed_declared_value').addClass('hide-tr');
 		}
 	});
-	
+
 	$jEparcel('#has_commercial_value').change(function() {
 		var $this_val = $jEparcel('#has_commercial_value:checked').length > 0;
 		if($this_val) {
@@ -743,7 +775,7 @@ $jEparcel(document).ready(function(){
 			$jEparcel('#product_classification').attr('disabled', false);
 		}
 	});
-	
+
 	$jEparcel('#product_classification').change(function() {
 		var $this_val = $jEparcel('#product_classification').val();
 		if($this_val == '991') {
@@ -755,13 +787,13 @@ $jEparcel(document).ready(function(){
 			$jEparcel('.product_classification_text').val("");
 		}
 	});
-	
+
 	$jEparcel('#use_default_country_hstariff').change(function() {
 		var $this_val = $jEparcel('#use_default_country_hstariff:checked').length > 0;
 		if($this_val) {
 			var country_origin_value = $jEparcel('#country_origin').data('default');
 			var hs_tariff_value = $jEparcel('#hs_tariff').data('default');
-			
+
 			$jEparcel('#country_origin').attr('disabled', true);
 			$jEparcel('#country_origin').val(country_origin_value);
 			$jEparcel('#hs_tariff').attr('disabled', true);
@@ -774,7 +806,7 @@ $jEparcel(document).ready(function(){
 	$jEparcel('.edit-consignments-defaults').click(function(){
 		$jEparcel('.consignment-fields').slideToggle();
 	});
-	
+
 	$jEparcel('#number_of_articles').blur(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 
@@ -788,20 +820,20 @@ $jEparcel(document).ready(function(){
 			alert('Articles should be a number');
 			$jEparcel(this).val(1);
 		}
-		
+
 		value = parseInt(value);
 		if(value < 0)
 		{
 			alert('Articles should be a postive number');
 			$jEparcel(this).val(1);
 		}
-		
+
 		if(value > 100)
 		{
 			alert('Articles can be 1-100 per request');
 			$jEparcel(this).val(1);
 		}
-		
+
 		if($jEparcel('#articles_type').val() == 'Custom')
 		{
 			var number_of_articles = $jEparcel('#number_of_articles').val();
@@ -819,7 +851,7 @@ $jEparcel(document).ready(function(){
 				i = i + boxes;
 				for(;i<=number_of_articles; i++)
 				{
-					var box_ls = $jEparcel('.custom_articles_template').clone(); 
+					var box_ls = $jEparcel('.custom_articles_template').clone();
 					box_ls.removeClass('custom_articles_template');
 					box_ls.find('h3').html(box_ls.find('h3').html()+' '+i);
 					box_ls.find('#article_description').attr('name','article'+i+'[description]');
@@ -843,17 +875,17 @@ $jEparcel(document).ready(function(){
 			}
 		}
 	});
-	
+
 	if($jEparcel('#articles_type').val() == 'Custom')
 	{
-		$jEparcel('.create-consignment1').hide(); 
-		$jEparcel('.backToPreset').hide(); 
-		$jEparcel('#custom_articles').show(); 
-			
+		$jEparcel('.create-consignment1').hide();
+		$jEparcel('.backToPreset').hide();
+		$jEparcel('#custom_articles').show();
+
 		var number_of_articles = $jEparcel('#number_of_articles').val();
 		for(var i=1; i<=number_of_articles; i++)
 		{
-			var box_ls = $jEparcel('.custom_articles_template').clone(); 
+			var box_ls = $jEparcel('.custom_articles_template').clone();
 			box_ls.removeClass('custom_articles_template');
 			box_ls.find('h3').html(box_ls.find('h3').html()+' '+i);
 			box_ls.find('#article_description').attr('name','article'+i+'[description]');
@@ -875,20 +907,20 @@ $jEparcel(document).ready(function(){
 	{
 		//$jEparcel('#number_of_articles').attr('readonly','readonly');
 	}
-	
+
 	$jEparcel('#articles_type').change(function(){
 		if($jEparcel(this).val() == 'Custom')
 		{
 			//$jEparcel('#number_of_articles').removeAttr('readonly');
-			$jEparcel('.backToPreset').hide(); 
-			//$jEparcel('#presets').hide(); 
+			$jEparcel('.backToPreset').hide();
+			//$jEparcel('#presets').hide();
 			$jEparcel('.create-consignment1').hide();
-			$jEparcel('#custom_articles').show(); 
-			
+			$jEparcel('#custom_articles').show();
+
 			var number_of_articles = $jEparcel('#number_of_articles').val();
 			for(var i=1; i<=number_of_articles; i++)
 			{
-				var box_ls = $jEparcel('.custom_articles_template').clone(); 
+				var box_ls = $jEparcel('.custom_articles_template').clone();
 				box_ls.removeClass('custom_articles_template');
 				box_ls.find('h3').html(box_ls.find('h3').html()+' '+i);
 				box_ls.find('#article_description').attr('name','article'+i+'[description]');
@@ -915,8 +947,8 @@ $jEparcel(document).ready(function(){
 			//$jEparcel('#number_of_articles').attr('readonly','readonly');
 			$jEparcel('#number_of_articles').val(totalArticles);
 			$jEparcel('#presets').show();
-			$jEparcel('#custom_articles').hide(); 
-			$jEparcel('#custom_articles_container').html(''); 
+			$jEparcel('#custom_articles').hide();
+			$jEparcel('#custom_articles_container').html('');
 			$jEparcel('.create-consignment1').show();
 		}
 	});
@@ -925,8 +957,8 @@ $jEparcel(document).ready(function(){
 function backToPreset()
 {
 	$jEparcel('#presets').show();
-	$jEparcel('#custom_articles').hide(); 
-	$jEparcel('#custom_articles_container').html(''); 
+	$jEparcel('#custom_articles').hide();
+	$jEparcel('#custom_articles_container').html('');
 	$jEparcel('#articles_type').val($jEparcel('#articles_type > option:first').attr('value'));
 }
 
@@ -985,9 +1017,9 @@ function setLocation(url)
 function submitForm()
 {
 	$jEparcel('#createConsignmentHidden').val(1);
-	
+
 	var valid = true;
-	
+
 	var value = $jEparcel.trim($jEparcel('#articles_type').val());
 	if(value.length == 0 && valid)
 	{
@@ -995,7 +1027,7 @@ function submitForm()
 		alert('Please select article type');
 		return false;
 	}
-	
+
 	$jEparcel('#custom_articles_container .required-entry').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 		if(value.length == 0 && valid)
@@ -1019,7 +1051,7 @@ function submitForm()
         }
         return false;
     }
-	
+
 	$jEparcel('.positive-number').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 		var label = $jEparcel(this).attr('label');
@@ -1028,20 +1060,20 @@ function submitForm()
 			alert(label +' should be a number');
 			valid = false;
 		}
-		
+
 		value = parseInt(value);
 		if(value < 0)
 		{
 			alert(label +' should be a postive number');
 			valid = false;
 		}
-		
+
 	});
 	if(!valid)
 	{
 		return false;
 	}
-	
+
 	$jEparcel('.maximum-value').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 		var label = $jEparcel(this).attr('label');
@@ -1051,20 +1083,20 @@ function submitForm()
 			alert('Allowed weight per article is '+ weightPerArticle);
 			valid = false;
 		}
-		
+
 	});
 	if(!valid)
 	{
 		return false;
 	}
-	
+
 	var totalInputWeight = 0;
 	$jEparcel('.article_weight').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 		value = parseFloat(value);
 		totalInputWeight += value;
 	});
-	
+
 	if(totalInputWeight < weight)
 	{
 		if(!confirm('Combined article weight is less than the total order weight. Do you want to continue?'))
@@ -1082,9 +1114,9 @@ function submitForm()
 function submitForm2()
 {
 	$jEparcel('#createConsignmentHidden').val(1);
-	
+
 	var valid = true;
-	
+
 	var value = $jEparcel.trim($jEparcel('#articles_type').val());
 	if(value.length == 0 && valid)
 	{
@@ -1092,7 +1124,7 @@ function submitForm2()
 		alert('Please select article type');
 		return false;
 	}
-	
+
 	$jEparcel('.required-entry2').each(function(){
 		var value = $jEparcel.trim($jEparcel(this).val());
 		if(value.length == 0 && valid)
@@ -1105,7 +1137,7 @@ function submitForm2()
 		alert('Please enter/select all the mandatory fields');
 		return false;
 	}
-	
+
 	if(valid)
 	{
 		create_consignment_ajax();

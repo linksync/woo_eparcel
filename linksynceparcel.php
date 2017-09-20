@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.8
+ * Version: 1.2.9
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -120,10 +120,9 @@ include_once(linksynceparcel_DIR.'helpers/LinksynceparcelScreenOption.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApi.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApiController.php');
 
-// include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
-
 function linksynceparcel_init()
 {
+    include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 	$linksynceparcel = new linksynceparcel(true);
 	LinksynceparcelHelper::createUploadDirectory();
 	LinksynceparcelHelper::upgradeTables();
@@ -343,6 +342,10 @@ class linksynceparcel
         {
             wp_clear_scheduled_hook( 'linksyncgetlaidinfo' );
         }
+
+        update_option('linksync_is_reached_capping_limit', false);
+        update_option('linksync_capping_limit_message', '');
+        update_option('linksync_capping_limit_kb', "");
 	}
 
 	public function activate_eparcel($networkwide) {
@@ -544,7 +547,7 @@ class linksynceparcel
 			}
 			else
 			{
-
+				$this->getlaidinfo();
 				include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
 				LinksynceparcelAdminConsignmentsOrdersList::output();
 			}

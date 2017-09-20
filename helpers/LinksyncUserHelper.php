@@ -4,7 +4,58 @@ class LinksyncUserHelper
 {
     public function __construct()
     {
-        add_action('admin_notices', array($this, 'setUpLaidInfoMessage'));
+        $hasReachedCappingLimit = LinksynceparcelValidator::validateConsignmentLimit();
+        if (self::isTerminated()) {
+            add_action('admin_notices', array($this, 'setUpLaidInfoMessage'));
+        } else if (self::isFreeTrial()) {
+            if($hasReachedCappingLimit) {
+                if(! self::cappingPreventDisplay()) {
+                    add_action('admin_notices', array($this, 'setCappingMessage'));
+                }
+            } else {
+                add_action('admin_notices', array($this, 'setUpLaidInfoMessage'));
+            }
+        }
+    }
+
+    public static function cappingPreventDisplay()
+    {
+        $pages_except = array(
+            'massCreateConsignment'
+        );
+        return $_GET['page'] == 'linksynceparcel' && in_array($_GET['action'], $pages_except);
+    }
+
+    public static function generateCappingMessage($dialog = null)
+    {
+        $message = get_option('linksync_capping_limit_message', '');
+
+        $kb = get_option('linksync_capping_limit_kb', '');
+
+        if($kb != '') {
+            $message .= " <a href='" . $kb . "' target='_blank'>Learn More</a>.";
+        }
+
+        if($dialog != null) {
+            $message .= "<br/><br/>";
+        }
+
+        $update_button = ' <a  href="https://my.linksync.com/index.php?m=dashboard"
+                              target="_blank"
+                              class="button button-primary" style="margin-top: -4px;">Click here to upgrade now</a>';
+        $message .= $update_button;
+
+        return $message;
+
+    }
+
+    public static function setCappingMessage($admin_notice = true)
+    {
+        ?>
+            <div class="error linksynceparcel_capping<?php echo $admin_notice == true ? " notice" : ''; ?>">
+                <p><?php echo self::generateCappingMessage(); ?></p>
+            </div>
+        <?php
     }
 
     public static function setUpLaidInfoMessage()
@@ -30,8 +81,8 @@ class LinksyncUserHelper
             $user_message = ucfirst($message['userMessage']);
         }
 
-        $update_button = '<a  href="https://my.linksync.com/index.php?m=dashboard" 
-                              target="_blank" 
+        $update_button = '<a  href="https://my.linksync.com/index.php?m=dashboard"
+                              target="_blank"
                               class="button button-primary" style="margin-top: -4px;">Click here to upgrade now</a>';
 
         if (true == $isFreeTrial && isset($registrationDate)) {
@@ -88,11 +139,34 @@ class LinksyncUserHelper
 
     }
 
-    public static function isFreeTrial($package_id)
+    public static function isFreeTrial($package_id = '')
     {
+        if(empty($package_id)) {
+            $laid_info = LinksyncApiController::get_current_laid_info();
+            $message_data = explode(',', $laid_info['message']);
+            $package_id =  $message_data[2];
+        }
+
         $package_id = trim($package_id);
         $package = self::getLinksyncPlansForLaid($package_id);
         if ('14 Days Free Trial' == $package) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function isTerminated()
+    {
+        $laid_info = LinksyncApiController::get_current_laid_info();
+        if(!empty($laid_info['message'])) {
+            $message_data = explode(',', $laid_info['message']);
+        } else {
+            $message_data = explode(',', $laid_info['userMessage']);
+        }
+
+        $status =  $message_data[1];
+
+        if (trim($status) == 'Terminated') {
             return true;
         }
         return false;

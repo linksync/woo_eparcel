@@ -9,7 +9,7 @@ if(!defined('LINKSYNC_WSDL'))
 	define('LINKSYNC_WSDL','/linksync/linksyncService');
 if(!defined('LINKSYNC_DEBUG'))
 	define('LINKSYNC_DEBUG',1);
-	
+
 class LinksynceparcelApi
 {
 	public static function getWebserviceUrl($next = false)
@@ -19,7 +19,7 @@ class LinksynceparcelApi
 		$url .= LINKSYNC_WSDL;
 		return $url;
 	}
-	
+
 	public static function seteParcelMerchantDetails()
 	{
 		try
@@ -32,7 +32,7 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
 			$merchant_location_id = get_option('linksynceparcel_merchant_location_id');
 			$post_charge_to_account = get_option('linksynceparcel_post_charge_to_account');
@@ -47,7 +47,7 @@ class LinksynceparcelApi
 			$operation_mode = get_option('linksynceparcel_operation_mode');
 			$merchant_id = get_option('linksynceparcel_merchant_id');
 			$lodgement_facility = get_option('linksynceparcel_lodgement_facility');
-			
+
 			if($operation_mode == 1)
 			{
 				$operation_mode = 'live';
@@ -56,7 +56,7 @@ class LinksynceparcelApi
 			{
 				$operation_mode = 'test';
 			}
-			
+
 			$label_logo = '';
 			if(get_option('linksynceparcel_label_logo') && file_exists(linksynceparcel_DIR.'assets/images/'.get_option('linksynceparcel_label_logo')))
 			{
@@ -64,8 +64,8 @@ class LinksynceparcelApi
 			}
 			$st_apikey = get_option('linksynceparcel_st_apikey');
 			$st_password = get_option('linksynceparcel_st_password');
-			
-			$stdClass = $client->seteParcelMerchantDetails($laid,$merchant_location_id, $post_charge_to_account,$sftp_username,$sftp_password, $operation_mode, '', $merchant_id, $lodgement_facility, $label_logo, $lps_username, $lps_password, linksynceparcel_SITE_URL, $st_apikey, $st_password ); 
+
+			$stdClass = $client->seteParcelMerchantDetails($laid,$merchant_location_id, $post_charge_to_account,$sftp_username,$sftp_password, $operation_mode, '', $merchant_id, $lodgement_facility, $label_logo, $lps_username, $lps_password, linksynceparcel_SITE_URL, $st_apikey, $st_password );
 
 			if($stdClass)
 			{
@@ -92,7 +92,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function setReturnAddress()
 	{
 		try
@@ -105,7 +105,7 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$returnAddress = array();
 			$returnAddress['returnAddressLine1'] = trim(get_option('linksynceparcel_return_address_line1'));
 			$returnAddress['returnAddressLine2'] = trim(get_option('linksynceparcel_return_address_line2'));
@@ -120,8 +120,8 @@ class LinksynceparcelApi
 			$returnAddress['returnEmailAddress'] = trim(get_option('linksynceparcel_return_email_address'));
 			$returnAddress['returnPhoneNumber'] = trim(get_option('linksynceparcel_return_phone_number'));
 			$laid = get_option('linksynceparcel_laid');
-			
-			$stdClass = $client->setReturnAddress($laid,$returnAddress); 
+
+			$stdClass = $client->setReturnAddress($laid,$returnAddress);
 
 			if($stdClass)
 			{
@@ -148,7 +148,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function sendLog()
 	{
 		try
@@ -161,14 +161,14 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
 			$filename = linksynceparcel_LOG_DIR.'linksynceparcel_log_'.date('Ymdhis').'.zip';
-			
+
 			if(LinksynceparcelHelper::createZip(linksynceparcel_LOG_DIR.'linksynceparcel.log',$filename))
 			{
-				$stdClass = $client->sendLogFile($laid,file_get_contents($filename)); 
-	
+				$stdClass = $client->sendLogFile($laid,file_get_contents($filename));
+
 				if($stdClass)
 				{
 					if(LINKSYNC_DEBUG == 1)
@@ -177,7 +177,7 @@ class LinksynceparcelApi
 					}
 					return $stdClass;
 				}
-				
+
 				if(LINKSYNC_DEBUG == 1 && $client)
 				{
 					LinksynceparcelHelper::log('Send Log File  Request: '.$client->__getLastRequest());
@@ -199,9 +199,9 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function isAddressValid($address)
-	{ 
+	{
 		try
 		{
 			$city = trim($address['city']);
@@ -216,10 +216,10 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
 			$addressParams = array('suburb' => $city, 'postcode' => $postcode, 'stateCode' => $state);
-			$stdClass = $client->isAddressValid($laid,$addressParams); 
+			$stdClass = $client->isAddressValid($laid,$addressParams);
 			if($stdClass)
 			{
 				if(LINKSYNC_DEBUG == 1)
@@ -240,7 +240,7 @@ class LinksynceparcelApi
 			return $e->getMessage();
 		}
 	}
-	
+
 	public static function createConsignment($article,$loop=0,$chargeCode=false)
 	{
 		if($loop < 2)
@@ -255,9 +255,9 @@ class LinksynceparcelApi
 				{
 					$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 				}
-				
+
 				LinksynceparcelHelper::log('Articles: '.preg_replace('/\s+/', ' ', trim($article)));
-			
+
 				$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 				$codeData = $chargeCodeData[$chargeCode];
 				if($codeData['serviceType'] == 'international') {
@@ -273,11 +273,11 @@ class LinksynceparcelApi
 					$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
 					$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
 				}
-				
+
 				$laid = get_option('linksynceparcel_laid');
-				
-				$stdClass = $client->createConsignment2($laid,$article,linksynceparcel_SITE_URL,$arg3,$arg4,$arg5,$arg6); 
-	
+
+				$stdClass = $client->createConsignment2($laid,$article,linksynceparcel_SITE_URL,$arg3,$arg4,$arg5,$arg6);
+
 				if($stdClass)
 				{
 					if(LINKSYNC_DEBUG == 1)
@@ -300,7 +300,7 @@ class LinksynceparcelApi
 			}
 		}
 	}
-	
+
 	public static function modifyConsignment($article,$consignmentNumber,$chargeCode)
 	{
 		try
@@ -313,12 +313,12 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
-			
+
 			LinksynceparcelHelper::log('Modified Articles: '.preg_replace('/\s+/', ' ', trim($article)));
-			
+
 			$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 			$codeData = $chargeCodeData[$chargeCode];
-			
+
 			$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
 			$labelType = explode('_', $service);
 			$arg4 = $labelType[0];
@@ -326,7 +326,7 @@ class LinksynceparcelApi
 			$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
 			$arg7 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
 			$laid = get_option('linksynceparcel_laid');
-			
+
 			$stdClass = $client->modifyConsignment2($laid,$consignmentNumber,$article,linksynceparcel_SITE_URL,$arg4,$arg5,$arg6,$arg7);
 
 			if($stdClass)
@@ -354,7 +354,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function unAssignConsignment($consignmentNumber)
 	{
 		try
@@ -367,9 +367,9 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
+
 			$stdClass = $client->unAssignConsignment($laid,$consignmentNumber);
 
 			if($stdClass)
@@ -397,7 +397,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function deleteConsignment($consignmentNumber)
 	{
 		try
@@ -410,9 +410,9 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
+
 			$stdClass = $client->deleteConsignment($laid,$consignmentNumber,linksynceparcel_SITE_URL);
 
 			if($stdClass)
@@ -440,7 +440,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function getLabelsByConsignments($consignments,$chargeCode)
 	{
 		try
@@ -453,20 +453,20 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
+
 			$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 			$codeData = $chargeCodeData[$chargeCode];
-			
+
 			$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
 			$labelTypeService = explode('_', $service);
 			$arg3 = $labelTypeService[0];
 			$arg4 = ($labelTypeService[1]==0)?'false':'true';
 			$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
 			$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
-			
-			$stdClass = $client->getLabelsByConsignments($laid,explode(',',$consignments),$arg3,$arg4,$arg5,$arg6); 
+
+			$stdClass = $client->getLabelsByConsignments($laid,explode(',',$consignments),$arg3,$arg4,$arg5,$arg6);
 
 			if($stdClass)
 			{
@@ -477,7 +477,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('getLabelsByConsignments  Request: '.$client->__getLastRequest());
@@ -494,7 +494,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function getReturnLabelsByConsignments($consignments)
 	{
 		try
@@ -507,11 +507,11 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
 			$labelType = get_option('linksynceparcel_label_format');
-			
-			$stdClass = $client->getReturnLabelsByConsignments($laid,explode(',',$consignments),$labelType); 
+
+			$stdClass = $client->getReturnLabelsByConsignments($laid,explode(',',$consignments),$labelType);
 
 			if($stdClass)
 			{
@@ -522,7 +522,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('getReturnLabelsByConsignments  Request: '.$client->__getLastRequest());
@@ -539,7 +539,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function getManifest()
 	{
 		try
@@ -552,10 +552,10 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
-			$stdClass = $client->getManifest($laid); 
+
+			$stdClass = $client->getManifest($laid);
 
 			if($stdClass)
 			{
@@ -566,7 +566,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('getManifest Request: '.$client->__getLastRequest());
@@ -583,7 +583,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function printManifest($manifestNumber)
 	{
 		try
@@ -596,9 +596,9 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			$stdClass = $client->printManifest($laid,$manifestNumber); 
+			$stdClass = $client->printManifest($laid,$manifestNumber);
 			if($stdClass)
 			{
 				if(LINKSYNC_DEBUG == 1)
@@ -608,7 +608,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('printManifest  Request: '.$client->__getLastRequest());
@@ -625,7 +625,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function assignConsignmentToManifest($consignmentNumber)
 	{
 		try
@@ -638,9 +638,9 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
+
 			$stdClass = $client->assignConsignmentToManifest($laid,$consignmentNumber);
 
 			if($stdClass)
@@ -668,7 +668,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function getVersionNumber()
 	{
 		try
@@ -681,9 +681,9 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			$stdClass = $client->getVersionNumber($laid); 
+			$stdClass = $client->getVersionNumber($laid);
 
 			if($stdClass)
 			{
@@ -705,7 +705,7 @@ class LinksynceparcelApi
 			return $e->getMessage();
 		}
 	}
-	
+
 	public static function getNotDespatchedConsignments()
 	{
 		try
@@ -718,10 +718,10 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL');
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
-			$stdClass = $client->getNotDespatchedConsignments($laid); 
+
+			$stdClass = $client->getNotDespatchedConsignments($laid);
 
 			if($stdClass)
 			{
@@ -732,7 +732,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass->consignments;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('getNotDespatchedConsignments  Request: '.$client->__getLastRequest());
@@ -749,7 +749,7 @@ class LinksynceparcelApi
 			return $e->getMessage();
 		}
 	}
-	
+
 	public static function despatchManifest()
 	{
 		try
@@ -762,10 +762,10 @@ class LinksynceparcelApi
 			{
 				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
 			}
-			
+
 			$laid = get_option('linksynceparcel_laid');
-			
-			$stdClass = $client->despatchManifest($laid,linksynceparcel_SITE_URL); 
+
+			$stdClass = $client->despatchManifest($laid,linksynceparcel_SITE_URL);
 
 			if($stdClass)
 			{
@@ -776,7 +776,7 @@ class LinksynceparcelApi
 				}
 				return $stdClass;
 			}
-			
+
 			if(LINKSYNC_DEBUG == 1 && $client)
 			{
 				LinksynceparcelHelper::log('despatchManifest  Request: '.$client->__getLastRequest());
@@ -793,7 +793,7 @@ class LinksynceparcelApi
 			throw $e;
 		}
 	}
-	
+
 	public static function removeEncodedData($string,$tags)
 	{
 		return preg_replace('#<(' . implode( '|', $tags) . ')(?:[^>]+)?>.*?</\1>#s', '', $string);

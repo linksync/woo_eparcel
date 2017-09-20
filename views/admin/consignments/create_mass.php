@@ -26,7 +26,6 @@ div#img-loader img {
     width: 250px;
 }
 </style>
-
 <div id="loading" style="display:none;">
 	<div id="img-loader">
 		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
@@ -36,6 +35,9 @@ div#img-loader img {
     <h3>Create Consignment</h3>
 </div>
 
+<?php if(LinksynceparcelValidator::validateConsignmentLimit()  && ! LinksyncUserHelper::isTerminated()): ?>
+<?php LinksyncUserHelper::setCappingMessage(false); ?>
+<?php else: ?>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
     <form name="edit_form" id="edit_form" method="post" action="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=create-mass-consignment'); ?>">
     	<div class="box" id="presets">
@@ -48,7 +50,7 @@ div#img-loader img {
 		<?php
 		}
 		?>
-        Article Type&nbsp;&nbsp; 
+        Article Type&nbsp;&nbsp;
         <select id="articles_type" name="articles_type" class="required-entry2" style="padding:3px" >
         	<?php if($use_order_weight == 1):?>
             	<option value="order_weight">Use Order Weight</option>
@@ -93,12 +95,12 @@ div#img-loader img {
         </select>
         </td>
       </tr>
-      
+
       <tr>
         <td>Cash to collect</td>
         <td><input id="cash_to_collect" name="cash_to_collect" type="text" /></td>
       </tr>
-	  
+
       <tr>
         <td>Delivery signature required?</td>
         <td><select id="delivery_signature_allowed" name="delivery_signature_allowed" style="width:140px">>
@@ -122,10 +124,10 @@ div#img-loader img {
 			</select>
 		</td>
 	  </tr>
-	  <?php 
+	  <?php
 		$order_value_insurance = '';
 		$s_insurance = 'hide-tr';
-		if (get_option('linksynceparcel_insurance') == 1){ 
+		if (get_option('linksynceparcel_insurance') == 1){
 			if(get_option('order_value_insurance') == 1) {
 				$order_value_insurance = 'checked="checked"';
 			}
@@ -138,9 +140,9 @@ div#img-loader img {
 				<input type="checkbox" id="order_value_insurance" name="order_value_insurance" value="1" <?php echo $order_value_insurance; ?>>
 			</td>
 		</tr>
-	  <?php 
+	  <?php
 		$d_insurance = 'hide-tr';
-		if(empty($order_value_insurance) && get_option('linksynceparcel_insurance') == 1){ 
+		if(empty($order_value_insurance) && get_option('linksynceparcel_insurance') == 1){
 			$d_insurance = 'show-tr';
 		}
 	?>
@@ -159,19 +161,19 @@ div#img-loader img {
 	  <tr>
         <td>Order value as Declared Value</td>
         <td>
-			<?php 
+			<?php
 				$declared_checked = '';
-				if (get_option('linksynceparcel_declared_value') == 1){ 
+				if (get_option('linksynceparcel_declared_value') == 1){
 					$declared_checked = 'checked="checked"';
 				}
 			?>
 			<input type="checkbox" id="declared_value" name="declared_value" value="1" <?php echo $declared_checked; ?>>
 		</td>
       </tr>
-	<?php 
+	<?php
 		$declared_text = '';
 		$declared_text_option = 'hide-tr';
-		if ($declared_checked == ''){ 
+		if ($declared_checked == ''){
 			$declared_text = get_option('linksynceparcel_declared_value_text');
 			$declared_text_option = 'show-tr';
 		}
@@ -187,7 +189,7 @@ div#img-loader img {
         <td>
 		<?php
 			$commercial_checked = '';
-			if (get_option('linksynceparcel_has_commercial_value') == 1){ 
+			if (get_option('linksynceparcel_has_commercial_value') == 1){
 				$commercial_checked = 'checked="checked"';
 			}
 		?>
@@ -213,10 +215,10 @@ div#img-loader img {
 			</select>
 		</td>
 	  </tr>
-	  <?php 
+	  <?php
 		$product_classification_text = '';
 		$product_classification_option = 'hide-tr';
-		if ($product_classification_value == '991'){ 
+		if ($product_classification_value == '991'){
 			$product_classification_text = get_option('linksynceparcel_product_classification_text');
 			$product_classification_option = 'show-tr';
 		}
@@ -298,6 +300,8 @@ div#img-loader img {
 </form>
 </div>
 
+<?php endif; ?>
+
 <style>
 .hide-tr {
 	display: none;
@@ -323,7 +327,7 @@ $jEparcel(document).ready(function(){
 			jQuery('.default_insurance_value').addClass('show-tr');
 		}
 	});
-	
+
 	jQuery('#order_value_insurance').change(function() {
 		var $this_val = jQuery('#order_value_insurance:checked').length > 0;
 		if(!$this_val) {
@@ -366,7 +370,7 @@ $jEparcel(document).ready(function(){
 			$jEparcel('#product_classification').attr('disabled', false);
 		}
 	});
-	
+
 	$jEparcel('#product_classification').change(function() {
 		var $this_val = $jEparcel('#product_classification').val();
 		if($this_val == '991') {
@@ -383,7 +387,7 @@ $jEparcel(document).ready(function(){
 		if($this_val) {
 			var country_origin_value = $jEparcel('#country_origin').data('default');
 			var hs_tariff_value = $jEparcel('#hs_tariff').data('default');
-			
+
 			$jEparcel('#country_origin').attr('disabled', true);
 			$jEparcel('#country_origin').val(country_origin_value);
 			$jEparcel('#hs_tariff').attr('disabled', true);
@@ -417,16 +421,16 @@ function submitForm2()
 			alert(label +' should be a number');
 			valid = false;
 		}
-		
+
 		value = parseInt(value);
 		if(value < 0)
 		{
 			alert(label +' should be a postive number');
 			valid = false;
 		}
-		
+
 	});
-	
+
 	if(valid)
 	{
 		create_mass_consignment_ajax();

@@ -1,6 +1,8 @@
 <?php
 class LinksynceparcelValidator
 {
+    public static $capping_size = 50;
+
 	public static function validateConfiguration($data)
 	{
 		$errors = array();
@@ -34,10 +36,10 @@ class LinksynceparcelValidator
 			$errors[] = 'Return Address Suburb is a required field.';
 		if(!empty($data['default_insurance_value']) && (!is_numeric($data['default_insurance_value']) || $data['default_insurance_value'] < 0))
 			$errors[] = 'Default Insurance value is invalid.';
-			
+
 		if(isset($data['allowance_value']) && !empty($data['allowance_value']) && (!is_numeric($data['allowance_value']) || $data['allowance_value'] < 0))
 			$errors[] = 'Packaging Allowance Value is invalid.';
-			
+
 		if(!empty($data['default_article_weight']) && (!is_numeric($data['default_article_weight']) || $data['default_article_weight'] < 0))
 			$errors[] = 'Default Article Weight is invalid.';
 		if(!empty($data['default_article_height']) && (!is_numeric($data['default_article_height']) || $data['default_article_height'] < 0))
@@ -64,15 +66,15 @@ class LinksynceparcelValidator
 			} else {
 				$errors[] = 'HS Tariffs must be a number.';
 			}
-			
+
 		if(empty($data['default_contents']))
 			$errors[] = 'Default Contents is a required field.';
-			
+
 		if(count($errors) > 0)
 			return $errors;
 		return false;
 	}
-	
+
 	public static function validateArticlePresets($data)
 	{
 		$errors = array();
@@ -92,7 +94,7 @@ class LinksynceparcelValidator
 			return $errors;
 		return false;
 	}
-	
+
 	public static function validateAssignShippingTypes($data)
 	{
 		$errors = array();
@@ -104,7 +106,7 @@ class LinksynceparcelValidator
 			return $errors;
 		return false;
 	}
-	
+
 	public static function requiredConsignmentsField() {
 		$errors = array();
 		if((isset($_POST['has_commercial_value']) && $_POST['has_commercial_value'] == 1) || (isset($_POST['product_classification']) && $_POST['product_classification'] == 991)) {
@@ -117,10 +119,10 @@ class LinksynceparcelValidator
 		}
 		if(empty($country_origin))
 			$errors[] = '<strong>Country of Origin</strong> is a required field.';
-		
+
 		if((isset($_POST['has_commercial_value']) && $_POST['has_commercial_value'] == 1) && empty($_POST['hs_tariff']))
 			$errors[] = '<strong>HS Tarrif Number</strong> is a required field.';
-		
+
 		if(!empty($_POST['hs_tariff']))
 			if(is_numeric($_POST['hs_tariff'])) {
 				$count_digits = strlen($_POST['hs_tariff']);
@@ -129,28 +131,32 @@ class LinksynceparcelValidator
 			} else {
 				$errors[] = '<strong>HS Tariffs</strong> must be a number.';
 			}
-		
+
 		if(count($errors) > 0)
 			return $errors;
-		
+
 		return false;
 	}
-	
+
 	public static function validateInternationalCosignmentsValue($data, $chargecodedata, $country=false, $weight = false, $totalcost = false) {
 
 		if($chargecodedata['serviceType'] == 'international' && $country == 'AU') {
 			return array('error_msg' => 'International chargecode could not be use for domestic country. Please check and try again.');
 		}
-		
+
 		if($chargecodedata['serviceType'] != 'international' && $country != 'AU') {
 			return array('error_msg' => 'Domestic chargecode could not be use for international. Please check and try again.');
 		}
-		
+
+		if(strlen($data['delivery_instruction']) > 128) {
+			return array('error_msg' => 'Delivery Instructions should not reached the limit of 128 characters.');
+		}
+
 		if($country != 'AU') {
 			if($data['number_of_articles'] > 1) {
 				return array('error_msg' => 'International article cannot be more/less than 1.');
 			}
-			
+
 			// All validated International Articles
 			$intArticle = array(
 				'Int. Economy Air' 	=> array('weight' => 20, 'insurance' => 5000),
@@ -160,7 +166,7 @@ class LinksynceparcelValidator
 				'Int. Pack & Track' => array('weight' => 2, 'insurance' => 500),
 				'Int. Registered' 	=> array('weight' => 2, 'insurance' => 5000),
 			);
-			
+
 			$label = $chargecodedata['labelType'];
 			if($chargecodedata['key'] == 'int_pack_track') {
 				$isvalidCountries = self::validCountry();
@@ -171,20 +177,20 @@ class LinksynceparcelValidator
 					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg and maximum cost of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
 				}
 			}
-			
-			if(!empty($intArticle[$label]['weight'])){	
+
+			if(!empty($intArticle[$label]['weight'])){
 				if($intArticle[$label]['weight'] < $weight) {
 					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg.');
 				}
 			}
-			
+
 			if($data['insurance'] == 1 && $intArticle[$label]['insurance'] < $data['insurance_value']) {
 				return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
 			}
 		}
 		return true;
 	}
-	
+
 	public static function validCountry() {
 		$countries = array(
 			'BE' => 'Belgium',
@@ -214,10 +220,10 @@ class LinksynceparcelValidator
 			'GB' => 'United Kingdom',
 			'US' => 'USA'
 		);
-		
+
 		return $countries;
 	}
-	
+
 	public static function validateCombination($data, $combinations, $chargecode)
 	{
 		$delivery_signature = $data['delivery_signature_allowed'];
@@ -237,7 +243,7 @@ class LinksynceparcelValidator
 		$start_index = $data['start_index'];
 		$end_index = $data['end_index'];
 		$error_message = '';
-		for ($i=$start_index; $i <= $end_index; $i++) { 
+		for ($i=$start_index; $i <= $end_index; $i++) {
 			if($data['articles_type'] == 'order_weight' && $bulk == true) {
 				$article['description'] = "Order weight";
                 $article['height'] = 5;
@@ -257,7 +263,7 @@ class LinksynceparcelValidator
 	            }
 			}
 
-            $description = $article['description'];	
+            $description = $article['description'];
             $height = $article['height'];
             $length = $article['length'];
             $width = $article['width'];
@@ -287,7 +293,7 @@ class LinksynceparcelValidator
 	        	$error_message .= $description .' must have atleast 2 dimensions of 5cm and above<br>';
 	        }
 	        if(count($limitdimension) > 0) {
-        		$error_message .= $description .' height, length and width must not exceed the limit of 105cm.<br>';	
+        		$error_message .= $description .' height, length and width must not exceed the limit of 105cm.<br>';
 	        }
 		}
 
@@ -315,6 +321,52 @@ class LinksynceparcelValidator
         $data[] = $result->length;
 
         return $data;
+    }
+
+    public static function validateConsignmentLimit($message = null)
+    {
+        if(self::consignmentLessThan50()) {
+            update_option('linksync_is_reached_capping_limit', false);
+            update_option('linksync_capping_limit_message', '');
+            update_option('linksync_capping_limit_kb', "");
+            return false;
+        }
+        $laidinfo = LinksyncApiController::get_current_laid_info();
+        $isFreeTrial = false;
+        if (isset($laidinfo['message'])) {
+            $laidinfo_data = explode(',', $laidinfo['message']);
+        } elseif (isset($laidinfo['userMessage'])) {
+            $laidinfo_data = explode(',', $laidinfo['userMessage']);
+        }
+        $isFreeTrial = LinksyncUserHelper::isFreeTrial($laidinfo_data[2]);
+
+        if(! $isFreeTrial) {
+            // var_dump("trial pa bes");
+            return false;
+        }
+        $expectedMessage = 'Trial account exceed consignment limit - please upgrade to Premium plan';
+        if($message != null && $message == $expectedMessage) {
+            update_option('linksync_is_reached_capping_limit', true);
+            update_option('linksync_capping_limit_message', $expectedMessage);
+            update_option('linksync_capping_limit_kb', "https://help.linksync.com/hc/en-us/articles/115001095050-Free-Trial-Subscription");
+            return array('error_msg' => $expectedMessage);
+        }
+
+        if(get_option('linksync_is_reached_capping_limit', false) == true) {
+            return array('error_msg' => $expectedMessage);
+        }
+
+        return false;
+    }
+
+    public static function consignmentLessThan50()
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . "linksynceparcel_consignment";
+        $sql = "select count(*) as count from $table_name";
+        $result = $wpdb->get_row( $sql );
+        return $result->count < self::$capping_size;
     }
 }
 ?>

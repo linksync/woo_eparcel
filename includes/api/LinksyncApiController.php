@@ -3,7 +3,6 @@
 
 
 class LinksyncApiController {
-
     /**
      * Get the api Object
      * @param null
@@ -11,6 +10,8 @@ class LinksyncApiController {
      */
 
     public static $api = null;
+
+    public static $env = 'v1';
 
     public static function get_api(){
         /**
@@ -170,7 +171,7 @@ class LinksyncApiController {
         /**
          * Check if test mode is set to true
          */
-        $config['api'] = 'v1';
+        $config['api'] = self::$env;
 
         /**
          * Require api information
