@@ -682,7 +682,7 @@ var reminderWeight = '<?php echo $reminderWeight?>';
 $jEparcel = jQuery.noConflict();
 
 $jEparcel(document).ready(function(){
-
+    <?php if (LinksynceparcelValidator::validateConsignmentLimit()) : ?>
     jQuery("#dialog").dialog({
         autoOpen: true,
         width:'400px',
@@ -690,6 +690,7 @@ $jEparcel(document).ready(function(){
         closeOnEscape: false,
         position: { my: "center", at: "center", of: "#linksynceparcel" }
     });
+    <?php endif; ?>
 
 	jQuery('#insurance').change(function() {
 		var insurance = jQuery(this).val();

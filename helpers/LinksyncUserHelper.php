@@ -141,33 +141,38 @@ class LinksyncUserHelper
 
     public static function isFreeTrial($package_id = '')
     {
-        if(empty($package_id)) {
-            $laid_info = LinksyncApiController::get_current_laid_info();
-            $message_data = explode(',', $laid_info['message']);
-            $package_id =  $message_data[2];
+        $laid_info = LinksyncApiController::get_current_laid_info();
+        if(!empty($laid_info) && $laid_info != '') {
+            if(empty($package_id)) {
+                $message_data = explode(',', $laid_info['message']);
+                $package_id =  $message_data[2];
+            }
+
+            $package_id = trim($package_id);
+            $package = self::getLinksyncPlansForLaid($package_id);
+            if ('14 Days Free Trial' == $package) {
+                return true;
+            }
         }
 
-        $package_id = trim($package_id);
-        $package = self::getLinksyncPlansForLaid($package_id);
-        if ('14 Days Free Trial' == $package) {
-            return true;
-        }
         return false;
     }
 
     public static function isTerminated()
     {
         $laid_info = LinksyncApiController::get_current_laid_info();
-        if(!empty($laid_info['message'])) {
-            $message_data = explode(',', $laid_info['message']);
-        } else {
-            $message_data = explode(',', $laid_info['userMessage']);
-        }
+        if(!empty($laid_info) && $laid_info != '') {
+            if(!empty($laid_info['message'])) {
+                $message_data = explode(',', $laid_info['message']);
+            } else {
+                $message_data = explode(',', $laid_info['userMessage']);
+            }
 
-        $status =  $message_data[1];
+            $status =  $message_data[1];
 
-        if (trim($status) == 'Terminated') {
-            return true;
+            if (trim($status) == 'Terminated') {
+                return true;
+            }
         }
         return false;
     }

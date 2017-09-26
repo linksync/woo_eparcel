@@ -41,27 +41,19 @@ div#img-loader img {
 		<img src="<?php echo linksynceparcel_URL?>assets/images/load.gif" alt="Loading" />
 	</div>
 </div>
+<?php if(!LinksynceparcelValidator::validateConsignmentLimit()): ?>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
 	    <input type="hidden" id="createConsignmentHidden" name="createConsignmentHidden" value="0"/>
     	<div class="box_ls" id="presets">
 		<?php if($order_status != 'completed'){?>
-
-
-
         Articles&nbsp;&nbsp; <input type="text" id="number_of_articles" name="number_of_articles" size="4" value="1" class="validate-number" style="text-align:center; padding:3px" <?php echo ($shipping_country != 'AU')?"disabled='disabled'":'';?>/>
 
         <input id="articles_type" name="articles_type" type="hidden" value="Custom"/>
-
 		<?php
-
             }
-
          ?>
 
     	<input id="consignment_submit2" type="submit" name="createConsignment" value="Create Consignment" class="button-primary button create-consignment1 scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
-
-
-
 </div>
 
 
@@ -672,12 +664,9 @@ div#img-loader img {
 
 </div>
 
-
-
 </div>
 
 <?php endif; ?>
-
 
 
 <?php $consignments = LinksynceparcelHelper::getConsignments($order_id, true);?>
@@ -1079,7 +1068,7 @@ div#img-loader img {
 $jEparcel = jQuery.noConflict();
 
 $jEparcel(document).ready(function(){
-
+    <?php if (LinksynceparcelValidator::validateConsignmentLimit()) : ?>
     jQuery("#dialog").dialog({
 
         autoOpen: true,
@@ -1093,6 +1082,7 @@ $jEparcel(document).ready(function(){
         position: { my: "center", at: "center", of: "#linksynceparcel" }
 
     });
+    <?php endif; ?>
 
 	jQuery('#insurance').change(function() {
 
