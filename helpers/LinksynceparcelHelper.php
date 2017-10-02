@@ -5894,13 +5894,12 @@ class LinksynceparcelHelper
 					{
 						if ( ! $_product->is_virtual() )
 						{
-							$weight += (int)$_product->get_weight() * (int)$item['qty'];
+							$weight += (float)$_product->get_weight() * (int)$item['qty'];
 						}
 					}
 				}
 			}
 		}
-
 		$product_unit = trim(get_option('linksynceparcel_product_unit'));
 
 		$packaging_allowance_type = trim(get_option('linksynceparcel_allowance_type'));
@@ -5937,7 +5936,8 @@ class LinksynceparcelHelper
 				$weight += ($weight * ($packaging_allowance_value/100));
 			}
 		}
-		return $weight;//number_format($weight,2);
+
+		return number_format($weight,2,'.', '');//number_format($weight,2);
 	}
 
 	public static function getAllowedWeightPerArticle()
@@ -6237,6 +6237,7 @@ class LinksynceparcelHelper
 		$cnt = 0;
 		$contents = '';
 		$totalCost = 0;
+		$total_weight = 0;
 		foreach($rows as $row) {
 			$prodid = wc_get_order_item_meta( $row->order_item_id, '_product_id', true );
 			$parent_id = $prodid;
@@ -6309,9 +6310,11 @@ class LinksynceparcelHelper
 			$contents .= '<hSTariff>'. $hsTariff .'</hSTariff>';
 			$contents .= '</content>';
 
+			$total_weight += $weight;
+
 			$cnt++;
 		}
-		return ($totalonly)?$totalCost:array('totalcost' => $totalCost, 'contents' => $contents);
+		return ($totalonly)?$totalCost:array('totalcost' => $totalCost, 'total_weight' => $total_weight, 'contents' => $contents);
 	}
 
 	public static function getShippingMethodDetails($order_id) {
@@ -6352,6 +6355,8 @@ class LinksynceparcelHelper
 		$hasCommercialValue = isset($data['has_commercial_value'])?"true":"false";
 		$deliveryFailureDetails = self::deliveryFailureDetails();
 		$articleContents = self::articleContents($order, $data, $articlesInfo['total_weight']);
+
+		$articlesInfo['info'] = self::replace_between($articlesInfo['info'], "<actualWeight>", "</actualWeight>", $articleContents['total_weight']);
 
 		if(empty($insuranceValue)) {
 			$insuranceValue = '<insuranceValue/>';
@@ -6836,6 +6841,16 @@ class LinksynceparcelHelper
 		if(file_exists($filename)) {
 			unlink($filename);
 		}
+	}
+
+	public static function replace_between($str, $needle_start, $needle_end, $replacement) {
+	    $pos = strpos($str, $needle_start);
+	    $start = $pos === false ? 0 : $pos + strlen($needle_start);
+
+	    $pos = strpos($str, $needle_end, $start);
+	    $end = $pos === false ? strlen($str) : $pos;
+
+	    return substr_replace($str, $replacement, $start, $end - $start);
 	}
 
 	public static function checkNewChargeCodeConfig()
