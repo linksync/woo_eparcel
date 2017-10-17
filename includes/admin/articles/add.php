@@ -13,27 +13,32 @@ class LinksynceparcelAdminArticlesAdd
 		{
 			$old_consignmentNumber = $consignmentNumber;
 			$articleData = LinksynceparcelHelper::prepareAddArticleData($data, $order, $consignmentNumber);
-			$content = $articleData['content'];
-			$chargeCode = $articleData['charge_code'];
-			$total_weight = $articleData['total_weight'];
-			$consignmentData = LinksynceparcelApi::modifyConsignment($content, $consignmentNumber, $chargeCode);
-			if($consignmentData)
-			{
-				$new_consignmentNumber = $consignmentData->consignmentNumber;
-				$manifestNumber = $consignmentData->manifestNumber;
-				LinksynceparcelHelper::updateConsignment($order_id,$new_consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$old_consignmentNumber);
-				LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
-				LinksynceparcelHelper::insertManifest($manifestNumber);
-		
-				$labelContent = $consignmentData->lpsLabels->labels->label;
-				LinksynceparcelHelper::generateDocument($new_consignmentNumber,$labelContent,'label');
-					
-				update_option('linksynceparcel_order_view_success','The article has been added successfully.');
-				wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));
-			}
-			else
-			{
-				throw new Exception("modifyConsignment returned empty result");
+			if(!empty($articleData) && isset($articleData['error_msg'])) {
+                $error = $articleData['error_msg'];
+                update_option('linksynceparcel_order_view_error',$error);
+            } else {
+				$content = $articleData['content'];
+				$chargeCode = $articleData['charge_code'];
+				$total_weight = $articleData['total_weight'];
+				$consignmentData = LinksynceparcelApi::modifyConsignment($content, $consignmentNumber, $chargeCode);
+				if($consignmentData)
+				{
+					$new_consignmentNumber = $consignmentData->consignmentNumber;
+					$manifestNumber = $consignmentData->manifestNumber;
+					LinksynceparcelHelper::updateConsignment($order_id,$new_consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$old_consignmentNumber);
+					LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
+					LinksynceparcelHelper::insertManifest($manifestNumber);
+			
+					$labelContent = $consignmentData->lpsLabels->labels->label;
+					LinksynceparcelHelper::generateDocument($new_consignmentNumber,$labelContent,'label');
+						
+					update_option('linksynceparcel_order_view_success','The article has been added successfully.');
+					wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));
+				}
+				else
+				{
+					throw new Exception("modifyConsignment returned empty result");
+				}
 			}
 		}
 		catch(Exception $e)

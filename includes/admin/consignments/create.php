@@ -133,27 +133,32 @@ class LinksynceparcelAdminConsignmentsCreate
                         update_option('linksynceparcel_order_view_error',$error);
                     } else {
                         $articleData = LinksynceparcelHelper::prepareOrderWeightArticleData($data, $order, '', $shipping_country);
-                        $content = $articleData['content'];
-                        $chargeCode = $articleData['charge_code'];
-                        $total_weight = $articleData['total_weight'];
-                        $consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode);
+                        if(!empty($articleData) && isset($articleData['error_msg'])) {
+                            $error = $articleData['error_msg'];
+                            update_option('linksynceparcel_order_view_error',$error);
+                        } else {
+	                        $content = $articleData['content'];
+	                        $chargeCode = $articleData['charge_code'];
+	                        $total_weight = $articleData['total_weight'];
+	                        $consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode);
 
-                        if($consignmentData)
-                        {
-                            $consignmentNumber = $consignmentData->consignmentNumber;
-                            $manifestNumber = $consignmentData->manifestNumber;
-                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
-                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
-                            LinksynceparcelHelper::insertManifest($manifestNumber);
-                    
-                            $labelContent = $consignmentData->lpsLabels->labels->label;
-                            LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-                                
-                            update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
-                        }
-                        else
-                        {
-                            throw new Exception("createConsignment returned empty result");
+	                        if($consignmentData)
+	                        {
+	                            $consignmentNumber = $consignmentData->consignmentNumber;
+	                            $manifestNumber = $consignmentData->manifestNumber;
+	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
+	                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
+	                            LinksynceparcelHelper::insertManifest($manifestNumber);
+	                    
+	                            $labelContent = $consignmentData->lpsLabels->labels->label;
+	                            LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+	                                
+	                            update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
+	                        }
+	                        else
+	                        {
+	                            throw new Exception("createConsignment returned empty result");
+	                        }
                         }
                     }
 				}
@@ -211,27 +216,32 @@ class LinksynceparcelAdminConsignmentsCreate
                         update_option('linksynceparcel_order_view_error',$error);
                     } else {
                         $articleData = LinksynceparcelHelper::prepareOrderWeightArticleData($data, $order, '', $shipping_country);
-                        $content = $articleData['content'];
-                        $chargeCode = $articleData['charge_code'];
-                        $total_weight = $articleData['total_weight'];
-                        $consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode);
+                        if(!empty($articleData) && isset($articleData['error_msg'])) {
+                            $error = $articleData['error_msg'];
+                            update_option('linksynceparcel_order_view_error',$error);
+                        } else {
+	                        $content = $articleData['content'];
+	                        $chargeCode = $articleData['charge_code'];
+	                        $total_weight = $articleData['total_weight'];
+	                        $consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode);
 
-                        if($consignmentData)
-                        {
-                            $consignmentNumber = $consignmentData->consignmentNumber;
-                            $manifestNumber = $consignmentData->manifestNumber;
-                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
-                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
-                            LinksynceparcelHelper::insertManifest($manifestNumber);
-                    
-                            $labelContent = $consignmentData->lpsLabels->labels->label;
-                            LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-                            
-                            update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
-                        }
-                        else
-                        {
-                            throw new Exception("createConsignment returned empty result");
+	                        if($consignmentData)
+	                        {
+	                            $consignmentNumber = $consignmentData->consignmentNumber;
+	                            $manifestNumber = $consignmentData->manifestNumber;
+	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
+	                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
+	                            LinksynceparcelHelper::insertManifest($manifestNumber);
+	                    
+	                            $labelContent = $consignmentData->lpsLabels->labels->label;
+	                            LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+	                            
+	                            update_option('linksynceparcel_order_view_success','The consignment has been created successfully.');
+	                        }
+	                        else
+	                        {
+	                            throw new Exception("createConsignment returned empty result");
+	                        }
                         }
                     }
 				}

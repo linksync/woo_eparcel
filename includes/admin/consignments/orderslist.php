@@ -777,6 +777,9 @@ class LinksynceparcelAdminConsignmentsOrdersList
 								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_date',$date);
 								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'despatched',1);
 								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'is_next_manifest',0);
+
+								$operation_mode = get_option('linksynceparcel_operation_mode');
+								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_mode', $operation_mode);
 					
 								$changeState = get_option('linksynceparcel_change_order_status');
 								if(!empty($changeState))

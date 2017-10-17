@@ -38,7 +38,14 @@ class ManifestList extends WP_List_Table
 	public function column_manifest_number($item)
 	{
 		$manifest_number = $item->manifest_number;
-		$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&subpage=manifests&action=list-consignments&manifest_number='.$manifest_number).'">'.$manifest_number.'</a>';
+		$despatch_date = $item->despatch_date;
+		$despatch_mode = $item->despatch_mode;
+
+		$status = '';
+		if($despatch_mode == 0 && !empty($despatch_date)) {
+			$status = ' (Test Mode)';
+		}
+		$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&subpage=manifests&action=list-consignments&manifest_number='.$manifest_number).'">'.$manifest_number.'</a>'. $status;
 		return $html;
 	}
 

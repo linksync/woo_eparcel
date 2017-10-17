@@ -694,6 +694,19 @@
 						</select>
 					</td>
 				</tr>
+        <tr>
+          <td width="25%" valign="top" ><?php _e('Int. Express Courier Merchandise','linksynceparcel'); ?></td>
+          <td align="left" colspan="2">
+            <select name="linksynceparcel[int_express_courier_mer_charge_code]">
+            <?php
+            $int_express_courier_mer_charge_code = LinksynceparcelHelper::getFormValue('int_express_courier_mer_charge_code',get_option('linksynceparcel_int_express_courier_mer_charge_code'));
+            ?>
+            <?php 
+              LinksynceparcelHelper::displayGroupedChargeCode($int_express_courier_mer_charge_code, 'int_express_courier_mer');
+            ?>
+            </select>
+          </td>
+        </tr>
 				<tr>
 					<td width="25%" valign="top" ><?php _e('Int. Express Post','linksynceparcel'); ?></td>
 					<td align="left" colspan="2">
@@ -956,11 +969,11 @@
 			<dd>
 				<table width="100%" border="0" cellspacing="0" cellpadding="6">
 				  <tr>
-						<td width="20%" valign="top"><?php _e('Send Log','linksynceparcel'); ?></td>
-						<td align="left" valign="top">
-							<input type="button" id="sendlog" name="sendlog" value="<?php _e('Send Log','linksynceparcel'); ?>" class="button-primary" onclick="sendLog()" />
-							<br />
-							<span class="comment"><?php _e("To be used if instructed by linksync support",'linksynceparcel'); ?></span>
+						<td width="20%" valign="top"><?php _e('Download Log','linksynceparcel'); ?></td>
+            <td align="left" valign="top">
+              <a href="<?php echo admin_url('admin.php?page=linksynceparcel&subpage=downloadlog&ajax=true'); ?>" class="button-primary"><?php _e('Download Log','linksynceparcel'); ?></a>
+              <br />
+              <span class="comment"><?php _e("To be used if instructed by linksync support",'linksynceparcel'); ?></span>
 					</td>
 				  </tr>
 				  <tr>
@@ -1139,21 +1152,5 @@ jQuery(document).ready(function() {
 		return false;
 	});
 });
-function sendLog()
-{
-	$jEparcel("#sendlog").val('Sending...');
-	$jEparcel.ajax({
-		type: "POST",
-		url: '<?php echo admin_url('admin.php?page=linksynceparcel&subpage=sendlog&ajax=true'); ?>',
-		success: function(data){
-			$jEparcel("#sendlog").val('Send Log');
-			data = $jEparcel.trim(data);
-			if(data.length > 0)
-			{
-				alert(data);
-			}
-		}
-	});
-}
 </script>
 <?php }?>

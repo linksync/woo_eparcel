@@ -226,6 +226,14 @@ class LinksynceparcelHelper
 			$sql = "ALTER TABLE $table_name ADD despatch_complete tinyint(1) NOT NULL DEFAULT '0'";
 			$wpdb->query( $sql );
 		}
+
+		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'despatch_mode'";
+		$records = $wpdb->query( $sql );
+		if(!$records)
+		{
+			$sql = "ALTER TABLE $table_name ADD despatch_mode tinyint(1) NOT NULL DEFAULT '1'";
+			$wpdb->query( $sql );
+		}
 	}
 
 	public static function createNewTables() {
@@ -603,6 +611,23 @@ class LinksynceparcelHelper
 		}
 		$ziph->close();
 		return true;
+	}
+
+
+	public static function downloadLogfile($filepath)
+	{
+	    if(file_exists($filepath)) {
+	        header("Cache-Control: public");
+	        header('Content-Description: File Transfer');
+	        header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
+	        header("Content-Type: application/force-download");
+	        header('Expires: 0');
+	        header('Cache-Control: must-revalidate');
+	        header('Content-Length: ' . filesize($filepath));
+	        flush(); // Flush system output buffer
+	        readfile($filepath);
+	        exit;
+	    }
 	}
 
 	public static function getFormValue($index, $default='', $main='linksynceparcel')
@@ -3238,7 +3263,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM1'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3248,7 +3273,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM2'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3258,7 +3283,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM3'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3268,7 +3293,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM4'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3278,7 +3303,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM5'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3288,7 +3313,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM6'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3298,7 +3323,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM7'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3308,7 +3333,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM8'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3318,7 +3343,7 @@ class LinksynceparcelHelper
 				'service'		=> 'Int.'
 			),
 			'ECM9'	=> array(
-				'key'			=> 'int_express_courier',
+				'key'			=> 'int_express_courier_mer',
 				'name'			=> 'Int. Express Courier',
 				'serviceCode' 	=> 0,
 				'prodCode' 		=> 0,
@@ -3910,17 +3935,25 @@ class LinksynceparcelHelper
 	public static function prepareArticle($data,$order,$consignment_number='')
 	{
 		$articleData = self::prepareArticleData($data,$order,$consignment_number);
-		$content = $articleData['content'];
-		$chargeCode = $articleData['charge_code'];
-		return array('content' => $content, 'charge_code' => $chargeCode);
+		if(!isset($articleData['error_msg'])) {
+			$content = $articleData['content'];
+			$chargeCode = $articleData['charge_code'];
+			return array('content' => $content, 'charge_code' => $chargeCode);
+		} else {
+			return $articleData;
+		}
 	}
 
 	public static function prepareArticleBulk($data,$order)
 	{
 		$articleData = self::prepareArticleDataBulk($data,$order);
-		$content = $articleData['content'];
-		$chargeCode = $articleData['charge_code'];
-		return array('content' => $content, 'charge_code' => $chargeCode);
+		if(!isset($articleData['error_msg'])) {
+			$content = $articleData['content'];
+			$chargeCode = $articleData['charge_code'];
+			return array('content' => $content, 'charge_code' => $chargeCode);
+		} else {
+			return $articleData;
+		}
 	}
 
 	public static function prepareArticleData($data,$order,$consignment_number='',$shipCountry=false)
@@ -3942,10 +3975,16 @@ class LinksynceparcelHelper
 
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareArticles($data, $order);
 
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInternationalInfo)) {
+			return $deliveryInternationalInfo;
+		}
 		$articlesInternationalInfo = self::prepareInternationalArticles($data, $order);
 
 		// Validate order weight and insurance value
@@ -4041,10 +4080,16 @@ class LinksynceparcelHelper
 
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareOrderWeightArticles($data, $order);
 
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order);
+		if(is_array($deliveryInternationalInfo)) {
+			return $deliveryInternationalInfo;
+		}
 		$articlesInternationalInfo = self::prepareInternationalOrderWeightArticles($data, $order);
 
 		// Validate order weight and insurance value
@@ -4137,10 +4182,16 @@ class LinksynceparcelHelper
 
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareArticlesBulk($data, $order);
 
 		$returnInternationalAddress = self::prepareInternationalReturnAddress();
 		$deliveryInternationalInfo = self::prepareInternationalDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInternationalInfo)) {
+			return $deliveryInternationalInfo;
+		}
 		$articlesInternationalInfo = self::prepareInternationalArticles($data, $order, true);
 
 		// Validate order weight and insurance value
@@ -4329,6 +4380,9 @@ class LinksynceparcelHelper
 			}
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
 			$phonestr = $withplus . $phone;
+		}
+		if(strlen($phonestr) < 10) {
+			return array('error_msg' => "Return Phone Number must be atleast minimum of 10 digits.");
 		}
 
 		$instructions = $data['delivery_instruction'];
@@ -5269,9 +5323,13 @@ class LinksynceparcelHelper
 	public static function prepareModifiedArticle($order,$consignment_number)
 	{
 		$articleData = self::prepareModifiedArticleData($order,$consignment_number);
-		$content = $articleData['content'];
-		$chargeCode = $articleData['charge_code'];
-		return array('content' => $content, 'charge_code' => $chargeCode);
+		if(!isset($articleData['error_msg'])) {
+			$content = $articleData['content'];
+			$chargeCode = $articleData['charge_code'];
+			return array('content' => $content, 'charge_code' => $chargeCode);
+		} else {
+			return $articleData;
+		}
 	}
 
 	public static function prepareModifiedArticleData($order,$consignment_number)
@@ -5280,6 +5338,9 @@ class LinksynceparcelHelper
 		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareModifiedArticles($order,$consignment_number);
 		$consignment = self::getConsignment($consignment_number);
 
@@ -5375,9 +5436,13 @@ class LinksynceparcelHelper
 	public static function prepareAddArticle($data,$order,$consignmentNumber)
 	{
 		$articleData = self::prepareAddArticleData($data,$order,$consignmentNumber);
-		$content = $articleData['content'];
-		$chargeCode = $articleData['charge_code'];
-		return array('content' => $content, 'charge_code' => $chargeCode);
+		if(!isset($articleData['error_msg'])) {
+			$content = $articleData['content'];
+			$chargeCode = $articleData['charge_code'];
+			return array('content' => $content, 'charge_code' => $chargeCode);
+		} else {
+			return $articleData;
+		}
 	}
 
 	public static function prepareAddArticleData($data, $order,$consignment_number)
@@ -5386,6 +5451,9 @@ class LinksynceparcelHelper
 		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareAddArticles($order,$data, $consignment_number);
 
 		$search = array(
@@ -5556,9 +5624,13 @@ class LinksynceparcelHelper
 	public static function prepareUpdateArticle($data,$order,$consignmentNumber)
 	{
 		$articleData = self::prepareUpdateArticleData($data,$order,$consignmentNumber);
-		$content = $articleData['content'];
-		$chargeCode = $articleData['charge_code'];
-		return array('content' => $content, 'charge_code' => $chargeCode);
+		if(!isset($articleData['error_msg'])) {
+			$content = $articleData['content'];
+			$chargeCode = $articleData['charge_code'];
+			return array('content' => $content, 'charge_code' => $chargeCode);
+		} else {
+			return $articleData;
+		}
 	}
 
 	public static function prepareUpdateArticleData($data, $order,$consignment_number='')
@@ -5567,6 +5639,9 @@ class LinksynceparcelHelper
 		$address = get_post_meta($order_id);
 		$returnAddress = self::prepareReturnAddress();
 		$deliveryInfo = self::prepareDeliveryAddress($address,$order,$data);
+		if(is_array($deliveryInfo)) {
+			return $deliveryInfo;
+		}
 		$articlesInfo = self::prepareUpdatedArticles($order,$data);
 
 		$search = array(
@@ -5900,29 +5975,13 @@ class LinksynceparcelHelper
 				}
 			}
 		}
-		$product_unit = trim(get_option('linksynceparcel_product_unit'));
-
 		$packaging_allowance_type = trim(get_option('linksynceparcel_allowance_type'));
 		$packaging_allowance_value = trim(get_option('linksynceparcel_allowance_value'));
-		$product_unit = strtolower(trim(get_option('woocommerce_weight_unit')));
+		$product_unit = get_option('woocommerce_weight_unit');
 
-		if($weight > 0)
+		if($weight > 0 && $product_unit != 'kg')
 		{
-			if($product_unit == 'g')
-			{
-				$weight = $weight / 1000;
-				$weight = number_format($weight,2,'.', '');
-			}
-			else if($product_unit == 'lbs')
-			{
-				$weight = $weight * 0.453592;
-				$weight = number_format($weight,2,'.', '');
-			}
-			else if($product_unit == 'oz')
-			{
-				$weight = $weight * 0.0283495;
-				$weight = number_format($weight,2,'.', '');
-			}
+			$weight = wc_get_weight( $weight, 'kg', $product_unit );
 		}
 
 		if($packaging_allowance_value > 0)
@@ -6123,6 +6182,9 @@ class LinksynceparcelHelper
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
 			$phonestr = $withplus . $phone;
 		}
+		if(strlen($phonestr) < 10) {
+			return array('error_msg' => "Return Phone Number must be atleast minimum of 10 digits.");
+		}
 
 		$instructions = $data['delivery_instruction'];
 
@@ -6262,7 +6324,7 @@ class LinksynceparcelHelper
 
 			$value = wc_get_order_item_meta( $row->order_item_id, '_line_total', true );
 			if(empty($unitvalue)) {
-				$unitvalue = 0.01;
+				$unitvalue = 1;
 				$value = $item_qty * $unitvalue;
 			}
 			if($singleWeight > 0.01) {
@@ -6764,6 +6826,7 @@ class LinksynceparcelHelper
 			'express_post' => 'Express Post eParcel',
 			'int_economy' => 'Int. Economy Air',
 			'int_express_courier' => 'Int. Express Courier Document',
+			'int_express_courier_mer' => 'Int. Express Courier Merchandise',
 			'int_express_post' => 'Int. Express Post',
 			'int_pack_track' => 'Int. Pack & Track',
 			'int_registered' => 'Int. Registered',

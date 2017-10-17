@@ -22,6 +22,10 @@ class LinksynceparcelValidator
 			$errors[] = 'Shipping and Tracking password is a required field.';
 		if(empty($data['return_address_name']))
 			$errors[] = 'Return Address Name is a required field.';
+		if(empty($data['return_phone_number']))
+			$errors[] = 'Return Phone Number is a required field.';
+		else if(strlen($data['return_phone_number']) < 10)
+			$errors[] = 'Return Phone Number must be atleast minimum of 10 digits.';
 		if(empty($data['return_address_line1']))
 			$errors[] = 'Return Address Line 1 is a required field.';
 		if(empty($data['return_address_postcode']))

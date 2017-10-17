@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel for WooCommerce
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.11
+ * Version: 1.2.12
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -652,10 +652,10 @@ class linksynceparcel
 		include_once(linksynceparcel_DIR.'includes/admin/configuration.php');
 		LinksynceparcelAdminConfiguration::output();
 	}
-	public function sendlog()
+	public function downloadlog()
 	{
-		include_once(linksynceparcel_DIR.'includes/admin/send_log.php');
-		LinksynceparcelAdminSendLog::output();
+		$file = linksynceparcel_LOG_DIR .'linksynceparcel.log';
+		LinksynceparcelHelper::downloadLogfile($file);
 	}
 	public function update_label_as_printed()
 	{
@@ -1219,6 +1219,9 @@ class linksynceparcel
 			LinksynceparcelHelper::updateManifestTable($manifest_number,'despatch_date',$date);
 			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'despatched',1);
 			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'is_next_manifest',0);
+
+			$operation_mode = get_option('linksynceparcel_operation_mode');
+			LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_mode', $operation_mode);
 
             $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
 

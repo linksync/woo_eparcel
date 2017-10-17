@@ -15,23 +15,28 @@ class LinksynceparcelAdminArticlesDelete
 			{
 				$deleteArticle = LinksynceparcelHelper::deleteArticle($order_id,$consignmentNumber,$articleNumber);
 				$articleData = LinksynceparcelHelper::prepareModifiedArticleData($order, $consignmentNumber);
-				$content = $articleData['content'];
-				$chargeCode = $articleData['charge_code'];
-				$total_weight = $articleData['total_weight'];
-				$consignmentData = LinksynceparcelApi::modifyConsignment($content,$consignmentNumber,$chargeCode);
-				if($consignmentData)
-				{
-					LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'weight', $total_weight);
-					$consignmentNumber = $consignmentData->consignmentNumber;
-					$manifestNumber = $consignmentData->manifestNumber;
-					LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
-					LinksynceparcelHelper::insertManifest($manifestNumber);
+				if(!empty($articleData) && isset($articleData['error_msg'])) {
+                    $error = $articleData['error_msg'];
+                    update_option('linksynceparcel_order_view_error',$error);
+                } else {
+					$content = $articleData['content'];
+					$chargeCode = $articleData['charge_code'];
+					$total_weight = $articleData['total_weight'];
+					$consignmentData = LinksynceparcelApi::modifyConsignment($content,$consignmentNumber,$chargeCode);
+					if($consignmentData)
+					{
+						LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'weight', $total_weight);
+						$consignmentNumber = $consignmentData->consignmentNumber;
+						$manifestNumber = $consignmentData->manifestNumber;
+						LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
+						LinksynceparcelHelper::insertManifest($manifestNumber);
+						
+						$labelContent = $consignmentData->lpsLabels->labels->label;
+						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
 					
-					$labelContent = $consignmentData->lpsLabels->labels->label;
-					LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-				
-					update_option('linksynceparcel_order_view_success','Article #'.$articleNumber.' has been deleted from consignment #'.$consignmentNumber.' successfully.');
-					wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));
+						update_option('linksynceparcel_order_view_success','Article #'.$articleNumber.' has been deleted from consignment #'.$consignmentNumber.' successfully.');
+						wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));
+					}
 				}
 			}
 			else
