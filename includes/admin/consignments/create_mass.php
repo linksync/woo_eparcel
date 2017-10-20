@@ -65,7 +65,7 @@ class LinksynceparcelAdminConsignmentsCreateMass
 										$content = $articleData['content'];
 										$chargeCode = $articleData['charge_code'];
 										$total_weight = $articleData['total_weight'];
-										$consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode);
+										$consignmentData = LinksynceparcelApi::createConsignment($content, 0, $chargeCode, true);
 										if($consignmentData)
 										{
 											$consignmentNumber = $consignmentData->consignmentNumber;
@@ -74,10 +74,7 @@ class LinksynceparcelAdminConsignmentsCreateMass
 											LinksynceparcelHelper::insertConsignment($orderId,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country );
 											LinksynceparcelHelper::updateArticles($orderId,$consignmentNumber,$consignmentData->articles,$data,$content);
 											LinksynceparcelHelper::insertManifest($manifestNumber);
-
-											$labelContent = $consignmentData->lpsLabels->labels->label;
-											LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
-
+											
 											$successmsg = sprintf('Order #%s: Consignment #%s created successfully', $incrementId,$consignmentNumber);
 											LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$successmsg);
 										}

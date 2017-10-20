@@ -1,5 +1,6 @@
 <?php
 set_time_limit(0);
+ini_set( "soap.wsdl_cache_enabled", 0 );
 
 if(!defined('LINKSYNC_EPARCEL_URL1'))
 	define('LINKSYNC_EPARCEL_URL1','api.linksync.com');
@@ -241,7 +242,7 @@ class LinksynceparcelApi
 		}
 	}
 
-	public static function createConsignment($article,$loop=0,$chargeCode=false)
+	public static function createConsignment($article,$loop=0,$chargeCode=false,$bulk=false)
 	{
 		if($loop < 2)
 		{
@@ -276,7 +277,11 @@ class LinksynceparcelApi
 
 				$laid = get_option('linksynceparcel_laid');
 
-				$stdClass = $client->createConsignment2($laid,$article,linksynceparcel_SITE_URL,$arg3,$arg4,$arg5,$arg6);
+				if($bulk) {
+					$bulk = 'true';
+				}
+				
+				$stdClass = $client->createConsignment2($laid,$article,linksynceparcel_SITE_URL,$arg3,$arg4,$arg5,$arg6,$bulk);
 
 				if($stdClass)
 				{
@@ -318,13 +323,20 @@ class LinksynceparcelApi
 
 			$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 			$codeData = $chargeCodeData[$chargeCode];
-
-			$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
-			$labelType = explode('_', $service);
-			$arg4 = $labelType[0];
-			$arg5 = ($labelType[1]==0)?'false':'true';
-			$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
-			$arg7 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
+			if($codeData['serviceType'] == 'international') {
+				$arg4 = 'A4-1pp';
+				$arg5 = 'true';
+				$arg6 = 0;
+				$arg7 = 0;
+			} else {
+				$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
+				$labelType = explode('_', $service);
+				$arg4 = $labelType[0];
+				$arg5 = ($labelType[1]==0)?'false':'true';
+				$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
+				$arg7 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
+			}
+			
 			$laid = get_option('linksynceparcel_laid');
 
 			$stdClass = $client->modifyConsignment2($laid,$consignmentNumber,$article,linksynceparcel_SITE_URL,$arg4,$arg5,$arg6,$arg7);
@@ -458,13 +470,19 @@ class LinksynceparcelApi
 
 			$chargeCodeData = LinksynceparcelHelper::getEParcelChargeCodes();
 			$codeData = $chargeCodeData[$chargeCode];
-
-			$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
-			$labelTypeService = explode('_', $service);
-			$arg3 = $labelTypeService[0];
-			$arg4 = ($labelTypeService[1]==0)?'false':'true';
-			$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
-			$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
+			if($codeData['serviceType'] == 'international') {
+				$arg3 = 'A4-1pp';
+				$arg4 = 'true';
+				$arg5 = 0;
+				$arg6 = 0;
+			} else {
+				$service = get_option('linksynceparcel_'. $codeData['key'] .'_label');
+				$labelTypeService = explode('_', $service);
+				$arg3 = $labelTypeService[0];
+				$arg4 = ($labelTypeService[1]==0)?'false':'true';
+				$arg5 = get_option('linksynceparcel_'. $codeData['key'] .'_left_offset');
+				$arg6 = get_option('linksynceparcel_'. $codeData['key'] .'_right_offset');
+			}
 
 			$stdClass = $client->getLabelsByConsignments($laid,explode(',',$consignments),$arg3,$arg4,$arg5,$arg6);
 

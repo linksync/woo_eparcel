@@ -215,7 +215,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			}
 			else
 			{
-				$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&action=massGenerateLabels&order[]='.$item->order_consignment).'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
+				$html = '<a href="'.admin_url('admin.php?page=linksynceparcel&action=singleGenerateLabel&order='.$item->order_consignment).'" target="_blank" ><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
 			}
 		}
 		else

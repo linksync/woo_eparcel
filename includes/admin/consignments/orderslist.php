@@ -298,6 +298,47 @@ class LinksynceparcelAdminConsignmentsOrdersList
 		}
 		wp_redirect(admin_url('admin.php?page=linksynceparcel'));
 	}
+
+	public static function singleGenerateLabel()
+	{
+		$order_id = $_REQUEST['order'];
+		try 
+		{
+			if(isset($order_id)) {
+				$values = explode('_',$order_id);
+				$orderId = (int)($values[0]);
+				$consignmentNumber = $values[1];
+
+				if($consignmentNumber != '0')
+				{
+					$chargeCode = LinksynceparcelHelper::getOrderChargeCode($orderId,$consignmentNumber);
+					$chargeCodes[] = $chargeCode;
+					$labelContent = LinksynceparcelApi::getLabelsByConsignments($consignmentNumber, $chargeCode);
+					if($labelContent)
+					{
+						$filename = $consignmentNumber.'.pdf';
+						$filepath = linksynceparcel_UPLOAD_DIR.'consignment/'.$filename;
+						$handle = fopen($filepath,'wb');
+						fwrite($handle, $labelContent);
+						fclose($handle);
+
+						LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'label', $filename);
+						LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_created', 1);
+						LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'is_label_printed', 1);
+
+						$labelLink = admin_url() .'?f_type=consignment&f_key='. $consignmentNumber;
+						$success = 'Consignment '. $consignmentNumber .' Label is generated. <a href="'. $labelLink.'&'.time() .'" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>';
+						LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$success);
+					}
+				}
+			}
+		} 
+		catch (Exception $e) 
+		{
+			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$e->getMessage());
+		}
+		wp_redirect(admin_url('admin.php?page=linksynceparcel'));
+	}
 	
 	public static function massGenerateLabels()
 	{

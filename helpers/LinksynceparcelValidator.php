@@ -183,8 +183,8 @@ class LinksynceparcelValidator
 			}
 
 			if(!empty($intArticle[$label]['weight'])){
-				if($intArticle[$label]['weight'] < $weight) {
-					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg.');
+				if($intArticle[$label]['weight'] <= $weight) {
+					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg. default '. $weight);
 				}
 			}
 

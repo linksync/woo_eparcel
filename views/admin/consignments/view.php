@@ -429,6 +429,8 @@ div#img-loader img {
          	type="button" title="Print Label">
              <?php echo ( $consignment->is_label_printed ? 'Reprint' : 'Print'); ?> Label
         </a>
+        <?php else: ?>
+        <a class="button" target="_blank" href="<?php echo admin_url('admin.php?page=linksynceparcel&action=singleGenerateLabel&order='. $order_id .'_'. $consignment->consignment_number); ?>" title="Print Label">Create Label</a>
         <?php endif;?>
 		<?php if(!$consignment->despatched):?>
 			<?php if($shipCountry == 'AU') : ?>
@@ -1013,7 +1015,19 @@ function submitForm2()
 
 function create_consignment_ajax() {
 	jQuery('#loading').show();
-	var data = $jEparcel('#post').serialize() + '&action=create_consignment_ajax';
+	var data = '';
+	// eParcel Data
+	$jEparcel('#eparcel_sales_order_view').find('input, select, textarea').each(function() {
+        data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+    });
+	// Woo commerce Data
+    $jEparcel('#woocommerce-order-data').find('input, select, textarea').each(function() {
+        data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+    });
+    data += '&post_ID='+ $jEparcel('#post_ID').val();
+    data += '&_wpnonce='+ $jEparcel('#_wpnonce').val();
+    data += '&action=create_consignment_ajax';
+	console.log(data);
 	$jEparcel.post('<?= admin_url('admin-ajax.php') ?>', data, function(res) {
 		window.location.reload(true);
 	});

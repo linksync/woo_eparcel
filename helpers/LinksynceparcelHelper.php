@@ -4382,7 +4382,7 @@ class LinksynceparcelHelper
 			$phonestr = $withplus . $phone;
 		}
 		if(strlen($phonestr) < 10) {
-			return array('error_msg' => "Return Phone Number must be atleast minimum of 10 digits.");
+			return array('error_msg' => "Delivery Phone Number must be atleast minimum of 10 digits.");
 		}
 
 		$instructions = $data['delivery_instruction'];
@@ -4740,175 +4740,72 @@ class LinksynceparcelHelper
 		}
 		else
 		{
-            $articles = LinksynceparcelValidator::get_article_preset($articles_type);
+			$article = array();
+			$articles = LinksynceparcelValidator::get_article_preset($articles_type);
+            
+			$article['description'] = $articles[0];
+			$article['weight'] = $articles[1];
+            $use_dimension = (int)get_option('linksynceparcel_use_dimension');
 
-			$use_order_total_weight = (int)get_option('linksynceparcel_use_order_weight');
-			if($use_order_total_weight == 1)
-			{
-				$weight = LinksynceparcelHelper::getOrderWeight($order);
-				if($weight == 0)
-				{
-					$default_article_weight = get_option('linksynceparcel_default_article_weight');
-					if($default_article_weight)
-					{
-						$weight = $default_article_weight;
-					}
-				}
-				$weightPerArticle = LinksynceparcelHelper::getAllowedWeightPerArticle();
-				$exactArticles = (int)($weight / $weightPerArticle);
-				$totalArticles = $exactArticles;
-				$reminderWeight = fmod ($weight, $weightPerArticle);
-				if($reminderWeight > 0)
-				{
-					$totalArticles++;
-				}
+            if($use_dimension != 1) {
+                $article['height'] = 5;
+                $article['length'] = 5;
+                $article['width'] = 5;
+            } else {
+                $article['height'] = $articles[2];
+                $article['length'] = $articles[3];
+                $article['width'] = $articles[4];
+            }
 
-				if($totalArticles == 0)
-				{
-					$totalArticles = 1;
-				}
+			$article['weight'] = number_format($article['weight'],2,'.', '');
+			$total_weight += $article['weight'];
 
-				for($i=1;$i<=$totalArticles;$i++)
-				{
-					$article = array();
-					$article['description'] = $articles[0];
-                    $use_dimension = (int)get_option('linksynceparcel_use_dimension');
-                    if($use_dimension != 1) {
-                        $article['height'] = 5;
-                        $article['length'] = 5;
-                        $article['width'] = 5;
-                    } else {
-                        $article['height'] = $articles[2];
-                        $article['length'] = $articles[3];
-                        $article['width'] = $articles[4];
-                    }
+			$article['weight'] = self::calculateWeightDefault($article['weight']);
 
-					if($reminderWeight > 0 && $i == $totalArticles)
-					{
-						$article['weight'] = $reminderWeight;
-					}
-					else
-					{
-						$article['weight'] = $weightPerArticle;
-					}
+			if($isInternational) {
+				$search = array(
+					'[[articleDescription]]',
+					'[[actualWeight]]',
+					'[[width]]',
+					'[[height]]',
+					'[[length]]'
+				);
 
-					$article['weight'] = number_format($article['weight'],2,'.', '');
-					$total_weight += $article['weight'];
+				$replace = array(
+					self::xmlData(trim($article['description'])),
+					trim($article['weight']),
+					trim($article['width']),
+					trim($article['height']),
+					trim($article['length'])
+				);
 
-					$article['weight'] = self::calculateWeightDefault($article['weight']);
+				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
+			} else {
+				$search = array(
+					'[[actualWeight]]',
+					'[[articleDescription]]',
+					'[[height]]',
+					'[[length]]',
+					'[[width]]',
+					'[[isTransitCoverRequired]]',
+					'[[transitCoverAmount]]',
+					'[[articleNumber]]'
+				);
 
-					if($isInternational) {
-						$search = array(
-							'[[articleDescription]]',
-							'[[actualWeight]]',
-							'[[width]]',
-							'[[height]]',
-							'[[length]]'
-						);
+				$replace = array(
+					trim($article['weight']),
+					self::xmlData(trim($article['description'])),
+					trim($article['height']),
+					trim($article['length']),
+					'<width>'.trim($article['width']).'</width>',
+					($data['transit_cover_required'] ? 'Y' : 'N'),
+					($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
+					''
+				);
 
-						$replace = array(
-							self::xmlData(trim($article['description'])),
-							trim($article['weight']),
-							trim($article['width']),
-							trim($article['height']),
-							trim($article['length'])
-						);
-
-						$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
-					} else {
-						$search = array(
-							'[[actualWeight]]',
-							'[[articleDescription]]',
-							'[[height]]',
-							'[[length]]',
-							'[[width]]',
-							'[[isTransitCoverRequired]]',
-							'[[transitCoverAmount]]',
-							'[[articleNumber]]'
-						);
-						$replace = array(
-							$article['weight'],
-							self::xmlData($article['description']),
-							$article['height'],
-							$article['length'],
-							'<width>'.$article['width'].'</width>',
-							($data['transit_cover_required'] ? 'Y' : 'N'),
-							($data['transit_cover_required'] ? $data['transit_cover_amount'] : 0),
-							''
-						);
-
-						$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
-					}
-					$articlesInfo .= str_replace($search, $replace, $template);
-				}
+				$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
 			}
-			else
-			{
-				$article = array();
-				$article['description'] = $articles[0];
-				$article['weight'] = $articles[1];
-                $use_dimension = (int)get_option('linksynceparcel_use_dimension');
-
-                if($use_dimension != 1) {
-                    $article['height'] = 5;
-                    $article['length'] = 5;
-                    $article['width'] = 5;
-                } else {
-                    $article['height'] = $articles[2];
-                    $article['length'] = $articles[3];
-                    $article['width'] = $articles[4];
-                }
-
-				$article['weight'] = number_format($article['weight'],2,'.', '');
-				$total_weight += $article['weight'];
-
-				$article['weight'] = self::calculateWeightDefault($article['weight']);
-
-				if($isInternational) {
-					$search = array(
-						'[[articleDescription]]',
-						'[[actualWeight]]',
-						'[[width]]',
-						'[[height]]',
-						'[[length]]'
-					);
-
-					$replace = array(
-						self::xmlData(trim($article['description'])),
-						trim($article['weight']),
-						trim($article['width']),
-						trim($article['height']),
-						trim($article['length'])
-					);
-
-					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/international-article-template.xml');
-				} else {
-					$search = array(
-						'[[actualWeight]]',
-						'[[articleDescription]]',
-						'[[height]]',
-						'[[length]]',
-						'[[width]]',
-						'[[isTransitCoverRequired]]',
-						'[[transitCoverAmount]]',
-						'[[articleNumber]]'
-					);
-
-					$replace = array(
-						trim($article['weight']),
-						self::xmlData(trim($article['description'])),
-						trim($article['height']),
-						trim($article['length']),
-						'<width>'.trim($article['width']).'</width>',
-						($data['transit_cover_required'] ? 'Y' : 'N'),
-						($data['transit_cover_required'] ? trim($data['transit_cover_amount']) : 0),
-						''
-					);
-
-					$template = file_get_contents(linksynceparcel_DIR.'assets/xml/article-template.xml');
-				}
-				$articlesInfo .= str_replace($search, $replace, $template);
-			}
+			$articlesInfo .= str_replace($search, $replace, $template);
 		}
 		return array('info' => $articlesInfo, 'total_weight' => $total_weight);
 	}
@@ -6183,7 +6080,7 @@ class LinksynceparcelHelper
 			$phonestr = $withplus . $phone;
 		}
 		if(strlen($phonestr) < 10) {
-			return array('error_msg' => "Return Phone Number must be atleast minimum of 10 digits.");
+			return array('error_msg' => "Delivery Phone Number must be atleast minimum of 10 digits.");
 		}
 
 		$instructions = $data['delivery_instruction'];
