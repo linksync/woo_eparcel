@@ -6365,7 +6365,7 @@ class LinksynceparcelHelper
 		$productClassification = !empty($data['product_classification'])?$data['product_classification']:991;
 		$hasCommercialValue = isset($data['has_commercial_value'])?"true":"false";
 		$deliveryFailureDetails = self::deliveryFailureDetails();
-		$articleContents = self::articleContents($order, $data);
+		$articleContents = self::articleContents($order, $data, $articlesInfo['total_weight']);
 
 		if(empty($insuranceValue)) {
 			$insuranceValue = '<insuranceValue/>';

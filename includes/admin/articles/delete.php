@@ -13,6 +13,7 @@ class LinksynceparcelAdminArticlesDelete
 			$articles = LinksynceparcelHelper::getArticles($order_id, $consignmentNumber);
 			if($articles && count($articles) > 1 )
 			{
+				$old_consignmentNumber = $consignmentNumber;
 				$deleteArticle = LinksynceparcelHelper::deleteArticle($order_id,$consignmentNumber,$articleNumber);
 				$articleData = LinksynceparcelHelper::prepareModifiedArticleData($order, $consignmentNumber);
 				if(!empty($articleData) && isset($articleData['error_msg'])) {
@@ -25,16 +26,17 @@ class LinksynceparcelAdminArticlesDelete
 					$consignmentData = LinksynceparcelApi::modifyConsignment($content,$consignmentNumber,$chargeCode);
 					if($consignmentData)
 					{
-						LinksynceparcelHelper::updateConsignmentTable($consignmentNumber,'weight', $total_weight);
-						$consignmentNumber = $consignmentData->consignmentNumber;
+						$new_consignmentNumber = $consignmentData->consignmentNumber;
 						$manifestNumber = $consignmentData->manifestNumber;
-						LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
+						LinksynceparcelHelper::updateConsignmentTable($old_consignmentNumber,'consignment_number',$new_consignmentNumber);
+						LinksynceparcelHelper::updateConsignmentTable($new_consignmentNumber,'weight', $total_weight);
+						LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
 						LinksynceparcelHelper::insertManifest($manifestNumber);
 						
 						$labelContent = $consignmentData->lpsLabels->labels->label;
-						LinksynceparcelHelper::generateDocument($consignmentNumber,$labelContent,'label');
+						LinksynceparcelHelper::generateDocument($new_consignmentNumber,$labelContent,'label');
 					
-						update_option('linksynceparcel_order_view_success','Article #'.$articleNumber.' has been deleted from consignment #'.$consignmentNumber.' successfully.');
+						update_option('linksynceparcel_order_view_success','Article #'.$articleNumber.' has been deleted successfully.');
 						wp_redirect(admin_url('post.php?post='.$order_id.'&action=edit'));
 					}
 				}

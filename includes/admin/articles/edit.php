@@ -20,7 +20,7 @@ class LinksynceparcelAdminArticlesEdit
 				$content = $articleData['content'];
 				$chargeCode = $articleData['charge_code'];
 				$total_weight = $articleData['total_weight'];
-				$consignmentData = LinksynceparcelApi::modifyConsignment($content, $consignmentNumber);
+				$consignmentData = LinksynceparcelApi::modifyConsignment($content, $consignmentNumber, $chargeCode);
 				if($consignmentData)
 				{
 					$new_consignmentNumber = $consignmentData->consignmentNumber;

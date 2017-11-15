@@ -1844,17 +1844,11 @@ function create_consignment_ajax() {
 	$jEparcel('#eparcel_sales_order_view').find('input, select, textarea').each(function() {
         data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
     });
-	// Woo commerce Data
-    $jEparcel('#woocommerce-order-data').find('input, select, textarea').each(function() {
-        data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
-    });
     data += '&post_ID='+ $jEparcel('#post_ID').val();
-    data += '&_wpnonce='+ $jEparcel('#_wpnonce').val();
     data += '&action=create_consignment_ajax';
-	console.log(data);
+    
 	$jEparcel.post('<?= admin_url('admin-ajax.php') ?>', data, function(res) {
 		window.location.reload(true);
 	});
 }
-
 </script>

@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel for WooCommerce
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.13
+ * Version: 1.2.14
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -1148,6 +1148,7 @@ class linksynceparcel
 
         // manual
         // self::manual_change_status_manifest_orders('M000000057');
+        // self::manual_delete_consignment_order('M000000057');
 
 		$statuses = LinksynceparcelHelper::getListOrderStatuses();
 		$changeState = get_option('linksynceparcel_change_order_status');
@@ -1279,6 +1280,43 @@ class linksynceparcel
 				LinksynceparcelHelper::notifyCustomers($current_manifest['manifestnumber']);
 			}
         }
+    }
+
+    public function manual_delete_consignment_order($consignmentNumber)
+    {
+    	$status = LinksynceparcelApi::deleteConsignment($consignmentNumber);
+		$status = trim(strtolower($status));
+		if($status == 'ok')
+		{
+		}
+		
+		$filename = $consignmentNumber.'.pdf';
+		$filepath = linksynceparcel_DIR.'assets/label/consignment/'.$filename;
+		if(file_exists($filepath))
+		{
+			unlink($filepath);
+		}
+		$filepath_1 = linksynceparcel_UPLOAD_DIR.'consignment/'.$filename;
+		if(file_exists($filepath_1))
+		{
+			unlink($filepath_1);
+		}
+		
+		$filepath2 = linksynceparcel_DIR.'assets/label/returnlabels/'.$filename;
+		if(file_exists($filepath2))
+		{
+			unlink($filepath2);
+		}
+		$filepath2_1 = linksynceparcel_UPLOAD_DIR.'returnlabels/'.$filename;
+		if(file_exists($filepath2_1))
+		{
+			unlink($filepath2_1);
+		}
+		
+		LinksynceparcelHelper::deleteConsignment($consignmentNumber);
+
+		$successmsg = sprintf('Consignment #%s: successfully deleted', $consignmentNumber);
+		LinksynceparcelHelper::addMessage('linksynceparcel_consignment_success',$successmsg);
     }
 
 	public function process_download_pdf()
