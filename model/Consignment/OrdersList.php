@@ -182,17 +182,16 @@ class ConsignmentOrdersList extends WP_List_Table
 		$shipping_country = get_post_meta($item->ID,'_shipping_country',true);
 		$order_id = $item->ID;
 		if($shipping_country == 'AU') {
-			$valid = LinksynceparcelHelper::isOrderAddressValid($order_id);
 			if($item->is_address_valid == 1 && isset($item->consignment_number))
 			{
 				$html = '<span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span>';
-			}
-			elseif($valid == 1) {
-				$html = '<span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span>';
-			}
-			else
-			{
-				$html = '<a href="'.admin_url('post.php?post='.$order_id.'&action=edit#order_data').'"><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
+			} else {
+				$valid = LinksynceparcelHelper::isOrderAddressValid($order_id);
+				if($valid == 1) {
+					$html = '<span class="column-order_status"><mark class="completed tips" style="cursor:pointer">Yes</mark></span>';
+				} else {
+					$html = '<a href="'.admin_url('post.php?post='.$order_id.'&action=edit#order_data').'"><span class="column-order_status"><mark class="cancelled tips">No</mark></span></a>';
+				}
 			}
 		} else {
 			$html = '<span class="column-order_status"><mark class="on-hold tips">International</mark></span>';

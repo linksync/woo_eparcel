@@ -4373,16 +4373,28 @@ class LinksynceparcelHelper
 		$phonestr = $phone;
 		$phone = self::getValidPhoneNumber($phone);
 		if(!empty($phone)) {
-			$withplus = '';
-			$strposphone = strpos($phone, '+');
+			$strposphone = strpos($phone, '+61');
 			if($strposphone !== false) {
-				$withplus = '+';
+				$phone = str_replace('+61', '', $phone);
+			}
+			$strposphone2 = strpos($phone, '+');
+			if($strposphone2 !== false) {
+				$phone = str_replace('+', '', $phone);
 			}
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
-			$phonestr = $withplus . $phone;
+			$phonestr = $phone;
 		}
-		if(strlen($phonestr) < 10) {
-			return array('error_msg' => "Delivery Phone Number must be atleast minimum of 10 digits.");
+		if(!empty($phonestr)) {
+			$phonemessage = "";
+			if(strlen($phonestr) == 9 && substr($phonestr, 0, 1) == 0) {
+				$phonemessage = "Phone number must be atleast 10 digits.";
+			} elseif(strlen($phonestr) < 9) {
+				$phonemessage = "Phone number must be atleast 9 digits.";
+			}
+
+			if(!empty($phonemessage)) {
+				return array('error_msg' => $phonemessage );
+			}
 		}
 
 		$instructions = $data['delivery_instruction'];
@@ -6071,16 +6083,28 @@ class LinksynceparcelHelper
 		$phonestr = $phone;
 		$phone = self::getValidPhoneNumber($phone);
 		if(!empty($phone)) {
-			$withplus = '';
-			$strposphone = strpos($phone, '+');
+			$strposphone = strpos($phone, '+61');
 			if($strposphone !== false) {
-				$withplus = '+';
+				$phone = str_replace('+61', '', $phone);
+			}
+			$strposphone2 = strpos($phone, '+');
+			if($strposphone2 !== false) {
+				$phone = str_replace('+', '', $phone);
 			}
 			$phone = preg_replace('/[^0-9]/s', '', $phone);
-			$phonestr = $withplus . $phone;
+			$phonestr = $phone;
 		}
-		if(strlen($phonestr) < 10) {
-			return array('error_msg' => "Delivery Phone Number must be atleast minimum of 10 digits.");
+		if(!empty($phonestr)) {
+			$phonemessage = "";
+			if(strlen($phonestr) == 9 && substr($phonestr, 0, 1) == 0) {
+				$phonemessage = "Phone number must be atleast 10 digits.";
+			} elseif(strlen($phonestr) < 9) {
+				$phonemessage = "Phone number must be atleast 9 digits.";
+			}
+
+			if(!empty($phonemessage)) {
+				return array('error_msg' => $phonemessage );
+			}
 		}
 
 		$instructions = $data['delivery_instruction'];
