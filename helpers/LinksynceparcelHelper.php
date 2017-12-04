@@ -6391,6 +6391,8 @@ class LinksynceparcelHelper
 		$deliveryFailureDetails = self::deliveryFailureDetails();
 		$articleContents = self::articleContents($order, $data, $articlesInfo['total_weight']);
 
+		$articlesInfo['info'] = self::replace_between($articlesInfo['info'], "<actualWeight>", "</actualWeight>", $articleContents['total_weight']);
+
 		if(empty($insuranceValue)) {
 			$insuranceValue = '<insuranceValue/>';
 		} else {
