@@ -288,6 +288,22 @@ function submitConsignmentForm()
 	{
 		return confirm('Are you sure?');
 	}
+	if(action == 'massGenerateLabels') {
+		var c = checkAllOrders(true);
+		if(c.length > 0) {
+			var data = {
+				'action':'generate_labels_ajax',
+				'order':c
+			};
+			jQuery('#loading').show();
+			$jEparcel.post('<?php echo admin_url('admin-ajax.php') ?>', data, function(res) {
+				window.location.reload(true);
+			});
+		} else {
+			alert('Please select consignments');
+		}
+		return false;
+	}
 	return true;
 }
 
@@ -295,7 +311,7 @@ $jEparcel = jQuery.noConflict();
 $jEparcel(document).ready(function(){
 	jQuery('#doaction').click(function(e) {
 		if(jQuery('#bulk-action-selector-top').val() == 'massCreateConsignment') {
-			var c = checkAllOrders();
+			var c = checkAllOrders(false);
 			if(c.length > 0) {
 				var conf = confirm('Consignments already exist for order '+ c.join(', ') +'. Do you want to continue with creating consignments?');
 				if(conf != true) {
@@ -306,14 +322,18 @@ $jEparcel(document).ready(function(){
 		}
 	});
 });
-function checkAllOrders()
+function checkAllOrders(all)
 {
 	var allvalues = [];
 	jQuery('.massaction-checkbox:checked').each(function() {
 		var v = jQuery(this).val();
 		var r = v.split("_");
 		if(r[1] != 0) {
-			allvalues.push(r[0]);
+			if(all) {
+				allvalues.push(v);
+			} else {
+				allvalues.push(r[0]);
+			}
 		}
 	});
 	return allvalues;

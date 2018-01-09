@@ -3,7 +3,7 @@
  * Plugin Name: linksync eParcel for WooCommerce
  * Plugin URI: http://www.linksync.com/integrate/woocommerce-eparcel-integration
  * Description: Manage your eParcel orders without leaving your WordPress WooCommerce store with linksync eParcel for WooCommerce.
- * Version: 1.2.16
+ * Version: 1.2.17
  * Author: linksync
  * Author URI: http://www.linksync.com
  * License: GPLv2
@@ -119,10 +119,10 @@ include_once(linksynceparcel_DIR.'helpers/LinksynceparcelPluginUpdateChecker.php
 include_once(linksynceparcel_DIR.'helpers/LinksynceparcelScreenOption.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApi.php');
 include_once(linksynceparcel_DIR.'includes/api/LinksyncApiController.php');
+include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 
 function linksynceparcel_init()
 {
-    include_once(linksynceparcel_DIR.'helpers/LinksyncUserHelper.php');
 	$linksynceparcel = new linksynceparcel(true);
 	LinksynceparcelHelper::createUploadDirectory();
 	LinksynceparcelHelper::upgradeTables();
@@ -149,6 +149,7 @@ add_action( 'add_meta_boxes', array( new linksynceparcel, 'add_meta_boxes'));
 add_action( 'woocommerce_process_shop_order_meta', array( new linksynceparcel, 'on_editorder'), 100);
 add_action( 'wp_ajax_create_consignment_ajax', array(new linksynceparcel, 'create_consignment_ajax') );
 add_action( 'wp_ajax_create_mass_consignment_ajax', array(new linksynceparcel, 'create_mass_consignment_ajax') );
+add_action( 'wp_ajax_generate_labels_ajax', array(new linksynceparcel, 'generate_labels_ajax') );
 add_action( 'admin_init', array( new linksynceparcel, 'change_order_status') );
 add_action( 'init', array( new linksynceparcel, 'process_download_pdf'), 10);
 add_action('linksyncgetlaidinfo', array( new linksynceparcel,'getlaidinfo' ));
@@ -324,10 +325,21 @@ class linksynceparcel
 
     public function getlaidinfo()
     {
-        $laid_info = LinksyncApiController::get_key_info();
-        if (!empty($laid_info)) {
-           LinksyncApiController::update_current_laid_info($laid_info);
-           LinksynceparcelHelper::log("Get Laid info: " . json_encode($laid_info));
+        $message = LinksyncApiController::get_current_laid_info();
+    	$isFreeTrial = false;
+        if (isset($laidinfo['message'])) {
+            $laidinfo_data = explode(',', $laidinfo['message']);
+        } elseif (isset($laidinfo['userMessage'])) {
+            $laidinfo_data = explode(',', $laidinfo['userMessage']);
+        }
+        $isFreeTrial = LinksyncUserHelper::isFreeTrial($laidinfo_data[2]);
+
+        if($isFreeTrial) {
+	        $laid_info = LinksyncApiController::get_key_info();
+	        if (!empty($laid_info)) {
+	           LinksyncApiController::update_current_laid_info($laid_info);
+	           LinksynceparcelHelper::log("Get Laid info: " . json_encode($laid_info));
+	        }
         }
     }
 
@@ -453,6 +465,13 @@ class linksynceparcel
 		include_once(linksynceparcel_DIR.'includes/admin/consignments/order_view.php');
 		LinksynceparcelAdminConsignmentsOrderView::output();
 	}
+
+	public function generate_labels_ajax()
+	{
+		include_once(linksynceparcel_DIR.'includes/admin/consignments/orderslist.php');
+		LinksynceparcelAdminConsignmentsOrdersList::massGenerateLabels();
+	}
+
 	public function address_order_meta_box()
 	{
 		if(LinksynceparcelHelper::isSoapInstalled())
@@ -1147,8 +1166,10 @@ class linksynceparcel
 		global $is_greater_than_21;
 
         // manual
-        // self::manual_change_status_manifest_orders('M000000057');
-        // self::manual_delete_consignment_order('M000000057');
+        // $orders = $this->manual_order_lists();
+        // $manifest_number = $orders;
+        // $this->manual_change_status_manifest_orders($manifest_number);
+        // $this->manual_delete_consignment_order('3383L5000773');
 
 		$statuses = LinksynceparcelHelper::getListOrderStatuses();
 		$changeState = get_option('linksynceparcel_change_order_status');
@@ -1215,27 +1236,27 @@ class linksynceparcel
     public function manual_change_status_manifest_orders($manifest_number=false)
     {
         global $is_greater_than_21;
-
+        
         $statuses = LinksynceparcelHelper::getListOrderStatuses();
         $changeState = get_option('linksynceparcel_change_order_status');
-
+        
         if($manifest_number) {
-        	$timestamp = time();
-			$date = date('Y-m-d H:i:s', $timestamp);
-			LinksynceparcelHelper::updateManifestTable($manifest_number,'despatch_date',$date);
-			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'despatched',1);
-			LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'is_next_manifest',0);
-
-			$operation_mode = get_option('linksynceparcel_operation_mode');
-			LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_mode', $operation_mode);
-
-            $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
-
+        	if(!is_array($manifest_number)) {
+	        	$timestamp = time();
+				$date = date('Y-m-d H:i:s', $timestamp);
+				LinksynceparcelHelper::updateManifestTable($manifest_number,'despatch_date',$date);
+				LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'despatched',1);
+				LinksynceparcelHelper::updateConsignmentTableByManifest($manifest_number,'is_next_manifest',0);
+	            $results = LinksynceparcelHelper::getAllNonChangedStatusOrders($manifest_number);
+        	} else {
+        		$results = $manifest_number;
+        	}
+            
             foreach($results as $k => $result) {
                 $order = new WC_Order($result);
-
+                
                 $current_status = '';
-
+                                                
                 if($is_greater_than_21)
                 {
                     foreach($statuses as $term_id => $status)
@@ -1246,7 +1267,7 @@ class linksynceparcel
                             $current_status = $term_id;
                         }
                     }
-
+                        
                     if ($changeState && ($changeState !== $current_status))
                     {
                         $order->update_status($changeState);
@@ -1261,7 +1282,7 @@ class linksynceparcel
                             $current_status = $status->term_id;
                         }
                     }
-
+                        
                     if ($changeState && ($changeState !== $current_status))
                     {
                         foreach($statuses as $status)
@@ -1275,21 +1296,21 @@ class linksynceparcel
                 }
             }
 
-            $notifyCustomerOption = get_option('linksynceparcel_notify_customers');
-			if($notifyCustomerOption == 1) {
-				LinksynceparcelHelper::notifyCustomers($current_manifest['manifestnumber']);
-			}
+   			// $notifyCustomerOption = get_option('linksynceparcel_notify_customers');
+			// if($notifyCustomerOption == 1) {
+			// 	LinksynceparcelHelper::notifyCustomers($current_manifest['manifestnumber']);
+			// }
         }
     }
 
-    public function manual_delete_consignment_order($consignmentNumber)
+    public function manual_order_lists()
     {
-    	$status = LinksynceparcelApi::deleteConsignment($consignmentNumber);
-		$status = trim(strtolower($status));
-		if($status == 'ok')
-		{
-		}
-		
+    	$orders = array('34539','34559','34565','34578','34579','34464','34466','34469','34471','34472','34477','34482','34483','34485','34487','34489','34490','34493','34497','34500','34509','34514','34520','34522','34529','34535','36680','36681','36685','36687','36689','36693','36697','36699','36700','36702','36703','36709','36711','36712','36715','36716','36718','36719','36721','36722','36910','36913','36921','36922','36923','36925','36926','36927','36930','36932','36933','36934','36935','36936','36937','36942','36943');
+    	return $orders;
+    }
+
+    public function manual_delete_consignment_order($consignmentNumber)
+    {	
 		$filename = $consignmentNumber.'.pdf';
 		$filepath = linksynceparcel_DIR.'assets/label/consignment/'.$filename;
 		if(file_exists($filepath))

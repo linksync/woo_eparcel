@@ -379,6 +379,7 @@ class LinksynceparcelAdminConsignmentsOrdersList
 				if($isStandardCode && $isInternational) {
 					$valid = false;
 				}
+
 				
 				if ($valid) {
 					$consignmentNumbers = array();
@@ -411,6 +412,8 @@ class LinksynceparcelAdminConsignmentsOrdersList
 						}
 					}
 					
+					// print_r($consignmentNumbers);exit;
+
 					if(count($consignmentNumbers) > 0)
 					{
 						$labelContent = LinksynceparcelApi::getLabelsByConsignments(implode(',',$consignmentNumbers), $chargeCodes[0]);
@@ -450,7 +453,9 @@ class LinksynceparcelAdminConsignmentsOrdersList
 		{
 			LinksynceparcelHelper::addMessage('linksynceparcel_consignment_error',$e->getMessage());
 		}
-		wp_redirect(admin_url('admin.php?page=linksynceparcel'));
+		// wp_redirect(admin_url('admin.php?page=linksynceparcel'));
+
+		echo 1;exit;
 	}
 	
 	public static function massGenerateDocs() {
