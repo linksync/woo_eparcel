@@ -220,7 +220,7 @@ div#img-loader img {
 
     &nbsp;&nbsp;
 
-    <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" onclick="return submitForm()" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
+    <input id="consignment_submit" type="submit" name="createConsignment"  value="Create Consignment" class="button-primary button scalable save submit-button <?php if($order_status == 'completed'){ echo 'disabled';}?>" <?php if($order_status == 'completed'){ echo 'disabled="disabled"';}?>/>
 
 
 
@@ -1842,8 +1842,16 @@ function create_consignment_ajax() {
 	var data = '';
 	// eParcel Data
 	$jEparcel('#eparcel_sales_order_view').find('input, select, textarea').each(function() {
-        data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+		if($jEparcel(this).attr('type') == 'checkbox') {
+			if($jEparcel('#'+ $jEparcel(this).attr('id')).is(':checked')) {
+        		data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+			}
+		} else {
+        	data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+		}
     });
+
+    
     data += '&post_ID='+ $jEparcel('#post_ID').val();
     data += '&action=create_consignment_ajax';
     

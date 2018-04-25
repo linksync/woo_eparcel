@@ -1157,7 +1157,13 @@ function create_consignment_ajax() {
 	var data = '';
 	// eParcel Data
 	$jEparcel('#eparcel_sales_order_view').find('input, select, textarea').each(function() {
-        data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+        if($jEparcel(this).attr('type') == 'checkbox') {
+			if($jEparcel('#'+ $jEparcel(this).attr('id')).is(':checked')) {
+        		data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+			}
+		} else {
+        	data += '&'+ $jEparcel(this).attr('name') +'='+ $jEparcel(this).val();
+		}
     });
     data += '&post_ID='+ $jEparcel('#post_ID').val();
     data += '&action=create_consignment_ajax';

@@ -4364,6 +4364,7 @@ class LinksynceparcelHelper
 		if($address['_shipping_state'][0])
 		{
 			$state = $address['_shipping_state'][0];
+			$state = strtoupper($state);
 		}
 		$postalCode = $address['_shipping_postcode'][0];
 		$company = empty($address['_shipping_company'][0]) ? '<deliveryCompanyName/>' : '<deliveryCompanyName>'.self::xmlData($address['_shipping_company'][0]).'</deliveryCompanyName>';
@@ -6335,7 +6336,7 @@ class LinksynceparcelHelper
 		$classificationExplanation = $data['product_classification_text'];
 		$exportDeclarationNumber = (!empty($data['export_declaration_number']) ? '<exportDeclarationNumber>'. $data['export_declaration_number'] .'</exportDeclarationNumber>' : '<exportDeclarationNumber/>');
 		$productClassification = !empty($data['product_classification'])?$data['product_classification']:991;
-		$hasCommercialValue = isset($data['has_commercial_value'])?"true":"false";
+		$hasCommercialValue = ($data['has_commercial_value']==1)?"true":"false";
 		$deliveryFailureDetails = self::deliveryFailureDetails();
 		$articleContents = self::articleContents($order, $data, $articlesInfo['total_weight']);
 

@@ -463,7 +463,10 @@ class ConsignmentOrdersList extends WP_List_Table
 		}
 		
 		$orderids = LinksynceparcelHelper::getAllOrderId();
+
 		if($orderids != false) {
+			$where = ' AND main_table.post_type="shop_order"';
+			$where .= ' AND pm.meta_key="_shipping_country" AND IFNULL(c.despatched,0) = 0';
 			$where .= ' AND main_table.ID IN ('. $orderids .')';
 		}
 		
@@ -563,6 +566,7 @@ class ConsignmentOrdersList extends WP_List_Table
 		}
 
 		$data = $consignmentOrders->get_all($orderBy,$join,$joinFields,$where,$groupBy);
+
 
 		if(isset($_GET['orderby']) && !empty($_GET['orderby']))
 		{
