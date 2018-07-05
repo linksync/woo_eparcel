@@ -1,4 +1,4 @@
-=== linksync eParcel for WooCommerce ===
+﻿=== linksync eParcel for WooCommerce ===
 Contributors: linksync, jameshwartlopez, jaxolis, jguillano
 Tags: linksync, woocommerce, download, downloadable, eParcel, auspost
 Requires at least: 4.4
@@ -73,6 +73,11 @@ Glad you asked. We provide support via chat, phone and email, and every person w
 1. You'll see linksync settings in the admin menu.
 
 == Changelog ==
+
+= Version 1.2.19 - 05 July 2018 Release =
+
+* Remove consignment if not exist in current manifest.
+* Fix delimiter issue when create consignment for international.
 
 = Version 1.2.10 - 26 September 2017 Release =
 

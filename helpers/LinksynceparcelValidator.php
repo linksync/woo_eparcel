@@ -163,12 +163,12 @@ class LinksynceparcelValidator
 
 			// All validated International Articles
 			$intArticle = array(
-				'Int. Economy Air' 	=> array('weight' => 20, 'insurance' => 5000),
-				'Int. Express Courier' => array('weight' => 20, 'insurance' => 5000),
-				'Int. Express Courier Document' => array('weight' => 0.5, 'insurance' => 5000),
-				'Int. Express Post' => array('weight' => 20, 'insurance' => 5000),
-				'Int. Pack & Track' => array('weight' => 2, 'insurance' => 500),
-				'Int. Registered' 	=> array('weight' => 2, 'insurance' => 5000),
+				'Int. Economy Air' 	=> array('insurance' => 5000),
+				'Int. Express Courier' => array('insurance' => 5000),
+				'Int. Express Courier Document' => array('insurance' => 5000),
+				'Int. Express Post' => array('insurance' => 5000),
+				'Int. Pack & Track' => array('insurance' => 500),
+				'Int. Registered' 	=> array('insurance' => 5000),
 			);
 
 			$label = $chargecodedata['labelType'];
@@ -177,16 +177,16 @@ class LinksynceparcelValidator
 				if(!array_key_exists($country,$isvalidCountries)) {
 					return array('error_msg' => 'Pack & Track service is not permitted for this order. Valid countries for Pack & Track service are '. implode(', ', $isvalidCountries));
 				}
-				if($intArticle[$label]['weight'] < $weight && $intArticle[$label]['insurance'] < $totalcost) {
-					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg and maximum cost of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
-				}
+				// if($intArticle[$label]['weight'] < $weight && $intArticle[$label]['insurance'] < $totalcost) {
+				// 	return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg and maximum cost of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
+				// }
 			}
 
-			if(!empty($intArticle[$label]['weight'])){
-				if($intArticle[$label]['weight'] <= $weight) {
-					return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg. default '. $weight);
-				}
-			}
+			// if(!empty($intArticle[$label]['weight'])){
+			// 	if($intArticle[$label]['weight'] <= $weight) {
+			// 		return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg. default '. $weight);
+			// 	}
+			// }
 
 			if($data['insurance'] == 1 && $intArticle[$label]['insurance'] < $data['insurance_value']) {
 				return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');

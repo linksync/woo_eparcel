@@ -49,24 +49,34 @@ class ConsignmentOrdersList extends WP_List_Table
 	
 	public function column_service($item)
 	{
-		$allowedChargeCodes = LinksynceparcelHelper::getEParcelChargeCodes();
-		$chargecode = $item->chargecode;
-		if(empty($chargecode)) {
-			$chargecode = LinksynceparcelHelper::getOrderChargeCode($item->order_id);
+		$color = '';
+		$servicecode = '';
+		$meta = get_post_meta($item->order_id);
+		$ship_country = $meta['_shipping_country'][0];
+		if($ship_country != 'AU') {
+			$color = 'blue';
+			$servicecode = 'Int.';
+		} else {
+			$allowedChargeCodes = LinksynceparcelHelper::getEParcelChargeCodes();
+			$chargecode = $item->chargecode;
+			if(empty($chargecode)) {
+				$chargecode = LinksynceparcelHelper::getOrderChargeCode($item->order_id);
+			}
+			$chargeCodeData = $allowedChargeCodes[$chargecode];
+			switch($chargeCodeData['serviceType']) {
+				case 'express':
+					$color = 'orange';
+					break;
+				case 'standard':
+					$color = 'yellow';
+					break;
+				case 'international':
+					$color = 'blue';
+					break;
+			}
+			$servicecode = ucfirst($chargeCodeData['service']);
 		}
-		$chargeCodeData = $allowedChargeCodes[$chargecode];
-		switch($chargeCodeData['serviceType']) {
-			case 'express':
-				$color = 'orange';
-				break;
-			case 'standard':
-				$color = 'yellow';
-				break;
-			case 'international':
-				$color = 'blue';
-				break;
-		}
-		$html = '<p class="bg-'. $color .'">'. ucfirst($chargeCodeData['service']) .'</p>';
+		$html = '<p class="bg-'. $color .'">'. $servicecode .'</p>';
 		return $html;
 	}
 	

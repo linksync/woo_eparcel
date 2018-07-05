@@ -5214,7 +5214,7 @@ class LinksynceparcelHelper
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
-		$query = "SELECT order_id FROM {$table_name} WHERE manifest_number = '{$manifestNumber}' group by order_id";
+		$query = "SELECT order_id, consignment_number FROM {$table_name} WHERE manifest_number = '{$manifestNumber}' group by order_id";
 		return $wpdb->get_results($query);
 	}
 
@@ -6287,8 +6287,8 @@ class LinksynceparcelHelper
 			$contents .= '<content>';
 			$contents .= '<goodsDescription>'. $item_description .'</goodsDescription>';
 			$contents .= '<quantity>'. $item_qty .'</quantity>';
-			$contents .= '<unitValue>'. number_format($unitvalue, 2) .'</unitValue>';
-			$contents .= '<value>'. number_format($value, 2) .'</value>';
+			$contents .= '<unitValue>'. number_format($unitvalue, 2, '.', '') .'</unitValue>';
+			$contents .= '<value>'. number_format($value, 2, '.', '') .'</value>';
 			$contents .= '<weight>'. $weight .'</weight>';
 			$contents .= '<countryOriginCode>'. $countryOrigin .'</countryOriginCode>';
 			$contents .= '<hSTariff>'. $hsTariff .'</hSTariff>';

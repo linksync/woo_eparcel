@@ -785,6 +785,7 @@ class LinksynceparcelAdminConsignmentsOrdersList
 					
 					$despatch = true;
 					$notdespatched_msg = '';
+					$readyToBeDespatchedConsignments = array();
 					foreach ($notDespatchedConsignmentNumbers as $consignmentNumber) 
 					{
 						$consignmentNumber = trim($consignmentNumber);
@@ -805,6 +806,8 @@ class LinksynceparcelAdminConsignmentsOrdersList
 							$despatch = false;
 							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': you have not printed return labels for this consignment.<br>';
 						}
+
+						$readyToBeDespatchedConsignments[$consignment->order_id] = $consignmentNumber;
 					}
 					$arr_content = json_encode(array('percentage' => 63, 'message' => 'processed'));
 					LinksynceparcelHelper::session_logs(session_id(), $arr_content);
@@ -817,12 +820,6 @@ class LinksynceparcelAdminConsignmentsOrdersList
 							{
 								$arr_content = json_encode(array('percentage' => 74, 'message' => 'processed'));
 								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
-								$timestamp = time();
-								$date = date('Y-m-d H:i:s', $timestamp);
-								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_date',$date);
-								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'despatched',1);
-								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'is_next_manifest',0);
 
 								$operation_mode = get_option('linksynceparcel_operation_mode');
 								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_mode', $operation_mode);
@@ -839,7 +836,12 @@ class LinksynceparcelAdminConsignmentsOrdersList
 										$orderids = array();
 										foreach($ordersList as $orderObj)
 										{
-											$orderids[] = $orderObj->order_id;
+											if(!isset($readyToBeDespatchedConsignments[$orderObj->order_id])) {
+												$consignment_number = $orderObj->consignment_number;
+												LinksynceparcelHelper::deleteConsignment($consignment_number);
+											} else {
+												$orderids[] = $orderObj->order_id;
+											}
 										}
 										$manifestdata = json_encode(array(
 											'manifestnumber' => $currentManifest,
@@ -849,6 +851,12 @@ class LinksynceparcelAdminConsignmentsOrdersList
 									}
 								}
 								
+								$timestamp = time();
+								$date = date('Y-m-d H:i:s', $timestamp);
+								LinksynceparcelHelper::updateManifestTable($currentManifest,'despatch_date',$date);
+								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'despatched',1);
+								LinksynceparcelHelper::updateConsignmentTableByManifest($currentManifest,'is_next_manifest',0);
+
 								$arr_content = json_encode(array('percentage' => 91, 'message' => 'processed'));
 								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 								
