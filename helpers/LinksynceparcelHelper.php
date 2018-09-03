@@ -184,6 +184,14 @@ class LinksynceparcelHelper
 			$wpdb->query( $sql );
 		}
 
+		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'shipping_cost'";
+		$records = $wpdb->query( $sql );
+		if(!$records)
+		{
+			$sql = "ALTER TABLE $table_name ADD `shipping_cost` varchar(250)";
+			$wpdb->query( $sql );
+		}
+
 		$table_name = $wpdb->prefix . "linksynceparcel_nonlinksync";
 		$sql = "SELECT * FROM information_schema.COLUMNS WHERE  TABLE_SCHEMA = '".DB_NAME."' AND TABLE_NAME = '$table_name' AND COLUMN_NAME = 'shipping_type'";
 		$records = $wpdb->query( $sql );
@@ -267,6 +275,12 @@ class LinksynceparcelHelper
 			`status` varchar(255) NOT NULL,
 			`status_name` varchar(255) NOT NULL,
 			PRIMARY KEY  (`id`)
+		  );";
+
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment_temp_cost";
+		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
+			`order_id` int(11) NOT NULL DEFAULT '0',
+			`consignment_cost` varchar(128) NOT NULL
 		  );";
 
 		dbDelta( $sql );
@@ -3956,6 +3970,90 @@ class LinksynceparcelHelper
 		}
 	}
 
+	public static function getTempConsignmentPrice($order_id)
+	{
+		$shipping_country = get_post_meta($order_id,'_shipping_country',true);
+		$number_of_articles = 1;
+		$order = new WC_Order( $order_id );
+		$tempCanConsignments = (int)($number_of_articles/20);
+		$canConsignments = $tempCanConsignments;
+		$remainArticles = $number_of_articles % 20;
+		$data = array();
+		// Render all defaults
+		if(get_option('linksynceparcel_copy_order_notes') == 1)
+		{
+			$ordernotes = $order->customer_message;
+			$data['delivery_instruction'] = $ordernotes;
+		}
+		$data['order_value_declared_value'] = get_option('linksynceparcel_order_value_declared_value');
+		$data['maximum_declared_value'] = get_option('linksynceparcel_maximum_declared_value');
+		$data['fixed_declared_value'] = get_option('linksynceparcel_fixed_declared_value');
+		$data['partial_delivery_allowed'] = get_option('linksynceparcel_partial_delivery_allowed');
+		$data['delivery_signature_allowed'] = get_option('linksynceparcel_signature_required');
+		$data['articles_type'] = 'order_weight';
+		$data['safe_drop'] = get_option('linksynceparcel_safe_drop');
+		$data['insurance'] = get_option('linksynceparcel_insurance');
+		$data['order_value_insurance'] = get_option('order_value_insurance');
+		$data['default_insurance_value'] = get_option('linksynceparcel_default_insurance_value');
+		$data['export_declaration_number'] = "";
+		$data['declared_value'] = get_option('linksynceparcel_declared_value');
+		$data['declared_value_text'] = get_option('linksynceparcel_declared_value_text');
+		$data['has_commercial_value'] = get_option('linksynceparcel_has_commercial_value');
+		$data['product_classification'] = get_option('linksynceparcel_product_classification');
+		$data['product_classification_text'] = get_option('linksynceparcel_product_classification_text');
+		$data['country_origin'] = get_option('linksynceparcel_country_origin');
+		$data['hs_tariff'] = get_option('linksynceparcel_hs_tariff');
+		$data['default_contents'] = get_option('linksynceparcel_default_contents');
+		$data['transit_cover_required'] = get_option('linksynceparcel_insurance');
+		$data['transit_cover_amount'] = get_option('linksynceparcel_default_insurance_value');
+		$data['contains_dangerous_goods'] = 0;
+
+		$articleData = self::prepareArticleDataBulk($data, $order, $shipping_country);
+		$content = $articleData['content'];
+		$chargeCode = $articleData['charge_code'];
+		$total_weight = $articleData['total_weight'];
+		$consignmentData = LinksynceparcelApi::getConsignmentPrice($content);
+		if(!empty($consignmentData)) {
+			$consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
+			self::saveTempConsignmentCost($order_id, $consignmentPrice);
+			return $consignmentPrice;
+		}
+		return 0;
+	}
+
+	public static function saveTempConsignmentCost($orderid, $cost)
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment_temp_cost";
+		$query = "INSERT {$table_name} SET order_id = '{$orderid}', consignment_cost='{$cost}'";
+		$wpdb->query($query);
+	}
+
+	public static function getTempConsignmentCost($orderid)
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment_temp_cost";
+		$query = "SELECT consignment_cost FROM {$table_name} WHERE order_id = {$orderid}";
+		$result = $wpdb->get_row($query);
+		return $result->consignment_cost;
+	}
+
+	public static function getConsignmentCost($orderid)
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$query = "SELECT shipping_cost FROM {$table_name} WHERE order_id = {$orderid}";
+		$result = $wpdb->get_row($query);
+		$cost = $result->shipping_cost;
+		if(empty($cost)) {
+			$cost = self::getTempConsignmentCost($orderid);
+			if(empty($cost)) {
+				$cost = 0;
+			}
+		}
+		return $cost;
+	}
+
 	public static function prepareArticleData($data,$order,$consignment_number='',$shipCountry=false)
 	{
 		$isInternational = ($shipCountry != 'AU')?true:false;
@@ -4828,13 +4926,13 @@ class LinksynceparcelHelper
 		return $order->get_order_number();
 	}
 
-	public static function insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry)
+	public static function insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry,$consignmentcost)
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
 		$timestamp = time();
 		$date = date('Y-m-d H:i:s', $timestamp);
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."', shipping_cost = '".$consignmentcost."'";
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')
 		{
@@ -4872,7 +4970,7 @@ class LinksynceparcelHelper
 		$wpdb->query($query);
 	}
 
-	public static function updateConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry=false, $oldconsignmentNumber)
+	public static function updateConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipCountry=false, $oldconsignmentNumber,$consignmentcost)
 	{
 		global $wpdb;
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
@@ -4882,7 +4980,7 @@ class LinksynceparcelHelper
 		$query = "DELETE FROM {$table_name} WHERE consignment_number='{$oldconsignmentNumber}'";
 		$wpdb->query($query);
 
-		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."'";
+		$query = "INSERT {$table_name} SET order_id = '{$order_id}', consignment_number='{$consignmentNumber}', add_date='".$date."', delivery_signature_allowed = '".$data['delivery_signature_allowed']."', print_return_labels='".$data['print_return_labels']."', contains_dangerous_goods='".$data['contains_dangerous_goods']."', partial_delivery_allowed = '".$data['partial_delivery_allowed']."', cash_to_collect='".(isset($data['cash_to_collect'])?$data['cash_to_collect']:'')."', email_notification = '".$data['email_notification']."', chargecode = '".$chargeCode."', weight = '".$total_weight."', delivery_country = '". $shipCountry ."', delivery_instruction = '". addslashes($data['delivery_instruction']) ."', safe_drop = '".$data['safe_drop']."', date_process = '".$data['date_process']."', shipping_cost = '".$consignmentcost."'";
 
 		$manifestNumber = trim($manifestNumber);
 		if(strtolower($manifestNumber) != 'unassinged')

@@ -61,7 +61,8 @@ class LinksynceparcelAdminConsignmentsCreate
                                 {
                                     $consignmentNumber = $consignmentData->consignmentNumber;
                                     $manifestNumber = $consignmentData->manifestNumber;
-                                    LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
+                                    $consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
+                                    LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$consignmentPrice);
                                     LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
                                     LinksynceparcelHelper::insertManifest($manifestNumber);
                                     
@@ -145,7 +146,8 @@ class LinksynceparcelAdminConsignmentsCreate
 	                        {
 	                            $consignmentNumber = $consignmentData->consignmentNumber;
 	                            $manifestNumber = $consignmentData->manifestNumber;
-	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
+	                            $consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
+	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$consignmentPrice);
 	                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
 	                            LinksynceparcelHelper::insertManifest($manifestNumber);
 	                    
@@ -227,7 +229,8 @@ class LinksynceparcelAdminConsignmentsCreate
 	                        {
 	                            $consignmentNumber = $consignmentData->consignmentNumber;
 	                            $manifestNumber = $consignmentData->manifestNumber;
-	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country);
+	                            $consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
+	                            LinksynceparcelHelper::insertConsignment($order_id,$consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$consignmentPrice);
 	                            LinksynceparcelHelper::updateArticles($order_id,$consignmentNumber,$consignmentData->articles,$data,$content);
 	                            LinksynceparcelHelper::insertManifest($manifestNumber);
 	                    

@@ -28,8 +28,10 @@ class LinksynceparcelAdminArticlesDelete
 					{
 						$new_consignmentNumber = $consignmentData->consignmentNumber;
 						$manifestNumber = $consignmentData->manifestNumber;
+						$consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
 						LinksynceparcelHelper::updateConsignmentTable($old_consignmentNumber,'consignment_number',$new_consignmentNumber);
 						LinksynceparcelHelper::updateConsignmentTable($new_consignmentNumber,'weight', $total_weight);
+						LinksynceparcelHelper::updateConsignmentTable($new_consignmentNumber,'shipping_cost', $consignmentPrice);
 						LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
 						LinksynceparcelHelper::insertManifest($manifestNumber);
 						

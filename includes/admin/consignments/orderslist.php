@@ -793,17 +793,17 @@ class LinksynceparcelAdminConsignmentsOrdersList
 						if(!$consignment)
 						{
 							LinksynceparcelApi::deleteConsignment($consignmentNumber);
-							$despatch = false;
+							// $despatch = false;
 							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': not in the current DB. Please try again.<br>';
 						}
 						else if(!$consignment->is_label_printed)
 						{
-							$despatch = false;
+							// $despatch = false;
 							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': you have not printed labels for this consignment.<br>';
 						}
 						else if($consignment->print_return_labels && !$consignment->is_return_label_printed)
 						{
-							$despatch = false;
+							// $despatch = false;
 							$notdespatched_msg .= 'Consignment #'. $consignmentNumber .': you have not printed return labels for this consignment.<br>';
 						}
 
@@ -867,38 +867,7 @@ class LinksynceparcelAdminConsignmentsOrdersList
 									'error' => 0,
 									'msg' => $success
 								);
-									
-								$labelContent = LinksynceparcelApi::printManifest($currentManifest);
-							
-								if($labelContent)
-								{
-									$arr_content = json_encode(array('percentage' => 95, 'message' => 'processed'));
-									LinksynceparcelHelper::session_logs(session_id(), $arr_content);
-					
-									$filename = $currentManifest.'.pdf';
-									$filepath = linksynceparcel_UPLOAD_DIR.'manifest/'.$filename;
-									$handle = fopen($filepath,'wb');
-									fwrite($handle, $labelContent);
-									fclose($handle);
-					
-									LinksynceparcelHelper::updateManifestTable($currentManifest,'label',$filename);
-									
-									$labelLink = admin_url() .'?f_key='. $currentManifest .'&f_type=manifest';
-									$success = 'Your Manifest Summary has been generated. <a href="'. $labelLink .'" target="_blank" style="color:blue; font-weight:bold; font-size:14px; text-decoration:underline">Please click here to view it.</a>';
-									
-									$multiple_msg[] = array(
-										'error' => 0,
-										'msg' => $success
-									);
-								}
-								else
-								{
-									$error = 'Manifest label content is empty';
-									$multiple_msg[] = array(
-										'error' => 1,
-										'msg' => $error
-									);
-								}
+								
 								$arr_content = json_encode(array('percentage' => 97, 'message' => 'processed'));
 								LinksynceparcelHelper::session_logs(session_id(), $arr_content);
 					

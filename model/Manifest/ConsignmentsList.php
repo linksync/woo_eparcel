@@ -25,6 +25,7 @@ class ConsignmentsList extends WP_List_Table
 		{ 
 			case 'order_id':
 			case 'consignment_number':
+			case 'shipping_cost':
 			case 'number_of_articles':
 			case 'label':
 				return (is_object($item) ? $item->$column_name : $item[$column_name]);
@@ -43,7 +44,24 @@ class ConsignmentsList extends WP_List_Table
 
 	public function column_label($item)
 	{
-		$html = '<a class="print_label" lang="'.$item->consignment_number.'" href="'. admin_url() .'?f_key='. $item->consignment_number .'&f_type=consignment" target="_blank" >View</a>';
+		$order_id = $item->order_id;
+		$order_link = admin_url('?f_key='. $item->consignment_number .'&f_type=consignment');
+		$consignmentpdf_check = linksynceparcel_UPLOAD_DIR .'consignment/'. $item->consignment_number .'.pdf';
+		if(!file_exists($consignmentpdf_check)) {
+			$order_link = admin_url('post.php?post='.$order_id.'&action=edit');
+		}
+		$html = '<a class="print_label" lang="'.$item->consignment_number.'" href="'. $order_link .'" target="_blank" >View</a>';
+		return $html;
+	}
+	
+	public function column_shipping_cost($item)
+	{
+		$cost_amount = $item->shipping_cost;
+		if(empty($cost_amount)) {
+			$cost_amount = 0;
+		}
+		$cost = number_format($cost_amount, 2);
+		$html = '<p>$'. $cost .'</p>';
 		return $html;
 	}
 	
@@ -58,6 +76,7 @@ class ConsignmentsList extends WP_List_Table
         $columns = array(
             'order_id' => 'Order No.',
 			'consignment_number' => 'Consignment Number',
+			'shipping_cost' => 'Consignment Cost',
 			'number_of_articles' => 'No. of Articles',
 			'label' => 'Label'
         );

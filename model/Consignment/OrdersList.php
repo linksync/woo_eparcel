@@ -26,6 +26,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			case 'service':
 			case 'order_id':
 			case 'consignment_number':
+			case 'shipping_cost':
 			case 'add_date':
 			case 'is_address_valid':
 			case 'number_of_articles':
@@ -44,6 +45,24 @@ class ConsignmentOrdersList extends WP_List_Table
 	{
 		$order_id = $item->ID;
 		$html = '<a href="'.admin_url('post.php?post='.$order_id.'&action=edit').'">'.($item->consignment_number ? $item->consignment_number:'Create Consignment').'</a>';
+		return $html;
+	}
+	
+	public function column_shipping_cost($item)
+	{
+		$order_id = $item->ID;
+		$cost_amount = $item->shipping_cost;
+		if(empty($cost_amount)) {
+			$cost_amount = LinksynceparcelHelper::getTempConsignmentCost($order_id);
+			if(is_null($cost_amount) || empty($cost_amount)) {
+				$cost_amount = LinksynceparcelHelper::getTempConsignmentPrice($order_id);
+			}
+			if(empty($cost_amount)) {
+				$cost_amount = 0;
+			}
+		}
+		$cost = number_format($cost_amount, 2);
+		$html = '<p>$'. $cost .'</p>';
 		return $html;
 	}
 	
@@ -272,6 +291,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			'weight' => 'Weight',
 			'is_address_valid' => 'Address Valid',
 			'consignment_number' => 'Consignment Number',
+			'shipping_cost' => 'Consignment Cost',
 			'shipping_description' => 'Delivery Type',
 			'is_label_printed' => 'Labels Printed?',
 			'is_next_manifest' => 'Next Manifest?',
@@ -411,7 +431,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			
 			$joinFields .= ',CONCAT(main_table.ID, "_",IFNULL(c.consignment_number,0)) as order_consignment';
 			$joinFields .= ',main_table.ID as order_id';
-			$joinFields .= ',c.is_label_printed,c.is_customdocs_printed,c.is_return_label_printed,c.consignment_number,c.add_date,c.is_next_manifest,c.is_label_created,c.print_return_labels';
+			$joinFields .= ',c.is_label_printed,c.is_customdocs_printed,c.is_return_label_printed,c.consignment_number,c.add_date,c.is_next_manifest,c.is_label_created,c.print_return_labels,c.shipping_cost';
 		}
 		else
 		{
@@ -469,7 +489,7 @@ class ConsignmentOrdersList extends WP_List_Table
 			
 			$joinFields .= ',CONCAT(main_table.ID, "_",IFNULL(c.consignment_number,0)) as order_consignment';
 			$joinFields .= ',main_table.ID as order_id';
-			$joinFields .= ',c.is_label_printed,c.is_customdocs_printed,c.is_return_label_printed,c.consignment_number,c.add_date,c.is_next_manifest,c.is_label_created,c.print_return_labels';
+			$joinFields .= ',c.is_label_printed,c.is_customdocs_printed,c.is_return_label_printed,c.consignment_number,c.add_date,c.is_next_manifest,c.is_label_created,c.print_return_labels,c.shipping_cost';
 		}
 		
 		$orderids = LinksynceparcelHelper::getAllOrderId();

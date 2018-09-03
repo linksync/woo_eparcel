@@ -92,6 +92,10 @@ div#img-loader img {
 <?php if(!LinksynceparcelValidator::validateConsignmentLimit()): ?>
 
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
+	<!-- Get consignment cost -->
+	<h3>Consignment Cost: <strong>$<?php echo $consignment_cost; ?></strong></h3>
+	<!-- /end -->
+
         <?php if($weight > $weightPerArticle): ?>
 			<h3>Total Order Weight: <strong><?php echo $weight?></strong></h3>
         <?php endif;?>

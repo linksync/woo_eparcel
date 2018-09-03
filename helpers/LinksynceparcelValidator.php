@@ -172,22 +172,6 @@ class LinksynceparcelValidator
 			);
 
 			$label = $chargecodedata['labelType'];
-			if($chargecodedata['key'] == 'int_pack_track') {
-				$isvalidCountries = self::validCountry();
-				if(!array_key_exists($country,$isvalidCountries)) {
-					return array('error_msg' => 'Pack & Track service is not permitted for this order. Valid countries for Pack & Track service are '. implode(', ', $isvalidCountries));
-				}
-				// if($intArticle[$label]['weight'] < $weight && $intArticle[$label]['insurance'] < $totalcost) {
-				// 	return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg and maximum cost of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
-				// }
-			}
-
-			// if(!empty($intArticle[$label]['weight'])){
-			// 	if($intArticle[$label]['weight'] <= $weight) {
-			// 		return array('error_msg' => $chargecodedata['name'] .' reached the maximum article weight of '. $intArticle[$label]['weight'] .'kg. default '. $weight);
-			// 	}
-			// }
-
 			if($data['insurance'] == 1 && $intArticle[$label]['insurance'] < $data['insurance_value']) {
 				return array('error_msg' => $chargecodedata['name'] .' reached the maximum insurance value of $'. number_format($intArticle[$label]['insurance'], 2) .'.');
 			}

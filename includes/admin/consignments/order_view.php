@@ -30,6 +30,8 @@ class LinksynceparcelAdminConsignmentsOrderView
 			$ordernotes = method_exists($order, 'get_customer_note') ? $order->get_customer_note() : $order->customer_message;
 		}
 		
+		$consignment_cost = LinksynceparcelHelper::getConsignmentCost($order_id);
+		$consignment_cost = number_format($consignment_cost, 2);
 		$use_order_weight = (int)get_option('linksynceparcel_use_order_weight');
 		$use_dimension = (int)get_option('linksynceparcel_use_dimension');
 		if($use_order_weight == 1 && $use_dimension != 1)

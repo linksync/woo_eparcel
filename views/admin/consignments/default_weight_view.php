@@ -43,6 +43,10 @@ div#img-loader img {
 </div>
 <?php if(!LinksynceparcelValidator::validateConsignmentLimit()): ?>
 <div class="entry-edit wp-core-ui" id="eparcel_sales_order_view">
+	<!-- Get consignment cost -->
+	<h3>Consignment Cost: <strong>$<?php echo $consignment_cost; ?></strong></h3>
+	<!-- /end -->
+
 	    <input type="hidden" id="createConsignmentHidden" name="createConsignmentHidden" value="0"/>
     	<div class="box_ls" id="presets">
 		<?php if($order_status != 'completed'){?>

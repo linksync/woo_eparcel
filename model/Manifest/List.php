@@ -71,6 +71,20 @@ class ManifestList extends WP_List_Table
 		}
 		return $html;
 	}
+
+	public function column_total_cost($item)
+	{
+		global $wpdb;
+		$manifest_number = $item->manifest_number;
+		$table_name = $wpdb->prefix . "linksynceparcel_consignment";
+		$query = "SELECT SUM(shipping_cost) as total_cost FROM {$table_name} WHERE manifest_number = '{$manifest_number}'";
+		$result = $wpdb->get_row($query);
+		$total_cost = $result->total_cost;
+		if(empty($total_cost)) {
+			$total_cost = 0;
+		}
+		return '<p>$'. number_format($total_cost, 2) .'</p>';
+	}
 	
 	public function column_cb($item)
 	{
@@ -93,7 +107,8 @@ class ManifestList extends WP_List_Table
 			'despatch_date' => 'Despatch Date',
 			'number_of_consignments' => 'No. of Consignments',
 			'number_of_articles' => 'No. of Articles',
-			'label' => 'Manifest Summary'
+			'label' => 'Manifest Summary',
+			'total_cost' => 'Total Manifest Cost',
         );
 		return $columns;
     }
@@ -194,7 +209,7 @@ class ManifestList extends WP_List_Table
 			echo '<tr>';
 			foreach ( $columns as $column_key => $column_display_name )
 			{
-				if($column_key != 'number_of_consignments' && $column_key != 'label' && $column_key != 'number_of_articles' && $column_key != 'cb')
+				if($column_key != 'number_of_consignments' && $column_key != 'label' && $column_key != 'number_of_articles' && $column_key != 'cb' && $column_key != 'total_cost')
 				{
 					if($column_key == 'despatch_date')
 					{

@@ -25,7 +25,8 @@ class LinksynceparcelAdminArticlesAdd
 				{
 					$new_consignmentNumber = $consignmentData->consignmentNumber;
 					$manifestNumber = $consignmentData->manifestNumber;
-					LinksynceparcelHelper::updateConsignment($order_id,$new_consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$old_consignmentNumber);
+					$consignmentPrice = $consignmentData->consignmentPriceSummary->total_cost;
+					LinksynceparcelHelper::updateConsignment($order_id,$new_consignmentNumber,$data,$manifestNumber,$chargeCode,$total_weight,$shipping_country,$old_consignmentNumber,$consignmentPrice);
 					LinksynceparcelHelper::updateArticles($order_id,$new_consignmentNumber,$consignmentData->articles,$data,$content,$old_consignmentNumber);
 					LinksynceparcelHelper::insertManifest($manifestNumber);
 			

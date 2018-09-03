@@ -242,6 +242,46 @@ class LinksynceparcelApi
 		}
 	}
 
+	public static function getConsignmentPrice($article)
+	{
+		try
+		{
+			if(LINKSYNC_DEBUG == 1)
+			{
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('trace'=>1,'connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
+			}
+			else
+			{
+				$client = new SoapClient(self::getWebserviceUrl(true).'?WSDL',array('connection_timeout' => 500000,'cache_wsdl' => WSDL_CACHE_BOTH,'keep_alive' => false));
+			}
+
+			LinksynceparcelHelper::log('Articles: '.preg_replace('/\s+/', ' ', trim($article)));
+			
+			$laid = get_option('linksynceparcel_laid');
+			$stdClass = $client->getConsignmentPrice($laid,$article,linksynceparcel_SITE_URL);
+
+			if($stdClass)
+			{
+				if(LINKSYNC_DEBUG == 1)
+				{
+					LinksynceparcelHelper::log('getConsignmentPrice Request: '.$client->__getLastRequest());
+					LinksynceparcelHelper::log('getConsignmentPrice Response: '.$client->__getLastResponse());
+				}
+				return $stdClass;
+			}
+
+		}
+		catch(Exception $e)
+		{
+			if(LINKSYNC_DEBUG == 1 && $client)
+			{
+				LinksynceparcelHelper::log('getConsignmentPrice Request: '.$client->__getLastRequest());
+				LinksynceparcelHelper::log('getConsignmentPrice Response: '.$client->__getLastResponse());
+			}
+			return $e->getMessage();
+		}
+	}
+
 	public static function createConsignment($article,$loop=0,$chargeCode=false,$bulk=false)
 	{
 		if($loop < 2)
