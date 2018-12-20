@@ -276,6 +276,8 @@ class LinksynceparcelHelper
 			`status_name` varchar(255) NOT NULL,
 			PRIMARY KEY  (`id`)
 		  );";
+		  
+		dbDelta( $sql );
 
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment_temp_cost";
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
