@@ -279,6 +279,8 @@ class LinksynceparcelHelper
 		  
 		dbDelta( $sql );
 
+		dbDelta( $sql );
+
 		$table_name = $wpdb->prefix . "linksynceparcel_consignment_temp_cost";
 		$sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
 			`order_id` int(11) NOT NULL DEFAULT '0',
@@ -4855,7 +4857,7 @@ class LinksynceparcelHelper
 		{
 			$article = array();
 			$articles = LinksynceparcelValidator::get_article_preset($articles_type);
-            
+
 			$article['description'] = $articles[0];
 			$article['weight'] = $articles[1];
             $use_dimension = (int)get_option('linksynceparcel_use_dimension');
